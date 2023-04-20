@@ -15,11 +15,12 @@ class RepeatLabelAgent(Agent):
 
     # return label from before if available
     def act(self):
-        reply = {'id': self.id}
-        if 'labels' in self.observation:
-            reply['text'] = ', '.join(self.observation['labels'])
-        else:
-            reply['text'] = "I don't know."
+        reply = {'id': self.observation}
+        if 'label_candidates' in self.observation:
+            print('/n')
+            print(len(self.observation['label_candidates']))
+            print('/n')
+
         return reply
 
 
@@ -30,7 +31,7 @@ if __name__ == '__main__':
     agent = RepeatLabelAgent(opt)
     world = create_task(opt, agent)
 
-    for _ in range(10):
+    for _ in range(1):
         world.parley()
         for a in world.acts:
             # print the actions from each agent

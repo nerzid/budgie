@@ -1,4 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.9 (ActionRecognizer)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.8 (socially-aware-dialogue-system) (2)" project-jdk-type="Python SDK" />
+  <component name="UnattendedHostPersistenceState">
+    <option name="openedFilesInfos">
+      <list>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="655" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/agent.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="0" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/managers/plan_manager.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="403" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/managers/event_manager.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="37" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/managers/events/event.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="157" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/managers/events/text_event.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="92" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/managers/events/channel.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="187" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/dialogue_system.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="30" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/social_practice.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="68" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/managers/events/gesture_event.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
+          <option name="caretOffset" value="465" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/main.py" />
+        </OpenedFileInfo>
+      </list>
+    </option>
+  </component>
 </project>
