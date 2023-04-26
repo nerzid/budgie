@@ -1,11 +1,3 @@
-# from convokit import Corpus, download
-# corpus = Corpus(filename=download("switchboard-corpus"))
-#
-# conv = corpus.random_conversation()
-#
-# for utt in conv.iter_utterances():
-#     print(utt.id + ': ' + utt.text + '\nMeta: ' + str(utt.meta))
-#
 from agent import Agent
 from dialogue_system import DialogueSystem
 from socialpractice.activitiy.competence import Competence
@@ -27,3 +19,11 @@ patient = Agent(actor=eren, roles=[role_patient], resources=[])
 ds = DialogueSystem(agents=[doctor, patient])
 
 ds.run()
+
+print("test3")
+print("test5")
+
+print("test3")
+print("test52")
+print("test3")
+print("test123215")

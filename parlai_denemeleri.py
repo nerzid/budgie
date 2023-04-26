@@ -2,7 +2,7 @@ from parlai.core.agents import Agent
 from parlai.core.opt import Opt
 from parlai.core.params import ParlaiParser
 from parlai.core.worlds import create_task
-
+from parlai.scripts.display_data import DisplayData
 
 class RepeatLabelAgent(Agent):
     # initialize by setting id
@@ -16,30 +16,34 @@ class RepeatLabelAgent(Agent):
 
     # return label from before if available
     def act(self):
-        if 'label_candidates' in self.observation:
-            print('\n')
-            print(len(self.observation['label_candidates']))
-            print('\n')
+        reply = {'id': self.id}
+        if 'labels' in self.observation:
+            reply['text'] = ', '.join(self.observation['labels'])
         else:
-            '\nNo label candidates: '.join(self.observation['text']).join('\n')
-
-        return self.observation
+            reply['text'] = "I don't know."
+        return {}
 
 
 if __name__ == '__main__':
     parser = ParlaiParser()
-    opt = parser.parse_args()
+    # opt = parser.parse_args()
+    # print(opt)
     # opt = ['--task', 'light_dialog']
-    # opt = Opt()
-    # opt['task'] = 'light_dialog'
+    opt = Opt().load('parlai_opt_file')
+    opt['datapath'] = "/home/eyildiz/projects/socially-aware-dialogue-system/venv/lib/python3.8/site-packages/data"
     agent = RepeatLabelAgent(opt)
-    world = create_task(opt, agent)
+    # opt.save('parlai_opt_file')
 
+    # DisplayData.main(task='light_dialog', num_examples=5)
+
+    world = create_task(opt, agent)
     for _ in range(3):
         world.parley()
         for a in world.acts:
             # print the actions from each agent
-            print(a)
+            if 'text' in a:
+                print(a['text'])
+                print('yo')
             if world.epoch_done():
                 print('EPOCH DONE')
                 break
