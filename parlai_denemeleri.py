@@ -29,21 +29,24 @@ if __name__ == '__main__':
     # opt = parser.parse_args()
     # print(opt)
     # opt = ['--task', 'light_dialog']
-    opt = Opt().load('parlai_opt_file')
+    opt = Opt().load('./parlai_settings/parlai_opt_file')
     opt['datapath'] = "/home/eyildiz/projects/socially-aware-dialogue-system/venv/lib/python3.8/site-packages/data"
+    opt['num_examples'] = 20
     agent = RepeatLabelAgent(opt)
     # opt.save('parlai_opt_file')
 
-    # DisplayData.main(task='light_dialog', num_examples=5)
+    DisplayData.main(task='light_dialog', num_examples=5)
 
     world = create_task(opt, agent)
-    for _ in range(3):
-        world.parley()
-        for a in world.acts:
-            # print the actions from each agent
-            if 'text' in a:
-                print(a['text'])
-                print('yo')
-            if world.epoch_done():
-                print('EPOCH DONE')
-                break
+    world.display()
+
+    for _ in range(30):
+        pass
+        # for a in world.acts:
+        #     # print the actions from each agent
+        #     if 'text' in a:
+        #         print(a['text'])
+        #         print('yo')
+        #     if world.epoch_done():
+        #         print('EPOCH DONE')
+        #         break
