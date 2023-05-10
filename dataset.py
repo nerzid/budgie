@@ -2,6 +2,7 @@
 import json
 import spacy
 from spacy import displacy
+from spacy.matcher import DependencyMatcher
 
 # data_path = 'C:/Users/eyildiz/Desktop/Datasets/MULTIWOZ2.4/data.json'
 nlp = spacy.load('en_core_web_sm')
@@ -22,11 +23,28 @@ nlp = spacy.load('en_core_web_sm')
 #                     token.morph))
 #         print('\n')
 
-
+pattern = [
+    {
+        "RIGHT_ID": "AUX",
+        "RIGHT_ATTRS": {"POS":"AUX"}
+    },
+    {
+        "LEFT_ID": "AUX",
+        "REL_OP": ">",
+        "RIGHT_ID": "DOER",
+        "RIGHT_ATTRS": {"DEP":"nsubj"}
+    },
+    {
+        "LEFT_ID": "AUX",
+        "REL_OP": ">",
+        "RIGHT_ID": "STATE",
+        "RIGHT_ATTRS":{"DEP":"acomp"}
+    }
+]
 if __name__ == '__main__':
     # print(read_file(5))
 
-    text = "I'd like to eat a hamburger"
+    text = "We are ready for departure."
     tokens = nlp(text)
     # doc = nlp(text)
 
@@ -34,3 +52,10 @@ if __name__ == '__main__':
         print("Text:" + token.text + " POSTag: " + token.pos_ + " Tag: " + token.tag_)
         print(
             f'{token.text:{8}} {token.pos_:{6}} {token.tag_:{6}} {token.dep_:{6}} {spacy.explain(token.pos_):{20}} {spacy.explain(token.tag_)}')
+    matcher = DependencyMatcher(nlp.vocab)
+    matcher.add("DOER FINDER", [pattern])
+    matches = matcher(tokens)
+    match_id, token_ids = matches[0]
+    for i in range(len(token_ids)):
+        print(pattern[i]["RIGHT_ID"] + ":", tokens[token_ids[i]].text)
+    displacy.serve(tokens, style="dep", port=[REDACTED_PORT])

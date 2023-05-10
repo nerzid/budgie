@@ -38,7 +38,8 @@
    "light_percent_train_exs":1.0,
    "parlai_home":"/home/eyildiz/projects/socially-aware-dialogue-system/venv/lib/python3.8/site-packages",
    "override":{
-      "task":"light_dialog"
+      "task":"light_dialog",
+      "num_examples":20
    },
    "starttime":"Apr25_11-57"
 }
