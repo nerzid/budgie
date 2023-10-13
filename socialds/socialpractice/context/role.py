@@ -1,7 +1,7 @@
 # Contains data about the role of the agent, e.g., patient, doctor, husband, etc.
 from typing import List
 
-from socialds.socialpractice.activitiy.competence import Competence
+from socialds.socialpractice.activity.competence import Competence
 
 
 class Role:
