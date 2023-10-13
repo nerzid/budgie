@@ -9,6 +9,10 @@
           <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/managers/events/event.py" />
         </OpenedFileInfo>
         <OpenedFileInfo>
+          <option name="caretOffset" value="4079" />
+          <option name="fileUrl" value="file://$PROJECT_DIR$/venv/lib/python3.8/site-packages/parlai/tasks/light_dialog/agents.py" />
+        </OpenedFileInfo>
+        <OpenedFileInfo>
           <option name="caretOffset" value="203" />
           <option name="fileUrl" value="file://$PROJECT_DIR$/socialds/managers/events/text_event.py" />
         </OpenedFileInfo>
@@ -33,7 +37,7 @@
           <option name="fileUrl" value="file://$PROJECT_DIR$/parlai_denemeleri.py" />
         </OpenedFileInfo>
         <OpenedFileInfo>
-          <option name="caretOffset" value="799" />
+          <option name="caretOffset" value="638" />
           <option name="fileUrl" value="file://$PROJECT_DIR$/dataset.py" />
         </OpenedFileInfo>
       </list>
