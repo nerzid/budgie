@@ -5,5 +5,5 @@ from definitions.definition import Definition
 
 
 class IntransitiveAction(Action):
-    def __init__(self, name, denotations: List[Definition]):
-        super().__init__(name, denotations)
+    def __init__(self, name, senses: List[Definition]):
+        super().__init__(name, senses)

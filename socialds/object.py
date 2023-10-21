@@ -1,6 +1,6 @@
 from typing import List
 
-from states.property import Property
+from socialds.states.property import Property
 
 
 # Agents and Resources are both objects

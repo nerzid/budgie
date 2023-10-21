@@ -1,6 +1,6 @@
 from typing import List
 
-from stateoperations.stateoperation import StateOperation
+from socialds.stateoperations.stateoperation import StateOperation
 
 # the literal or primary meaning of a word, in contrast to the feelings or ideas that the word suggests.
 class Sense:

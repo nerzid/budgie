@@ -1,4 +1,4 @@
-from states.state import State
+from socialds.states.state import State
 
 # e.g., Eren is tall -> name: height, value: tall
 class Property(State):

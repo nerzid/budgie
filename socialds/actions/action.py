@@ -1,9 +1,8 @@
 from typing import List
-
-from definitions.definition import Definition
+from socialds.senses.sense import Sense
 
 
 class Action:
-    def __init__(self, name, denotations: List[Definition]):
+    def __init__(self, name, senses: List[Sense]):
         self.name = name
-        self.denotations = denotations
+        self.senses = senses

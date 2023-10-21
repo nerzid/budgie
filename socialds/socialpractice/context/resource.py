@@ -1,4 +1,4 @@
-from object import Object
+from socialds.object import Object
 
 
 class Resource(Object):

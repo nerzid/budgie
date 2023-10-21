@@ -1,9 +1,8 @@
 # Contains data for the persona, e.g., angry teenager
 from typing import List
 
-from object import Object
-from states.competence import Competence
-from states.knowledge import Knowledge
+from socialds.object import Object
+from socialds.states.knowledge import Knowledge
 
 
 class Actor (Object):

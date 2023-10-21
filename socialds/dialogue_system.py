@@ -1,4 +1,4 @@
-from agent import Agent
+from socialds.agent import Agent
 from typing import List
 # from pick import pick
 import questionary
@@ -21,11 +21,11 @@ class DialogueSystem:
                 agent.act_event(None)
 
     def wait_for_user_input(self):
-        choose_type_of_event_question = 'Please choose which type of event you want to send'
-        options = ['Text', 'Gesture']
-        type_of_event = questionary.select(choose_type_of_event_question, options).ask()
-        if type_of_event == 'Text':
-            utt = questionary.text("Please type your utterance").ask()
-            questionary.print("You wrote: " + str(utt))
-        elif type_of_event == 'Gesture':
-            questionary.select('What gesture do you want to send?', ['Hand Wave', 'Point at {resource}']).ask()
+        # choose_type_of_event_question = 'Please choose which type of event you want to send'
+        # options = ['Text', 'Gesture']
+        # type_of_event = questionary.select(choose_type_of_event_question, options).ask()
+        # if type_of_event == 'Text':
+        utt = questionary.text("You: ").ask()
+        # questionary.print("You wrote: " + str(utt))
+        # elif type_of_event == 'Gesture':
+        #     questionary.select('What gesture do you want to send?', ['Hand Wave', 'Point at {resource}']).ask()

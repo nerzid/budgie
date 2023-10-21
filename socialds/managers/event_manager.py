@@ -1,5 +1,5 @@
-from managers.events.channel import Channel
-from managers.events.event import Event
+from socialds.managers.events.channel import Channel
+from socialds.managers.events.event import Event
 
 
 class EventManager:

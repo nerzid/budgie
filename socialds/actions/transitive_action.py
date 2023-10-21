@@ -5,6 +5,6 @@ from definitions.definition import Definition
 
 
 class TransitiveAction(Action):
-    def __init__(self, name, denotations: List[Definition], target):
-        super().__init__(name, denotations)
+    def __init__(self, name, senses: List[Definition], target):
+        super().__init__(name, senses)
         self.target = target
