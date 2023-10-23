@@ -7,6 +7,8 @@ from socialds.socialpractice.context.actor import Actor
 from socialds.socialpractice.context.role import Role
 from socialds.socialpractice.activity.competence import Competence
 
+
+
 alex = Actor(name='Alex')
 eren = Actor(name='Eren')
 
