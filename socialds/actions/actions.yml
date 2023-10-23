@@ -1,0 +1,27 @@
+actions:
+  greet:
+    senses:
+    - sense:
+      desc: "greets the other person"
+      variations:
+      - variation:
+        desc: "greeting by hand waving"
+        operations:
+        - operation:
+          - physical_act:
+            name: "wave"
+      - variation:
+        desc: "greeting by talking only"
+        operations:
+        - operation:
+          - verbal_act:
+            name: "greet"
+      - variation:
+        desc: "greeting by talking and hand waving at the same time"
+        operations:
+        - operation:
+          - physical_act:
+            name: "wave"
+          - then:
+          - verbal_act:
+            name: "greet"

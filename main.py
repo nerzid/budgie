@@ -37,11 +37,3 @@ patient = Agent(actor=eren, roles=[role_patient], resources=[])
 ds = DialogueSystem(agents=[doctor, patient])
 
 ds.run()
-
-print("test3")
-print("test5")
-
-print("test3")
-print("test52")
-print("test3")
-print("test12321ss2sssssss25sss")

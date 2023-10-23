@@ -1,10 +1,12 @@
 from typing import List
 
+from socialds.agent import Agent
 from socialds.stateoperations.stateoperation import StateOperation
 
-# the literal or primary meaning of a word, in contrast to the feelings or ideas that the word suggests.
+
+# the meaning of the action
 class Sense:
-    def __init__(self, desc: str, op_seq: List[StateOperation]):
+    def __init__(self, desc: str, target_agent: Agent, op_seq: List[StateOperation]):
         """
         Meaning is used to describe what an action block does to the target object's states. Therefore, it works as a
         bridge between an action block and a sequence of state operations
