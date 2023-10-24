@@ -10,20 +10,20 @@ actions:
         desc: "greeting by hand waving"
         operations:
         - operation:
-          - physical_act:
+          - action:
             name: "wave"
       - variation:
         desc: "greeting by talking only"
         operations:
         - operation:
-          - verbal_act:
+          - action:
             name: "greet"
       - variation:
         desc: "greeting by talking and hand waving at the same time"
         operations:
         - operation:
-          - physical_act:
+          - action:
             name: "wave"
           - then:
-          - verbal_act:
+          - action:
             name: "greet"
