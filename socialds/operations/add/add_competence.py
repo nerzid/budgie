@@ -1,5 +1,5 @@
 from object import Object
-from stateoperations.stateoperation import StateOperation
+from operations.stateoperation import StateOperation
 from states.relation import Relation
 
 
@@ -11,4 +11,5 @@ class AddCompetence(StateOperation):
         self.property_value = property_value
 
     def execute(self):
+        super().execute()
         self.obj.properties[self.property_name] = self.property_value

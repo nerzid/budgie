@@ -1,6 +1,6 @@
 from typing import List
 
-from stateoperations.stateoperation import StateOperation
+from operations.stateoperation import StateOperation
 
 
 class Meaning:

@@ -1,5 +1,5 @@
 from object import Object
-from stateoperations.stateoperation import StateOperation
+from operations.stateoperation import StateOperation
 from states.property import Property
 
 

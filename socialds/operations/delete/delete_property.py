@@ -1,13 +1,13 @@
 from object import Object
-from stateoperations.stateoperation import StateOperation
+from operations.stateoperation import StateOperation
 from states.property import Property
 
 
-class AddProperty(StateOperation):
+class DeleteProperty(StateOperation):
     def __init__(self, obj: Object, prop: Property):
         super().__init__()
         self.obj = obj
         self.prop = prop
 
     def execute(self):
-        self.obj.properties.add(self.prop)
+        self.obj.properties.remove(self.prop)

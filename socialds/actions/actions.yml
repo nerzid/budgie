@@ -3,27 +3,130 @@ version: 0.0.1
 actions:
   greet:
     senses:
-    - sense:
-      desc: "greets the other person"
-      variations:
-      - variation:
-        desc: "greeting by hand waving"
-        operations:
-        - operation:
-          - action:
-            name: "wave"
-      - variation:
-        desc: "greeting by talking only"
-        operations:
-        - operation:
-          - action:
-            name: "greet"
-      - variation:
-        desc: "greeting by talking and hand waving at the same time"
-        operations:
-        - operation:
-          - action:
-            name: "wave"
-          - then:
-          - action:
-            name: "greet"
+      - sense:
+        desc: "greeting a person"
+        variations:
+          - variation:
+            desc: "greeting by hand waving"
+            actions:
+              - action:
+                name: "wave"
+              - and:
+              - action:
+                name: "utter"
+          - variation:
+            desc: "greeting by talking only"
+            actions:
+              - action:
+                name: "greet"
+              - and:
+              - action:
+                name: "utter"
+          - variation:
+            desc: "greeting by talking and hand waving at the same time"
+            actions:
+              - action:
+                name: "wave"
+              - then:
+              - action:
+                name: "greet"
+
+  inform:
+    senses:
+      - sense:
+        desc: "sharing a certain information with someone"
+        variations:
+          - variation:
+            desc: "informing by only uttering"
+            actions:
+              - action:
+                name: "utter"
+
+  thank:
+    senses:
+      - sense:
+        desc: "thanking someone as means of appreciation"
+        variations:
+          - variation:
+            desc: "thanking by only uttering"
+            actions:
+              - action:
+                name: "utter"
+          - variation:
+            desc: "thanking by bowing"
+            actions:
+              - action:
+                name: "bow"
+          - variation:
+            desc: "thanking by nodding and uttering"
+            actions:
+              - action:
+                name: "nod"
+              - and:
+              - action:
+                name: "utter"
+
+  agree:
+    senses:
+      - sense:
+        desc: "accepting the presented contract"
+        variations:
+          - variation:
+            desc: "agreeing by uttering only"
+            actions:
+              - action:
+                name: "utter"
+
+  reject:
+    senses:
+      - sense:
+        desc: "rejecting the presented contract"
+        variations:
+          - variation:
+            desc: "rejecting by uttering only"
+            actions:
+              - action:
+                name: "utter"
+
+  acknowledge:
+    senses:
+      - sense:
+        desc: "confirmation to the response of the request"
+        variations:
+          - variation:
+            desc: "acknowledging by uttering only"
+            actions:
+              - action:
+                name: "utter"
+
+  backchannel:
+    senses:
+      - sense:
+        desc: "signalling that the recipient is listened"
+        variations:
+          - variation:
+            desc: "backchanneling by uttering only"
+            actions:
+              - action:
+                name: "utter"
+          - variation:
+            desc: "backchanneling by nodding"
+            actions:
+              - action:
+                name: "nod"
+
+  check:
+    senses:
+      - sense:
+        desc: "the effort to learn properties of something"
+        variations:
+          - variation:
+            desc: "checking by asking a question"
+            actions:
+              - action:
+                name: "ask"
+          - variation:
+            desc: "checking by physically examining the object"
+            actions:
+              - action:
+                name: "examine"

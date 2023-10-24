@@ -14,5 +14,5 @@ if __name__ == '__main__':
     for action in parsed_file['actions']:
         for sense in action['senses']:
             for variation in sense['variations']:
-                for operation in variation['operations']:
+                for operation in variation['actions']:
                     pass
