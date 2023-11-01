@@ -1,6 +1,7 @@
 from object import Object
 from states.state import State
 
+
 # e.g., Eren likes apples -> left: Eren, name: likes, right: apples
 class Relation(State):
     def __init__(self, left: Object, name: str, right: Object):

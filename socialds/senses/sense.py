@@ -1,17 +1,14 @@
 from typing import List
 
+from socialds.actions.action import ActionObj
 from socialds.agent import Agent
 from socialds.operations.stateoperation import StateOperation
 
 
 class SenseVariation:
-    def __init__(self, desc: str, op_seq: List[StateOperation]):
+    def __init__(self, desc: str, action_seq: List[ActionObj]):
         self.desc = desc
-        self.op_seq = op_seq
-
-    def run(self):
-        for op in self.op_seq:
-            op.execute()
+        self.action_seq = action_seq
 
 
 # the meaning of the action

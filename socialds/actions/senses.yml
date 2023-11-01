@@ -1,0 +1,23 @@
+version: 0.0.1
+
+senses:
+  greeting_a_person:
+    variations:
+      - variation:
+          - desc: "greeting by talking only"
+            actions:
+              - action:
+                  type: "verbal"
+                  name: "greeting"
+      - variation:
+          - desc: "greeting by talking and hand waving"
+            actions:
+              - action:
+                  type: "verbal"
+                  name: "greeting"
+              - and:
+              - action:
+                  type: "physical_act"
+                  name: "wave"
+
+  

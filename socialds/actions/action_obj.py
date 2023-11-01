@@ -1,0 +1,2 @@
+class ActionObj:
+    pass

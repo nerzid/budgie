@@ -1,4 +1,4 @@
-from operations.operation import Operation
+from socialds.operations.operation import Operation
 
 
 class StateOperation(Operation):

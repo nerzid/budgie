@@ -1,8 +1,16 @@
 from typing import List
-from socialds.senses.sense import Sense
+
+from socialds.actions.action_obj import ActionObj
+from socialds.operations.stateoperation import StateOperation
 
 
-class Action:
-    def __init__(self, name, senses: List[Sense]):
+class Action(ActionObj):
+    def __init__(self, name, op_seq: List[StateOperation], preconditions=None):
+        if preconditions is None:
+            preconditions = []
         self.name = name
-        self.senses = senses
+        self.op_seq = op_seq
+        self.preconditions = preconditions
+
+    def __repr__(self):
+        return f'{self.name}'
