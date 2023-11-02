@@ -31,6 +31,7 @@ class DialogueSystem:
                 else:
                     end_turn = self.get_user_input(agent)
                     self.history.append(agent.act())
+                    print(agent.actor.knowledgebase)
 
     def get_user_input(self, agent):
         choose_type_of_event_question = f'{agent.actor.name} chooses to do...'

@@ -1,10 +1,12 @@
+from object import Object
+from other.utility import SemanticRole
 from socialds.actions.action import Action
 from socialds.states.state import State
+from socialds.states.relation import Relation, RelationType
 
 
-class Competence(State):
-    def __init__(self, name: str, action: Action, negation: False):
-        super().__init__()
+class Competence(Relation):
+    # Role -can-> Action(semantic roles)
+    def __init__(self, name: str, left: Object, right: Action, negation):
+        super().__init__(left, RelationType.CAN, right, negation)
         self.name = name
-        self.action = action
-        self.negation = negation
