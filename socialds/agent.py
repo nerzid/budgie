@@ -10,7 +10,7 @@ from socialds.socialpractice.context.role import Role
 from socialds.managers.event_manager import EventManager
 from socialds.managers.plan_manager import PlanManager
 from socialds.socialpractice.activity.competence import Competence
-from socialds.other.utility import merge_relation_storages
+from socialds.relationstorage import merge_relation_storages
 
 
 class Agent:

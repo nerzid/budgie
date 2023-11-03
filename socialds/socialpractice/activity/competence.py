@@ -1,5 +1,5 @@
-from object import Object
-from other.utility import SemanticRole
+from socialds.object import Object
+from socialds.other.utility import SemanticRole
 from socialds.actions.action import Action
 from socialds.states.state import State
 from socialds.states.relation import Relation, RelationType

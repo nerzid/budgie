@@ -27,7 +27,7 @@ def verbal_greet():
 
 
 def verbal_permit():
-    pass
+    return Action(name="Functional:permit", op_seq=[])
 
 
 def verbal_ask():

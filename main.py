@@ -45,7 +45,7 @@ from socialds.dialogue_system import DialogueSystem
 from socialds.repositories.action_repository import verbal_greet, op_and, physical_wave
 from socialds.utterance import Utterance
 from socialds.socialpractice.context.actor import Actor
-from socialds.states.relation import Relation, RelationType
+from socialds.states.relation import Relation, RelationType, RelationTense
 from socialds.socialpractice.context.info import Info
 
 
@@ -60,11 +60,16 @@ actor1 = Actor(name="Eren", knowledgebase=actor1_kb)
 info_patients_problem = Info(name="patient's problem")
 info_patients_left_eye = Info(name="left eye")
 info_patients_right_eye = Info(name="right eye")
-actor1_kb.add(Relation(left=actor1, r_type=RelationType.IS, right='happy'))
-actor1_kb.add(Relation(left=actor1, r_type=RelationType.HAS, right=info_patients_left_eye))
-actor1_kb.add(Relation(left=actor1, r_type=RelationType.HAS, right=info_patients_right_eye))
-actor1_kb.add(Relation(left=info_patients_left_eye, r_type=RelationType.IS, right='teary'))
-actor1_kb.add(Relation(left=info_patients_right_eye, r_type=RelationType.IS, right='healthy'))
+actor1_kb.add(Relation(
+    left=actor1, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right='happy'))
+actor1_kb.add(Relation(
+    left=actor1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=info_patients_left_eye))
+actor1_kb.add(Relation(
+    left=actor1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=info_patients_right_eye))
+actor1_kb.add(Relation(
+    left=info_patients_left_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right='teary'))
+actor1_kb.add(Relation(
+    left=info_patients_right_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right='healthy'))
 
 actor2_kb = RelationStorage('Knowledgebase')
 actor2_competences = RelationStorage('Competences')

@@ -6,7 +6,7 @@ from socialds.other.utility import add_relation_to_relations_dict, colorize_rela
 
 
 class RelationStorage:
-    def __init__(self, name:str, is_private=True, relations=None):
+    def __init__(self, name: str, is_private=True, relations=None):
         if relations is None:
             relations = {}
         self.name = name
@@ -18,3 +18,7 @@ class RelationStorage:
 
     def __repr__(self):
         return colorize_relations_dict(relations=self.relations)
+
+
+def merge_relation_storages(s1: RelationStorage, s2: RelationStorage):
+    s1.relations.update(s2.relations)
