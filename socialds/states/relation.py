@@ -1,5 +1,8 @@
 from enum import Enum
 
+from termcolor import colored
+
+from socialds.enums import TermColor
 from socialds.object import Object
 from socialds.states.state import State
 
@@ -29,13 +32,22 @@ class Relation(State):
         self.right = right
         self.negation = negation
 
-    def __str__(self):
-        negation_str = ''
-        if self.negation:
-            negation_str = '(not)'
-        return str(self.left) + " ---" + str(self.r_type) + \
-            negation_str +\
-            '(' + str(self.r_tense) + ')' +\
-            "---> " + str(self.right)
+    def __repr__(self):
+        left_color = TermColor.LIGHT_BLUE.value
+        r_type_color = TermColor.LIGHT_RED.value
+        r_tense_color = TermColor.LIGHT_CYAN.value
+        right_color = TermColor.LIGHT_GREEN.value
+
+        negation_str = ('', '(not)')[self.negation]
+        return f'{colored(self.left, left_color)} ' \
+               f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
+               f'{colored(self.r_type.value, r_type_color)}' \
+               f'{colored(negation_str, TermColor.RED.value)}' \
+               f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
+               f'{colored(self.r_tense.value, r_tense_color)}' \
+               f'{colored("->", TermColor.LIGHT_YELLOW.value)} ' \
+               f'{colored(self.right, right_color)}'
 
 
+if __name__ == '__main__':
+    print(Relation(left="Eren", r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right="dirty"))

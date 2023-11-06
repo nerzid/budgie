@@ -1,5 +1,5 @@
 from socialds.object import Object
-from socialds.other.utility import SemanticEvent
+from socialds.enums import SemanticEvent
 from socialds.actions.action import Action
 from socialds.states.state import State
 from socialds.states.relation import Relation, RelationType

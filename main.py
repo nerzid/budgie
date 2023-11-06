@@ -40,7 +40,7 @@
 #
 # ds.run()
 from socialds.actions.share import Share
-from socialds.other.utility import SemanticEvent
+from socialds.enums import SemanticEvent
 from socialds.relationstorage import RelationStorage
 from socialds.agent import Agent
 from socialds.dialogue_system import DialogueSystem

@@ -1,70 +1,7 @@
-from enum import Enum
-
 from termcolor import colored
 
+from socialds.enums import TermColor
 from socialds.states.relation import Relation
-
-
-class TermColor(Enum):
-    LIGHT_BLUE = 'light_blue'
-    LIGHT_YELLOW = 'light_yellow'
-    LIGHT_RED = 'light_red'
-    LIGHT_GREEN = 'light_green'
-    LIGHT_CYAN = 'light_cyan'
-    RED = 'red'
-    ON_RED = 'on_red'
-    ON_CYAN = 'on_cyan'
-    ON_BLUE = 'on_blue'
-
-
-class SemanticEvent(Enum):
-    AGENT = 'agent'
-    PARTNER = 'partner'
-    CAUSE = 'cause'
-    INSTRUMENT = 'instrument'
-    PATIENT = 'patient'
-    THEME = 'theme'
-    BENEFICIARY = 'beneficiary'
-    GOAL = 'goal'
-    SOURCE = 'source'
-    RESULT = 'result'
-    REASON = 'reason'
-    PURPOSE = 'purpose'
-    MANNER = 'manner'
-    MEDIUM = 'medium'
-    MEANS = 'means'
-    TIME = 'time'
-    INITIAL_TIME = 'initial time'
-    FINAL_TIME = 'final time'
-    DURATION = 'duration'
-    SETTING = 'setting'
-    LOCATION = 'location'
-    INITIAL_LOCATION = 'initial location'
-    FINAL_LOCATION = 'final location'
-    DISTANCE = 'distance'
-    PATH = 'path'
-    FREQUENCY = 'frequency'
-    AMOUNT = 'amount'
-
-
-class SemanticState(Enum):
-    ATTRIBUTE = 'attribute'
-    PIVOT = 'PIVOT'
-    INSTRUMENT = 'instrument'
-    SETTING = 'setting'
-    THEME = 'theme'
-    BENEFICIARY = 'beneficiary'
-    REASON = 'reason'
-    TIME = 'time'
-    INITIAL_TIME = 'initial time'
-    FINAL_TIME = 'final time'
-    DURATION = 'duration'
-    MANNER = 'manner'
-    LOCATION = 'location'
-    INITIAL_LOCATION = 'initial location'
-    FINAL_LOCATION = 'final location'
-    DISTANCE = 'distance'
-    AMOUNT = 'amount'
 
 
 def add_relation_to_relations_dict(relations: dict, relation: Relation):

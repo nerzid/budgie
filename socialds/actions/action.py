@@ -1,6 +1,6 @@
 from typing import List
 
-from socialds.other.utility import SemanticEvent
+from socialds.enums import SemanticEvent
 from socialds.actions.action_obj import ActionObj
 from socialds.operations.stateoperation import StateOperation
 

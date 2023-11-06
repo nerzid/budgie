@@ -5,7 +5,7 @@
 #     def __init__(self):
 #         super().__init__()
 from socialds.agent import Agent
-from socialds.other.utility import SemanticEvent
+from socialds.enums import SemanticEvent
 from socialds.actions.action import Action
 from socialds.socialpractice.context.info import Info
 from socialds.states.relation import Relation, RelationTense, RelationType
