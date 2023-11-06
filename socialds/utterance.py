@@ -8,5 +8,9 @@ class Utterance:
         self.text = text
         self.actions = actions
 
+
+    # def get_actions_text(self):
+    #
+
     def __repr__(self):
         return f'{self.text} ({self.actions})'

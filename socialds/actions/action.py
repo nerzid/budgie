@@ -1,5 +1,6 @@
 from typing import List
 
+from socialds.other.utility import SemanticEvent
 from socialds.actions.action_obj import ActionObj
 from socialds.operations.stateoperation import StateOperation
 
@@ -15,9 +16,16 @@ class Action(ActionObj):
         self.preconditions = preconditions
         self.semantic_roles = semantic_roles
 
+    def update(self, key: SemanticEvent, value: any):
+        self.semantic_roles[key] = value
+        return self
+
+    def execute(self):
+        for op in self.op_seq:
+            op.execute()
+
     def __repr__(self):
         return f'{self.name}'
-
 
 # doctor can examine patient's eye using ophthalmoscope
 # Role -can-> Action

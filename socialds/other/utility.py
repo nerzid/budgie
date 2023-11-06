@@ -12,9 +12,12 @@ class TermColor(Enum):
     LIGHT_GREEN = 'light_green'
     LIGHT_CYAN = 'light_cyan'
     RED = 'red'
+    ON_RED = 'on_red'
+    ON_CYAN = 'on_cyan'
+    ON_BLUE = 'on_blue'
 
 
-class SemanticRole(Enum):
+class SemanticEvent(Enum):
     AGENT = 'agent'
     PARTNER = 'partner'
     CAUSE = 'cause'
@@ -41,6 +44,26 @@ class SemanticRole(Enum):
     DISTANCE = 'distance'
     PATH = 'path'
     FREQUENCY = 'frequency'
+    AMOUNT = 'amount'
+
+
+class SemanticState(Enum):
+    ATTRIBUTE = 'attribute'
+    PIVOT = 'PIVOT'
+    INSTRUMENT = 'instrument'
+    SETTING = 'setting'
+    THEME = 'theme'
+    BENEFICIARY = 'beneficiary'
+    REASON = 'reason'
+    TIME = 'time'
+    INITIAL_TIME = 'initial time'
+    FINAL_TIME = 'final time'
+    DURATION = 'duration'
+    MANNER = 'manner'
+    LOCATION = 'location'
+    INITIAL_LOCATION = 'initial location'
+    FINAL_LOCATION = 'final location'
+    DISTANCE = 'distance'
     AMOUNT = 'amount'
 
 

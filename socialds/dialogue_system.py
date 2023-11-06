@@ -1,22 +1,18 @@
+from socialds.relationstorage import RelationStorage
 from socialds.agent import Agent
 from typing import List
 # from pick import pick
 import questionary
 
 from socialds.utterance import Utterance
+from socialds.states.relation import Relation, RelationType, RelationTense
 
 
 class DialogueSystem:
-    def __init__(self, agents: List[Agent], utterances: List[Utterance], history=None):
-        if history is None:
-            self.history = []
-        else:
-            self.history = history
+    def __init__(self, agents: List[Agent], utterances: List[Utterance], history=RelationStorage('History', is_private=False)):
+        self.history = history
         self.agents = agents
         self.utterances = utterances
-        self.utterances_str = []
-        for utt in utterances:
-            self.utterances_str.append(str(utt))
 
     def run(self, turns=4):
         for i in range(0, turns):
@@ -27,25 +23,38 @@ class DialogueSystem:
             end_turn = False
             while not end_turn:
                 if agent.auto:
-                    self.history.append(agent.act())
+                    self.history.add(Relation(left=agent,
+                                              r_type=RelationType.ACTION,
+                                              r_tense=RelationTense.PAST,
+                                              right=agent.act()))
                 else:
-                    end_turn = self.get_user_input(agent)
-                    self.history.append(agent.act())
+                    actions, end_turn = self.get_user_input(agent)
+                    for action in actions:
+                        self.history.add(Relation(left=agent,
+                                                  r_type=RelationType.ACTION,
+                                                  r_tense=RelationTense.PAST,
+                                                  right=action))
                     print(agent.actor.knowledgebase)
+                    print(self.history)
 
     def get_user_input(self, agent):
         choose_type_of_event_question = f'{agent.actor.name} chooses to do...'
         act_options = ['Utterance', 'Physical Act']
         type_of_event = questionary.select(choose_type_of_event_question, act_options).ask()
+        utts_str = []
+        for utt in self.utterances:
+            utts_str.append(str(utt))
         if type_of_event == 'Utterance':
-            questionary.select("Choose an utterance", self.utterances_str).ask()
+            selected_utt_str = questionary.select("Choose an utterance", utts_str).ask()
+
+        for utt in self.utterances:
+            if selected_utt_str == str(utt):
+                selected_utt = utt
+                break
 
         end_turn = questionary.select("End turn?", ["Yes", "No"]).ask()
         # print(end_turn)
-        if end_turn == "Yes":
-            return True
-        else:
-            return False
+        return selected_utt.actions, end_turn == "Yes"
 
         # questionary.print("You wrote: " + str(utt))
         # elif type_of_event == 'Gesture':
