@@ -1,4 +1,5 @@
 from typing import List
+from functools import partial
 
 from socialds.enums import SemanticEvent
 from socialds.actions.action_obj import ActionObj
@@ -6,13 +7,13 @@ from socialds.operations.stateoperation import StateOperation
 
 
 class Action(ActionObj):
-    def __init__(self, name, op_seq: List[StateOperation], preconditions=None, semantic_roles=None):
+    def __init__(self, name, op_seq: List[partial], preconditions=None, semantic_roles=None):
+        super().__init__(op_seq)
         if preconditions is None:
             preconditions = []
         if semantic_roles is None:
             semantic_roles = {}
         self.name = name
-        self.op_seq = op_seq
         self.preconditions = preconditions
         self.semantic_roles = semantic_roles
 
@@ -20,9 +21,6 @@ class Action(ActionObj):
         self.semantic_roles[key] = value
         return self
 
-    def execute(self):
-        for op in self.op_seq:
-            op.execute()
 
     def __repr__(self):
         return f'{self.name}'

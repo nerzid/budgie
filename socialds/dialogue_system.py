@@ -30,6 +30,7 @@ class DialogueSystem:
                 else:
                     actions, end_turn = self.get_user_input(agent)
                     for action in actions:
+                        action.execute()
                         self.history.add(Relation(left=agent,
                                                   r_type=RelationType.ACTION,
                                                   r_tense=RelationTense.PAST,
@@ -39,7 +40,7 @@ class DialogueSystem:
 
     def get_user_input(self, agent):
         choose_type_of_event_question = f'{agent.actor.name} chooses to do...'
-        act_options = ['Utterance', 'Physical Act']
+        act_options = ['Utterance', 'Verbal Act', 'Physical Act', 'Functional Act', 'Mental Act']
         type_of_event = questionary.select(choose_type_of_event_question, act_options).ask()
         utts_str = []
         for utt in self.utterances:

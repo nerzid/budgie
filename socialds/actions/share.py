@@ -1,4 +1,5 @@
 from typing import List
+from functools import partial
 
 from socialds.actions.action import Action
 from socialds.operations.stateoperation import StateOperation
@@ -10,9 +11,20 @@ from socialds.states.relation import Relation, RelationType, RelationTense
 
 class Share(Action):
     def __init__(self, relation: Relation, rs: RelationStorage):
-        super().__init__(name="share", op_seq=[add_relation(relation, rs)])
+        super().__init__(name="share", op_seq=[partial(add_relation, relation, rs)])
         self.relation = relation
         self.rs = rs
 
     def __repr__(self):
-        return f"{self.name}({self.relation.__repr__()} to {self.rs.name})"
+        return f"{self.name}({self.relation} to {self.rs.name})"
+
+
+
+if __name__ == '__main__':
+    a = Share(
+        Relation(left="Eren",
+                 r_type=RelationType.IS,
+                 r_tense=RelationTense.PRESENT,
+                 right='dirty')
+        , RelationStorage(name='test kb'))
+    print(a)
