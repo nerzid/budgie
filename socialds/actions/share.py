@@ -2,6 +2,7 @@ from typing import List
 from functools import partial
 
 from socialds.actions.action import Action
+from socialds.actions.action_obj import ActionObjType
 from socialds.operations.stateoperation import StateOperation
 from socialds.enums import SemanticEvent, SemanticState
 from socialds.relationstorage import RelationStorage
@@ -11,7 +12,7 @@ from socialds.states.relation import Relation, RelationType, RelationTense
 
 class Share(Action):
     def __init__(self, relation: Relation, rs: RelationStorage):
-        super().__init__(name="share", op_seq=[partial(add_relation, relation, rs)])
+        super().__init__(name="share", act_type=ActionObjType.FUNCTIONAL, op_seq=[partial(add_relation, relation, rs)])
         self.relation = relation
         self.rs = rs
 

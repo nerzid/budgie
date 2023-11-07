@@ -7,6 +7,7 @@
 from socialds.agent import Agent
 from socialds.enums import SemanticEvent
 from socialds.actions.action import Action
+from socialds.actions.action_obj import ActionObjType
 from socialds.socialpractice.context.info import Info
 from socialds.states.relation import Relation, RelationTense, RelationType
 
@@ -29,11 +30,11 @@ def op_or():
 
 # Verbal acts
 def verbal_greet():
-    return Action(name="Verbal:greet", op_seq=[])
+    return Action(name="greet", act_type=ActionObjType.PHYSICAL, op_seq=[])
 
 
 def verbal_permit(semantic_roles: dict):
-    return Action(name="Functional:permit", op_seq=[])
+    return Action(name="permit", act_type=ActionObjType.FUNCTIONAL, op_seq=[])
 
 
 def share(beneficiary: Agent, info: Relation):
