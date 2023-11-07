@@ -1,5 +1,5 @@
 from socialds.relationstorage import RelationStorage
-from socialds.states.relation import Relation, RelationTense
+from socialds.states.relation import Relation, RelationTense, RelationType
 
 
 def op_and():
@@ -27,16 +27,31 @@ def share_relation(relation: Relation, shared_with: RelationStorage):
     shared_with.add(relation)
     
 
-def modify_right(relation: Relation, new_right: any):
+def modify_relation_right(relation: Relation, new_right: any):
     relation.right = new_right
     # I might need to modify the relation storage dict
     
 
-def modify_left(relation: Relation, new_left: any):
+def modify_relation_left(relation: Relation, new_left: any):
     relation.left = new_left
     # modify the relation storage dict as well
     
 
-def modify_tense(relation: Relation, new_tense: RelationTense):
+def modify_relation_tense(relation: Relation, new_tense: RelationTense):
     relation.r_tense = new_tense
     # modify the relation storage dict as well
+
+
+def modify_relation_negation(relation: Relation, new_negation: bool):
+    relation.negation = new_negation
+
+
+if __name__ == '__main__':
+    rel = Relation(left="Eren", r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right="dirty")
+    rs = RelationStorage(name='rs')
+    rs.add(rel)
+    print(rs)
+    print('after operation')
+    rel.left = 'wika'
+    print(rel)
+    print(rs)

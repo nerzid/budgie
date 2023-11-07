@@ -31,25 +31,29 @@ class Relation(State):
         self.right = right
         self.negation = negation
 
-    # def __repr__(self):
-    #     left_color = TermColor.LIGHT_BLUE.value
-    #     r_type_color = TermColor.LIGHT_RED.value
-    #     r_tense_color = TermColor.LIGHT_CYAN.value
-    #     right_color = TermColor.LIGHT_GREEN.value
-    #
-    #     negation_str = ('', '(not)')[self.negation]
-    #     return f'{colored(self.left, left_color)} ' \
-    #            f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
-    #            f'{colored(self.r_type.value, r_type_color)}' \
-    #            f'{colored(negation_str, TermColor.RED.value)}' \
-    #            f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
-    #            f'{colored(self.r_tense.value, r_tense_color)}' \
-    #            f'{colored("->", TermColor.LIGHT_YELLOW.value)} ' \
-    #            f'{colored(self.right, right_color)}'
+    def colorless_repr(self):
+        negation_str = ('', '(not)')[self.negation]
+        return f'{self.left}-{self.r_type.value}{negation_str}-{self.r_tense.value}->{self.right}'
 
     def __repr__(self):
+        left_color = TermColor.LIGHT_BLUE.value
+        r_type_color = TermColor.LIGHT_RED.value
+        r_tense_color = TermColor.LIGHT_CYAN.value
+        right_color = TermColor.LIGHT_GREEN.value
+
         negation_str = ('', '(not)')[self.negation]
-        return str(self.left) + ' -' + self.r_type.value + negation_str + '-' + self.r_tense.value + '->' + str(self.right)
+        return f'{colored(self.left, left_color)} ' \
+               f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
+               f'{colored(self.r_type.value, r_type_color)}' \
+               f'{colored(negation_str, TermColor.RED.value)}' \
+               f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
+               f'{colored(self.r_tense.value, r_tense_color)}' \
+               f'{colored("->", TermColor.LIGHT_YELLOW.value)} ' \
+               f'{colored(self.right, right_color)}'
+
+    # def __repr__(self):
+    #     negation_str = ('', '(not)')[self.negation]
+    #     return str(self.left) + '-' + self.r_type.value + negation_str + '-' + self.r_tense.value + '->' + str(self.right)
 
 
 if __name__ == '__main__':

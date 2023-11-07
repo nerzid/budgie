@@ -1,3 +1,5 @@
+from termcolor import colored
+
 from socialds.relationstorage import RelationStorage
 from socialds.agent import Agent
 from typing import List
