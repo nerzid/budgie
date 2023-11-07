@@ -28,6 +28,10 @@ class RelationStorage:
 
     def add(self, relation: Relation):
         add_relation_to_relations_dict(relations=self.relations, relation=relation)
+        
+    def remove(self, relation: Relation):
+        if relation in self:
+            pass
 
 
 def merge_relation_storages(s1: RelationStorage, s2: RelationStorage):

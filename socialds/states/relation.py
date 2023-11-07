@@ -10,7 +10,6 @@ from socialds.states.state import State
 class RelationType(Enum):
     IS = 'is'
     HAS = 'has'
-    KNOWS = 'knows'
     CAN = 'can'
     HAS_PERMIT = 'has_permit'
     ACTION = 'action'
