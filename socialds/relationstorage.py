@@ -27,8 +27,12 @@ class RelationStorage:
                   + (colored(text='(public)', on_color=TermColor.ON_CYAN.value),
                      colored(text='(private)', on_color=TermColor.ON_BLUE.value))[self.is_private] + '\n'
         relations_str = ''
-        for rel in self.relations:
-            relations_str += str(rel) + '\n'
+        if len(self.relations) > 0:
+            for rel in self.relations:
+                relations_str += str(rel) + '\n'
+        else:
+            relations_str += colored(text='Empty', color=TermColor.BLACK.value,
+                                     on_color=TermColor.ON_WHITE.value) + '\n'
         return rs_info + relations_str
 
         # def __contains__(self, relation: Relation):
@@ -65,8 +69,8 @@ class RelationStorage:
 
     def remove(self, relation: Relation):
         self.relations.remove(relation)
-        
-    def get(self, left:any, r_type: RelationType, r_tense: RelationTense, right: any, negation=False):
+
+    def get(self, left: any, r_type: RelationType, r_tense: RelationTense, right: any, negation=False):
         for relation in self.relations:
             if relation.left == left and relation.r_type == r_type and relation.r_tense == r_tense and relation.right == right and relation.negation == negation:
                 return relation
@@ -75,4 +79,5 @@ class RelationStorage:
 
 def merge_relation_storages(s1: RelationStorage, s2: RelationStorage):
     # s1.relations.update(s2.relations)
-    s1.relations.union(s2.relations)
+    # s1.relations.union(s2.relations)
+    s1.relations += s2.relations

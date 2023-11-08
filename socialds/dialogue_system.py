@@ -17,6 +17,8 @@ class DialogueSystem:
         self.utterances = utterances
 
     def run(self, turns=4):
+        [print(agent.info()) for agent in self.agents]
+        print(self.history)
         for i in range(0, turns):
             self.next()
 

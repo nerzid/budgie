@@ -1,9 +1,7 @@
 # Contains data about the role of the agent, e.g., patient, doctor, husband, etc.
-from typing import List
 
-from socialds.relationstorage import RelationStorage
 from socialds.object import Object
-from socialds.socialpractice.activity.competence import Competence
+from socialds.relationstorage import RelationStorage
 
 
 class Role(Object):

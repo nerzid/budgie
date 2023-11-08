@@ -39,21 +39,21 @@
 # ds = DialogueSystem(agents=[doctor, patient])
 #
 # ds.run()
-from socialds.actions.share import Share
-from socialds.enums import SemanticEvent
-from socialds.relationstorage import RelationStorage
+from socialds.actions.functional.share import Share
 from socialds.agent import Agent
 from socialds.dialogue_system import DialogueSystem
-from socialds.repositories.action_repository import verbal_greet, op_and, physical_wave, share
-from socialds.utterance import Utterance
+from socialds.relationstorage import RelationStorage
+from socialds.repositories.action_repository import verbal_greet
 from socialds.socialpractice.context.actor import Actor
-from socialds.states.relation import Relation, RelationType, RelationTense
-from socialds.socialpractice.context.info import Info
 from socialds.states.property import Property
+from socialds.states.relation import Relation, RelationType, RelationTense
+from socialds.utterance import Utterance
 
-actor1_kb = RelationStorage('Eren\'s Knowledgebase')
-actor1_competences = RelationStorage('Eren\'s Competences')
-actor1 = Actor(name="Eren", knowledgebase=actor1_kb)
+agent1_kb = RelationStorage('Eren\'s Knowledgebase')
+agent1_competences = RelationStorage('Eren\'s Competences')
+agent1_places = RelationStorage('Eren\'s Places')
+agent1_resources = RelationStorage('Eren\'s Resources')
+actor1 = Actor(name="Eren", knowledgebase=RelationStorage('Actor Eren\'s Knowledgebase'))
 
 p_patients_problem = Property(name="patient's problem")
 p_patients_left_eye = Property(name="left_eye")
@@ -63,21 +63,26 @@ p_teary = Property(name='teary')
 p_healthy = Property(name='healthy')
 p_dirty = Property(name='dirty')
 
-actor1_kb.add(Relation(
+agent1_kb.add(Relation(
     left=actor1, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_happy))
-actor1_kb.add(Relation(
+agent1_kb.add(Relation(
     left=actor1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_patients_left_eye))
-actor1_kb.add(Relation(
+agent1_kb.add(Relation(
     left=actor1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_patients_right_eye))
-actor1_kb.add(Relation(
+agent1_kb.add(Relation(
     left=p_patients_left_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_teary))
-actor1_kb.add(Relation(
+agent1_kb.add(Relation(
     left=p_patients_right_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_healthy))
 
-actor2_kb = RelationStorage('Wika\'s Knowledgebase')
-actor2_competences = RelationStorage('Wika\'s Competences')
-agent1 = Agent(name='Eren', actor=actor1, roles=[], competences=actor1_competences)
-agent2 = Agent(name='Wika', actor=Actor(name="Wika", knowledgebase=actor2_kb), roles=[], competences=actor2_competences)
+agent2_kb = RelationStorage('Wika\'s Knowledgebase')
+agent2_competences = RelationStorage('Wika\'s Competences')
+agent2_places = RelationStorage('Wika\'s Places')
+agent2_resources = RelationStorage('Wika\'s Resources')
+agent1 = Agent(name='Eren', actor=actor1, roles=[], knowledgebase=agent1_kb, competences=agent1_competences,
+               places=agent1_places, resources=agent1_resources)
+agent2 = Agent(name='Wika', actor=Actor(name="Wika", knowledgebase=RelationStorage('Actor Wika\'s Knowledbase ')), roles=[],
+               knowledgebase=agent2_kb, competences=agent2_competences, places=agent2_places,
+               resources=agent2_resources)
 
 utts = [
     Utterance(text="Hi", actions=[verbal_greet()]),
@@ -87,7 +92,7 @@ utts = [
                  r_type=RelationType.IS,
                  r_tense=RelationTense.PRESENT,
                  right=p_dirty)
-        , actor2_kb)])
+        , agent2_kb)])
 ]
 
 ds = DialogueSystem(agents=[agent1, agent2], utterances=utts)

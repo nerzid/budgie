@@ -8,9 +8,11 @@ class TermColor(Enum):
     LIGHT_GREEN = 'light_green'
     LIGHT_CYAN = 'light_cyan'
     RED = 'red'
+    BLACK = 'black'
     ON_RED = 'on_red'
     ON_CYAN = 'on_cyan'
     ON_BLUE = 'on_blue'
+    ON_WHITE = 'on_white'
 
 
 class SemanticEvent(Enum):

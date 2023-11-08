@@ -2,18 +2,13 @@ from typing import List
 
 import questionary
 
-from socialds.object import Object
-from socialds.relationstorage import RelationStorage
-from socialds.managers.events.event import Event
-from socialds.socialpractice.context.place import Place
-from socialds.socialpractice.context.resource import Resource
-from socialds.socialpractice.context.actor import Actor
-from socialds.socialpractice.context.role import Role
 from socialds.managers.event_manager import EventManager
 from socialds.managers.plan_manager import PlanManager
-from socialds.socialpractice.activity.competence import Competence
+from socialds.object import Object
+from socialds.relationstorage import RelationStorage
 from socialds.relationstorage import merge_relation_storages
-from socialds.states.relation import Relation
+from socialds.socialpractice.context.actor import Actor
+from socialds.socialpractice.context.role import Role
 
 
 class Agent(Object):
@@ -33,7 +28,6 @@ class Agent(Object):
         # adds the knowledgebase into the agent's knowledgebase
         merge_relation_storages(self.knowledgebase, actor.knowledgebase)
 
-
     def act(self):
         if self.auto:
             pass
@@ -43,3 +37,16 @@ class Agent(Object):
     def update_competences(self):
         for role in self.roles:
             merge_relation_storages(self.competences, role.competences)
+
+    def info(self):
+        pretty_info = ''
+        pretty_info += self.name + ' auto=' + str(self.auto) + '\n'
+        pretty_info += str(self.knowledgebase) + '\n'
+        pretty_info += str(self.actor.knowledgebase) + '\n'
+        for role in self.roles:
+            pretty_info += role.name + '\n' + role.competences + '\n'
+        # pretty_info += str(self.roles) + '\n'
+        pretty_info += str(self.competences) + '\n'
+        pretty_info += str(self.resources) + '\n'
+        pretty_info += str(self.places)
+        return pretty_info
