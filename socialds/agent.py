@@ -17,11 +17,13 @@ from socialds.states.relation import Relation
 
 
 class Agent(Object):
-    def __init__(self, name: str, actor: Actor, roles: List[Role], competences: RelationStorage, places: RelationStorage, auto: bool = False):
+    def __init__(self, name: str, actor: Actor, roles: List[Role], competences: RelationStorage,
+                 resources: RelationStorage, places: RelationStorage, auto: bool = False):
         super().__init__(name)
         self.actor = actor
         self.roles = roles
         self.competences = competences
+        self.resources = resources
         self.places = places
         self.event_manager = EventManager()
         self.plan_manager = PlanManager()

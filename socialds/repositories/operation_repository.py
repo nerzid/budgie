@@ -25,6 +25,11 @@ def create_then_add_relation(left: any, r_type: RelationType, r_tense: RelationT
     rs.add(Relation(left, r_type, r_tense, right, negation))
 
 
+def find_relation(left: any, r_type: RelationType, r_tense: RelationTense,
+                  right: any, negation: bool, rs: RelationStorage):
+    return rs.get(left, r_type, r_tense, right, negation)
+
+
 def find_relation_by_place(agent: Agent, r_tense: RelationTense, place: Place) -> Relation:
     return agent.places.get(agent, RelationType.IS_AT, r_tense, place, True)
 
