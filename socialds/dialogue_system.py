@@ -37,7 +37,7 @@ class DialogueSystem:
                                                   r_type=RelationType.ACTION,
                                                   r_tense=RelationTense.PAST,
                                                   right=action))
-                    print(agent.actor.knowledgebase)
+                    print(agent.knowledgebase)
                     print(self.history)
 
     def get_user_input(self, agent):

@@ -17,17 +17,22 @@ from socialds.states.relation import Relation
 
 
 class Agent(Object):
-    def __init__(self, name: str, actor: Actor, roles: List[Role], competences: RelationStorage,
-                 resources: RelationStorage, places: RelationStorage, auto: bool = False):
+    def __init__(self, name: str, actor: Actor, roles: List[Role], knowledgebase: RelationStorage,
+                 competences: RelationStorage, resources: RelationStorage, places: RelationStorage, auto: bool = False):
         super().__init__(name)
         self.actor = actor
         self.roles = roles
+        self.knowledgebase = knowledgebase
         self.competences = competences
         self.resources = resources
         self.places = places
         self.event_manager = EventManager()
         self.plan_manager = PlanManager()
         self.auto = auto
+
+        # adds the knowledgebase into the agent's knowledgebase
+        merge_relation_storages(self.knowledgebase, actor.knowledgebase)
+
 
     def act(self):
         if self.auto:

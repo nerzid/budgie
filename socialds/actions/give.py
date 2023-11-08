@@ -1,10 +1,10 @@
 from functools import partial
 
-from repositories.operation_repository import find_relation, modify_relation_left, move_relation
+from socialds.repositories.operation_repository import find_relation, modify_relation_left, move_relation
 from socialds.agent import Agent
 from socialds.actions.action_obj import ActionObjType
 from socialds.actions.action import Action
-from states.relation import RelationType, RelationTense
+from socialds.states.relation import RelationType, RelationTense
 
 
 class Give(Action):
