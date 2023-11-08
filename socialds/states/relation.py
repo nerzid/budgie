@@ -13,6 +13,7 @@ class RelationType(Enum):
     CAN = 'can'
     HAS_PERMIT = 'has_permit'
     ACTION = 'action'
+    IS_AT = 'is_at'
 
 
 class RelationTense(Enum):
@@ -84,6 +85,18 @@ class Relation(State):
                 RelationTense.PAST: 'wasn\'t permitted to',
                 RelationTense.PRESENT: 'isn\'t permitted to',
                 RelationTense.FUTURE: 'won\'t be permitted to'
+            }
+        },
+        RelationType.IS_AT: {
+            True: {
+                RelationTense.PAST: 'was at',
+                RelationTense.PRESENT: 'is at',
+                RelationTense.FUTURE: 'will be at'
+            },
+            False: {
+                RelationTense.PAST: 'wasn\'t at',
+                RelationTense.PRESENT: 'isn\'t at',
+                RelationTense.FUTURE: 'won\'t be at'
             }
         }
     }

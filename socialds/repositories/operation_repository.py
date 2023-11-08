@@ -1,4 +1,6 @@
+from socialds.agent import Agent
 from socialds.relationstorage import RelationStorage
+from socialds.socialpractice.context.place import Place
 from socialds.states.relation import Relation, RelationTense, RelationType
 
 
@@ -20,6 +22,10 @@ def add_relation(relation: Relation, rs: RelationStorage):
 
 def create_then_add_relation(left:any, right:any, r_type:RelationType, r_tense:RelationTense, negation:bool, rs:RelationStorage):
     rs.add(Relation(left, r_type, r_tense, right, negation))
+
+
+def find_relation_by_place(agent: Agent, r_tense: RelationTense, place: Place) -> Relation:
+    return agent.places.get(agent, RelationType.IS_AT, r_tense, place, True)
 
 
 def move_relation(relation: Relation, from_rs: RelationStorage, to_rs: RelationStorage):

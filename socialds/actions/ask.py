@@ -1,14 +1,17 @@
 from functools import partial
 from typing import List
+from socialds.actions.action import Action
 from socialds.actions.action_obj import ActionObj, ActionObjType
 from socialds.agent import Agent
 from socialds.relationstorage import RelationStorage
 from socialds.states.relation import Relation, RelationTense, RelationType
 
 
-class Ask(ActionObj):
+class Ask(Action):
     def __init__(self, asker:Agent, asked:Relation, r_tense:RelationTense, negation:bool, rs:RelationStorage):
-        super().__init__("ask", RelationType.ACTION, [partial()])
+        self.relation = Relation(asker, RelationType.ACTION, r_tense, asked, negation)
+        self.rs = rs
+        super().__init__("ask", RelationType.ACTION, [])
         
         
 # joe asks color of jane's dress

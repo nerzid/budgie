@@ -1,6 +1,7 @@
 from typing import List
+from uu import Error
 
-from socialds.states.relation import Relation
+from socialds.states.relation import Relation, RelationTense, RelationType
 from termcolor import colored
 from socialds.other.utility import colorize_relations_dict
 from socialds.enums import TermColor
@@ -64,6 +65,12 @@ class RelationStorage:
 
     def remove(self, relation: Relation):
         self.relations.remove(relation)
+        
+    def get(self, left:any, r_type: RelationType, r_tense: RelationTense, right: any, negation=False):
+        for relation in self.relations:
+            if relation.left == left and relation.r_type == r_type and relation.r_tense == r_tense and relation.right == right and relation.negation == negation:
+                return relation
+        raise Error
 
 
 def merge_relation_storages(s1: RelationStorage, s2: RelationStorage):
