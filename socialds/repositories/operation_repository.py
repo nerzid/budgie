@@ -29,17 +29,14 @@ def share_relation(relation: Relation, shared_with: RelationStorage):
 
 def modify_relation_right(relation: Relation, new_right: any):
     relation.right = new_right
-    # I might need to modify the relation storage dict
     
 
 def modify_relation_left(relation: Relation, new_left: any):
     relation.left = new_left
-    # modify the relation storage dict as well
     
 
 def modify_relation_tense(relation: Relation, new_tense: RelationTense):
     relation.r_tense = new_tense
-    # modify the relation storage dict as well
 
 
 def modify_relation_negation(relation: Relation, new_negation: bool):

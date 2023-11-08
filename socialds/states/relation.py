@@ -22,7 +22,72 @@ class RelationTense(Enum):
 
 
 # e.g., Eren likes apples -> left: Eren, name: likes, right: apples
+
+
 class Relation(State):
+    relation_types_with_tenses = {
+        RelationType.IS: {
+            True: {
+                RelationTense.PAST: 'was',
+                RelationTense.PRESENT: 'is',
+                RelationTense.FUTURE: 'will'
+            },
+            False: {
+                RelationTense.PAST: 'wasn\'t',
+                RelationTense.PRESENT: 'isn\'t',
+                RelationTense.FUTURE: 'won\'t'
+            }
+        },
+        RelationType.HAS: {
+            True: {
+                RelationTense.PAST: 'had',
+                RelationTense.PRESENT: 'has',
+                RelationTense.FUTURE: 'will have'
+            },
+            False: {
+                RelationTense.PAST: 'hadn\'t',
+                RelationTense.PRESENT: 'hasn\'t',
+                RelationTense.FUTURE: 'won\'t have'
+            }
+        },
+        RelationType.CAN: {
+            True: {
+                RelationTense.PAST: 'could',
+                RelationTense.PRESENT: 'can',
+                RelationTense.FUTURE: 'will be able to'
+            },
+            False: {
+                RelationTense.PAST: 'couldn\'t',
+                RelationTense.PRESENT: 'can\'t',
+                RelationTense.FUTURE: 'won\'t be able to'
+            }
+        },
+        RelationType.ACTION: {
+            True: {
+                RelationTense.PAST: 'did',
+                RelationTense.PRESENT: 'does',
+                RelationTense.FUTURE: 'will do'
+            },
+            False: {
+                RelationTense.PAST: 'didn\'t',
+                RelationTense.PRESENT: 'doesn\'t',
+                RelationTense.FUTURE: 'won\'t do'
+            }
+        },
+        RelationType.HAS_PERMIT: {
+            True: {
+                RelationTense.PAST: 'was permitted to',
+                RelationTense.PRESENT: 'is permitted to',
+                RelationTense.FUTURE: 'will be permitted to'
+            },
+            False: {
+                RelationTense.PAST: 'wasn\'t permitted to',
+                RelationTense.PRESENT: 'isn\'t permitted to',
+                RelationTense.FUTURE: 'won\'t be permitted to'
+            }
+        }
+    }
+
     def __init__(self, left: any, r_type: RelationType, r_tense: RelationTense, right: any, negation=False):
         super().__init__()
         self.left = left
@@ -41,19 +106,16 @@ class Relation(State):
         r_tense_color = TermColor.LIGHT_CYAN.value
         right_color = TermColor.LIGHT_GREEN.value
 
-        negation_str = ('', '(not)')[self.negation]
         return f'{colored(self.left, left_color)} ' \
                f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
-               f'{colored(self.r_type.value, r_type_color)}' \
-               f'{colored(negation_str, TermColor.RED.value)}' \
-               f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
-               f'{colored(self.r_tense.value, r_tense_color)}' \
+               f'{colored(self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense], r_type_color)}' \
                f'{colored("->", TermColor.LIGHT_YELLOW.value)} ' \
                f'{colored(self.right, right_color)}'
 
-    # def __repr__(self):
-    #     negation_str = ('', '(not)')[self.negation]
-    #     return str(self.left) + '-' + self.r_type.value + negation_str + '-' + self.r_tense.value + '->' + str(self.right)
+
+# def __repr__(self):
+#     negation_str = ('', '(not)')[self.negation]
+#     return str(self.left) + '-' + self.r_type.value + negation_str + '-' + self.r_tense.value + '->' + str(self.right)
 
 
 if __name__ == '__main__':

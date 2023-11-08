@@ -17,10 +17,10 @@ class Share(Action):
         self.rs = rs
 
     def colorless_repr(self):
-        return f"{super().__repr__()}({self.relation.colorless_repr()} to {self.rs.name})"
+        return f"{super().__repr__()}({self.relation.colorless_repr()} with {self.rs.name})"
 
     def __repr__(self):
-        return f"{super().__repr__()}({self.relation} to {self.rs.name})"
+        return f"{super().__repr__()}({self.relation} with {self.rs.name})"
 
 
 if __name__ == '__main__':

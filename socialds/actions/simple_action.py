@@ -7,5 +7,5 @@ from socialds.actions.action_obj import ActionObjType
 
 class SimpleAction(Action):
 
-    def __init__(self, name:str, act_type:ActionObjType):
+    def __init__(self, name: str, act_type: ActionObjType):
         super().__init__(name, act_type, [])
