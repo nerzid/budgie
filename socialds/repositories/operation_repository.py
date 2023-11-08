@@ -18,9 +18,10 @@ def op_or():
 
 def add_relation(relation: Relation, rs: RelationStorage):
     rs.add(relation)
-    
 
-def create_then_add_relation(left:any, right:any, r_type:RelationType, r_tense:RelationTense, negation:bool, rs:RelationStorage):
+
+def create_then_add_relation(left: any, r_type: RelationType, r_tense: RelationTense,
+                             right: any, negation: bool, rs: RelationStorage):
     rs.add(Relation(left, r_type, r_tense, right, negation))
 
 
@@ -35,15 +36,15 @@ def move_relation(relation: Relation, from_rs: RelationStorage, to_rs: RelationS
 
 def share_relation(relation: Relation, shared_with: RelationStorage):
     shared_with.add(relation)
-    
+
 
 def modify_relation_right(relation: Relation, new_right: any):
     relation.right = new_right
-    
+
 
 def modify_relation_left(relation: Relation, new_left: any):
     relation.left = new_left
-    
+
 
 def modify_relation_tense(relation: Relation, new_tense: RelationTense):
     relation.r_tense = new_tense

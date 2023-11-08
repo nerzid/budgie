@@ -8,12 +8,11 @@ from socialds.states.relation import Relation, RelationTense, RelationType
 
 
 class Ask(Action):
-    def __init__(self, asker:Agent, asked:Relation, r_tense:RelationTense, negation:bool, rs:RelationStorage):
+    def __init__(self, asker: Agent, asked: Relation, r_tense: RelationTense, negation: bool, rs: RelationStorage):
         self.relation = Relation(asker, RelationType.ACTION, r_tense, asked, negation)
         self.rs = rs
-        super().__init__("ask", RelationType.ACTION, [])
-        
-        
+        super().__init__("ask", ActionObjType.FUNCTIONAL, [])
+
 # joe asks color of jane's dress
 # Joe -do-> ask (Jane's dress's color -is-> X)
 

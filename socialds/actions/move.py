@@ -3,17 +3,20 @@ from typing import List
 from socialds.actions.action import Action
 from socialds.actions.action_obj import ActionObjType
 from socialds.agent import Agent
-from socialds.repositories.operation_repository import find_relation_by_place, modify_relation_right
+from socialds.repositories.operation_repository import find_relation_by_place, modify_relation_right, \
+    modify_relation_tense, create_then_add_relation
 from socialds.socialpractice.context.place import Place
 from socialds.states.relation import Relation, RelationTense, RelationType
 
 
 class Move(Action):
-    def __init__(self, mover:Agent, moved:any, from_place:Place, to_place:Place):
+    def __init__(self, mover: Agent, moved: any, from_place: Place, to_place: Place):
         # self.relation = Relation(mover, RelationType.ACTION, RelationTense.PRESENT, )
         self.relation = find_relation_by_place(moved, RelationTense.PRESENT, from_place)
-        super().__init__('move', ActionObjType.FUNCTIONAL, op_seq=[partial(modify_relation_right, self.relation, to_place)])
-        
+        super().__init__('move', ActionObjType.FUNCTIONAL,
+                         op_seq=[partial(modify_relation_tense, self.relation, RelationTense.PAST),
+                                 partial(create_then_add_relation, moved, RelationType.IS_AT, RelationTense.PRESENT, to_place, True)])
+
 
 # Joe -is at-> office
 # Joe -is at-> Sweden
