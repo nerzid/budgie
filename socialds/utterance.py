@@ -14,5 +14,6 @@ class Utterance:
     def __repr__(self):
         action_str = ''
         for action in self.actions:
-            action_str += str(action.colorless_repr())
+            action_str += str(action.colorless_repr()) + ' -> '
+        action_str = action_str[:-4]
         return f'{self.text} ({action_str})'

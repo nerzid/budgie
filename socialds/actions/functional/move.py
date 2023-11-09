@@ -12,11 +12,25 @@ from socialds.states.relation import Relation, RelationTense, RelationType
 class Move(Action):
     def __init__(self, mover: Agent, moved: any, from_place: Place, to_place: Place):
         # self.relation = Relation(mover, RelationType.ACTION, RelationTense.PRESENT, )
-        self.relation = find_relation_by_place(moved, RelationTense.PRESENT, from_place)
+        self.relation = None
+        self.mover = mover
+        self.moved = moved
+        self.from_place = from_place
+        self.to_place = to_place
         super().__init__('move', ActionObjType.FUNCTIONAL,
                          op_seq=[partial(modify_relation_tense, self.relation, RelationTense.PAST),
-                                 partial(create_then_add_relation, moved, RelationType.IS_AT, RelationTense.PRESENT, to_place, True)])
+                                 partial(create_then_add_relation, moved, RelationType.IS_AT, RelationTense.PRESENT,
+                                         to_place, True)])
 
+    def colorless_repr(self):
+        return super().colorless_repr() + '(' + str(self.mover.name) + ' moves ' + str(self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ')'
+
+    def __repr__(self):
+        return super().colorless_repr() + '(' + str(self.mover.name) + ' moves ' + str(self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ')'
+
+    def execute(self):
+        self.relation = find_relation_by_place(self.moved, RelationTense.PRESENT, self.from_place)
+        super().execute()
 
 # Joe -is at-> office
 # Joe -is at-> Sweden

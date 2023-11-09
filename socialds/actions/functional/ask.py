@@ -11,7 +11,15 @@ class Ask(Action):
     def __init__(self, asker: Agent, asked: Relation, r_tense: RelationTense, negation: bool, rs: RelationStorage):
         self.relation = Relation(asker, RelationType.ACTION, r_tense, asked, negation)
         self.rs = rs
+        self.asker = asker
+        self.asked = asked
         super().__init__("ask", ActionObjType.FUNCTIONAL, [])
+
+    def colorless_repr(self):
+        return f"{super().__repr__()}({str(self.asker.name)} asks {self.asked.colorless_repr()})"
+
+    def __repr__(self):
+        return f"{super().__repr__()}({self.asker.name} asks {self.asked})"
 
 # joe asks color of jane's dress
 # Joe -do-> ask (Jane's dress's color -is-> X)

@@ -39,6 +39,16 @@
 # ds = DialogueSystem(agents=[doctor, patient])
 #
 # ds.run()
+import socialds.simple_DST as dst
+from socialds.actions.functional.ask import Ask
+from socialds.actions.verbal.acknowledge import Acknowledge
+from socialds.actions.verbal.backchannel import Backchannel
+from socialds.actions.verbal.selftalk import SelfTalk
+from socialds.actions.verbal.yes import Yes
+from socialds.actions.verbal.thank import Thank
+from socialds.actions.functional.move import Move
+from socialds.actions.functional.permit import Permit
+from socialds.actions.verbal.greet import Greet
 from socialds.actions.functional.share import Share
 from socialds.agent import Agent
 from socialds.dialogue_system import DialogueSystem
@@ -48,23 +58,36 @@ from socialds.socialpractice.context.actor import Actor
 from socialds.states.property import Property
 from socialds.states.relation import Relation, RelationType, RelationTense
 from socialds.utterance import Utterance
+from socialds.socialpractice.context.place import Place
 
-agent1_kb = RelationStorage('Eren\'s Knowledgebase')
-agent1_competences = RelationStorage('Eren\'s Competences')
-agent1_places = RelationStorage('Eren\'s Places')
-agent1_resources = RelationStorage('Eren\'s Resources')
-actor1 = Actor(name="Eren", knowledgebase=RelationStorage('Actor Eren\'s Knowledgebase'))
+# Global properties
+place_any = Place(name='any')
+places_office = Place(name='office')
+place_waiting_room = Place('waiting room')
 
+# Agent 1: Joe - patient
+# Agent 1's Relation Storages
+agent1_kb = RelationStorage('Joe\'s Knowledgebase')
+agent1_competences = RelationStorage('Joe\'s Competences')
+agent1_places = RelationStorage('Joe\'s Places')
+agent1_resources = RelationStorage('Joe\'s Resources')
+actor1 = Actor(name="Joe", knowledgebase=RelationStorage('Actor Joe\'s Knowledgebase'))
+
+# Agent 1's properties
 p_patients_problem = Property(name="patient's problem")
 p_patients_left_eye = Property(name="left_eye")
 p_patients_right_eye = Property(name="right_eye")
-p_happy = Property(name='happy')
+p_sick = Property(name='sick')
 p_teary = Property(name='teary')
 p_healthy = Property(name='healthy')
-p_dirty = Property(name='dirty')
+p_blurry = Property(name='blurry')
+p_vision = Property(name='vision')
+p_pain = Property(name='pain')
+p_red = Property(name='red')
 
+# AGENT 1's relations
 agent1_kb.add(Relation(
-    left=actor1, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_happy))
+    left=actor1, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_sick))
 agent1_kb.add(Relation(
     left=actor1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_patients_left_eye))
 agent1_kb.add(Relation(
@@ -72,28 +95,121 @@ agent1_kb.add(Relation(
 agent1_kb.add(Relation(
     left=p_patients_left_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_teary))
 agent1_kb.add(Relation(
+    left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_pain))
+agent1_kb.add(Relation(
+    left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_vision))
+agent1_kb.add(Relation(
+    left=p_vision, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_blurry))
+agent1_kb.add(Relation(
     left=p_patients_right_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_healthy))
 
-agent2_kb = RelationStorage('Wika\'s Knowledgebase')
-agent2_competences = RelationStorage('Wika\'s Competences')
-agent2_places = RelationStorage('Wika\'s Places')
-agent2_resources = RelationStorage('Wika\'s Resources')
-agent1 = Agent(name='Eren', actor=actor1, roles=[], knowledgebase=agent1_kb, competences=agent1_competences,
+# Agent 1's initialization
+agent1 = Agent(name='Joe(patient)', actor=actor1, roles=[], knowledgebase=agent1_kb, competences=agent1_competences,
                places=agent1_places, resources=agent1_resources)
-agent2 = Agent(name='Wika', actor=Actor(name="Wika", knowledgebase=RelationStorage('Actor Wika\'s Knowledbase ')), roles=[],
+agent1.places.add(Relation(left=agent1, r_type=RelationType.IS_AT, r_tense=RelationTense.PRESENT,
+                           right=place_any))
+agent1.places.add(Relation(left=agent1, r_type=RelationType.IS_AT, r_tense=RelationTense.PRESENT,
+                           right=place_waiting_room))
+
+# Agent 2: Jane - doctor
+# Agent 2's Relation Storages
+agent2_kb = RelationStorage('Jane\'s Knowledgebase')
+
+agent2_competences = RelationStorage('Jane\'s Competences')
+
+agent2_places = RelationStorage('Jane\'s Places')
+
+agent2_resources = RelationStorage('Jane\'s Resources')
+
+# Agent 2's initialization
+agent2 = Agent(name='Jane(doctor)',
+               actor=Actor(name="Jane", knowledgebase=RelationStorage('Actor Jane\'s Knowledgebase ')),
+               roles=[],
                knowledgebase=agent2_kb, competences=agent2_competences, places=agent2_places,
                resources=agent2_resources)
 
-utts = [
-    Utterance(text="Hi", actions=[verbal_greet()]),
-    Utterance(text="Hey!", actions=[verbal_greet()]),
-    Utterance(text="Eren is dirty!", actions=[Share(
-        Relation(left=actor1,
-                 r_type=RelationType.IS,
-                 r_tense=RelationTense.PRESENT,
-                 right=p_dirty)
-        , agent2_kb)])
+agent2.places.add(Relation(left=agent2, r_type=RelationType.IS_AT, r_tense=RelationTense.PRESENT,
+                           right=place_any))
+
+# Utterances
+# utts = [
+#     Utterance(text="Hi", actions=[verbal_greet()]),
+#     Utterance(text="Hey!", actions=[verbal_greet()]),
+#     Utterance(text="Eren is dirty!", actions=[Share(
+#         Relation(left=actor1,
+#                  r_type=RelationType.IS,
+#                  r_tense=RelationTense.PRESENT,
+#                  right=p_dirty)
+#         , agent2_kb)])
+# ]
+
+utterances = [
+    Utterance("Hi!", [Greet()]),
+    Utterance("Hi, come in", [Greet(),
+                              Permit(permitter=agent2,
+                                     permitted=Relation(left=agent1, r_type=RelationType.ACTION,
+                                                        r_tense=RelationTense.PRESENT, negation=False,
+                                                        right=Move(mover=agent2, moved=agent2, from_place=place_any,
+                                                                   to_place=places_office)),
+                                     r_tense=RelationTense.PRESENT, negation=False, rs=agent2.knowledgebase)]),
+    Utterance("Thank you.", [Thank()]),
+    Utterance("So, what brings you here today?", [Ask(asker=agent2,
+                                                      asked=Relation(left=p_patients_problem, r_type=RelationType.IS,
+                                                                     r_tense=RelationTense.PRESENT, negation=False,
+                                                                     right='x'),
+                                                      negation=False,
+                                                      r_tense=RelationTense.PRESENT,
+                                                      rs=agent1.knowledgebase)]),
+    Utterance("My left eye has been red since this morning.", [
+        Share(relation=Relation(
+            left=p_patients_left_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, negation=False, right=p_red
+        ), rs=agent2.knowledgebase),
+        Share(relation=Relation(
+            left=p_patients_left_eye, r_type=RelationType.IS, r_tense=RelationTense.PAST, negation=False, right=p_red
+        ), rs=agent2.knowledgebase)
+    ]),
+    Utterance("And my vision is a little bit blurry.", [
+        Share(relation=Relation(
+            left=p_vision, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, negation=False, right=p_blurry
+        ), rs=agent2.knowledgebase)
+    ]),
+    Utterance("Hm hmm...", [Backchannel()]),
+    Utterance("and it hurts a lot.", [
+        Share(relation=Relation(
+            left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, negation=False,
+            right=p_pain
+        ), rs=agent2.knowledgebase)
+    ]),
+    Utterance("Did you take any medicine to ease your pain?", []),
+    Utterance("No, I was worried that would make it worse.", []),
+    Utterance("I see.", [Acknowledge()]),
+    Utterance("Do you have any tears?", []),
+    Utterance("Yes, both eyes.", [Yes()]),
+    Utterance("Okay, I need to examine your eye now if that's okay for you.", []),
+    Utterance("Okay.", [Yes()]),
+    Utterance("Will it hurt?", []),
+    Utterance("No, you will just feel mild pressure in your eye, but it shouldn't hurt.", []),
+    Utterance("You can tell me if it hurts or you just feel uncomfortable.", []),
+    Utterance("Okay doctor, thank you.", [Acknowledge(), Thank()]),
+    Utterance("Can you open your eyes now?", []),
+    Utterance("Perfect.", [Acknowledge()]),
+    Utterance("Let me see.", [SelfTalk()]),
+    Utterance("I see that the veins in your eye are red.", []),
+    Utterance("And there is inflammation.", []),
+    Utterance("Okay.", [SelfTalk()]),
+    Utterance("So, how is it doctor?", []),
+    Utterance("Your left eye has bacterial conjunctivitis.", []),
+    Utterance("Did you have a cold recently?", []),
+    Utterance("Yes, is that why?", [Yes(), ]),
+    Utterance("Yeah, it is pretty common to get bacterial conjunctivitis after having a cold.", []),
+    Utterance("Oh...", [Acknowledge()]),
+    Utterance("I will prescribe you some antibiotics, take them twice a day, "
+              "one in the morning and one before you sleep.", []),
+    Utterance("Thank you, doctor.", [Thank()]),
+    Utterance("If it doesn't heal in a week, you can come again.", []),
+    Utterance("Thank you.", [Thank()])
 ]
 
-ds = DialogueSystem(agents=[agent1, agent2], utterances=utts)
+# Dialogue System initialization
+ds = DialogueSystem(agents=[agent1, agent2], utterances=utterances)
 ds.run(turns=2)

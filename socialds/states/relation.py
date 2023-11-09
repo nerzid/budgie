@@ -2,6 +2,7 @@ from enum import Enum
 
 from termcolor import colored
 
+from socialds.actions.action import Action
 from socialds.enums import TermColor
 from socialds.object import Object
 from socialds.states.state import State
@@ -111,7 +112,10 @@ class Relation(State):
 
     def colorless_repr(self):
         negation_str = ('', '(not)')[self.negation]
-        return f'{self.left}-{self.r_type.value}{negation_str}-{self.r_tense.value}->{self.right}'
+        if isinstance(self.right, Action):
+            return f'{self.left}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right.colorless_repr()}'
+        else:
+            return f'{self.left}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right}'
 
     def __repr__(self):
         left_color = TermColor.LIGHT_BLUE.value
