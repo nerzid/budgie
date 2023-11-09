@@ -49,7 +49,7 @@ class DialogueSystem:
             dst.me = None
 
     def get_user_input(self, agent):
-        choose_type_of_act_question = f'{agent.actor.name} chooses to do...'
+        choose_type_of_act_question = f'{agent.name} chooses to do...'
         act_options = ['Utterance', 'Verbal Act', 'Physical Act', 'Functional Act', 'Mental Act']
         type_of_act = questionary.select(choose_type_of_act_question, act_options).ask()
         global_menu_options = ['Go back to main menu']
