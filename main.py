@@ -156,7 +156,7 @@ utterances = [
     Utterance("So, what brings you here today?", [Ask(asker=agent2,
                                                       asked=Relation(left=p_patients_problem, r_type=RelationType.IS,
                                                                      r_tense=RelationTense.PRESENT, negation=False,
-                                                                     right='x'),
+                                                                     right='?'),
                                                       negation=False,
                                                       r_tense=RelationTense.PRESENT,
                                                       rs=agent1.knowledgebase)]),

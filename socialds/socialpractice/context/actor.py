@@ -7,7 +7,7 @@ from socialds.states.knowledge import Knowledge
 
 
 class Actor(Object):
-    def __init__(self, name, knowledgebase: RelationStorage):
+    def __init__(self, name, knowledgebase: RelationStorage = RelationStorage('')):
         super().__init__(name)
         self.knowledgebase = knowledgebase
         self.name = name

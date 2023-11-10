@@ -50,3 +50,7 @@ class Agent(Object):
         pretty_info += str(self.resources) + '\n'
         pretty_info += str(self.places)
         return pretty_info
+
+
+any_agent = Agent('any', Actor('any'), [], RelationStorage(''), 
+                  RelationStorage(''), RelationStorage(''), RelationStorage(''))
