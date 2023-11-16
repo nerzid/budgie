@@ -40,6 +40,8 @@
 #
 # ds.run()
 import socialds.simple_DST as dst
+from socialds.actions.mental.feel import Feel
+from socialds.actions.physical.take import Take
 from socialds.actions.functional.ask import Ask
 from socialds.actions.verbal.acknowledge import Acknowledge
 from socialds.actions.verbal.backchannel import Backchannel
@@ -50,7 +52,7 @@ from socialds.actions.functional.move import Move
 from socialds.actions.functional.permit import Permit
 from socialds.actions.verbal.greet import Greet
 from socialds.actions.functional.share import Share
-from socialds.agent import Agent
+from socialds.agent import Agent, any_agent
 from socialds.dialogue_system import DialogueSystem
 from socialds.relationstorage import RelationStorage
 from socialds.repositories.action_repository import verbal_greet
@@ -84,6 +86,8 @@ p_blurry = Property(name='blurry')
 p_vision = Property(name='vision')
 p_pain = Property(name='pain')
 p_red = Property(name='red')
+p_worry = Property('worry')
+p_medicine = Property('medicine')
 
 # AGENT 1's relations
 agent1_kb.add(Relation(
@@ -181,9 +185,23 @@ utterances = [
         ), rs=agent2.knowledgebase)
     ]),
     Utterance("Did you take any medicine to ease your pain?", []),
-    Utterance("No, I was worried that would make it worse.", []),
+    Utterance("No, I was worried that would make it worse.", [
+        Feel(felt_by=agent1, felt=p_worry, about=Relation(
+            left=agent1, r_tense=RelationTense.PRESENT, r_type=RelationType.ACTION, negation=False,
+            right=Take(giver=any_agent, r_tense=RelationTense.PRESENT, taken=p_medicine, taker=agent1, negation=False)
+        ),
+             r_tense=RelationTense.PAST)
+    ]),
     Utterance("I see.", [Acknowledge()]),
-    Utterance("Do you have any tears?", []),
+    Utterance("Do you have any tears?", [
+        Ask(asker=agent2,
+            asked=Relation(left=p_patients_left_eye, r_type=RelationType.IS,
+                           r_tense=RelationTense.PRESENT, negation=False,
+                           right=p_teary),
+            r_tense=RelationTense.PRESENT,
+            negation=False,
+            rs=agent1.knowledgebase)
+    ]),
     Utterance("Yes, both eyes.", [Yes()]),
     Utterance("Okay, I need to examine your eye now if that's okay for you.", []),
     Utterance("Okay.", [Yes()]),
