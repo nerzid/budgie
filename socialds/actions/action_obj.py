@@ -23,8 +23,14 @@ class ActionObj:
         for op in self.op_seq:
             op()
 
+    # def colorless_repr(self):
+    #     return f'{self.act_type}:{self.name}'
+    #
+    # def __repr__(self):
+    #     return f'{self.act_type}:{self.name}'
+
     def colorless_repr(self):
-        return f'{self.act_type}:{self.name}'
+        return f'{self.name}'
 
     def __repr__(self):
-        return f'{self.act_type}:{self.name}'
+        return f'{self.name}'

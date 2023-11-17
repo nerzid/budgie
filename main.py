@@ -40,6 +40,10 @@
 #
 # ds.run()
 import socialds.simple_DST as dst
+from socialds.actions.functional.notify import Notify
+from socialds.actions.physical.examine import Examine
+from socialds.actions.functional.request import Request
+from socialds.actions.physical.open import Open
 from socialds.actions.mental.feel import Feel
 from socialds.actions.physical.take import Take
 from socialds.actions.functional.ask import Ask
@@ -63,8 +67,8 @@ from socialds.utterance import Utterance
 from socialds.socialpractice.context.place import Place
 
 # Global properties
-place_any = Place(name='any')
-places_office = Place(name='office')
+place_any = Place('any')
+places_office = Place('office')
 place_waiting_room = Place('waiting room')
 
 # Agent 1: Joe - patient
@@ -77,8 +81,9 @@ actor1 = Actor(name="Joe", knowledgebase=RelationStorage('Actor Joe\'s Knowledge
 
 # Agent 1's properties
 p_patients_problem = Property(name="patient's problem")
-p_patients_left_eye = Property(name="left_eye")
-p_patients_right_eye = Property(name="right_eye")
+p_patients_left_eye = Property(name="left eye")
+p_patients_right_eye = Property(name="right eye")
+p_patients_both_eyes = Property('both eyes')
 p_sick = Property(name='sick')
 p_teary = Property(name='teary')
 p_healthy = Property(name='healthy')
@@ -87,33 +92,28 @@ p_vision = Property(name='vision')
 p_pain = Property(name='pain')
 p_red = Property(name='red')
 p_worry = Property('worry')
+p_inflammation = Property('inflammation')
 p_medicine = Property('medicine')
 
 # AGENT 1's relations
-agent1_kb.add(Relation(
-    left=actor1, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_sick))
-agent1_kb.add(Relation(
-    left=actor1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_patients_left_eye))
-agent1_kb.add(Relation(
-    left=actor1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_patients_right_eye))
-agent1_kb.add(Relation(
-    left=p_patients_left_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_teary))
-agent1_kb.add(Relation(
-    left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_pain))
-agent1_kb.add(Relation(
-    left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_vision))
-agent1_kb.add(Relation(
-    left=p_vision, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_blurry))
-agent1_kb.add(Relation(
-    left=p_patients_right_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_healthy))
+agent1_kb.add_multi([
+    Relation(left=actor1, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_sick),
+    Relation(left=actor1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_patients_left_eye),
+    Relation(left=actor1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_patients_right_eye),
+    Relation(left=p_patients_left_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_teary),
+    Relation(left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_pain),
+    Relation(left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT, right=p_vision),
+    Relation(left=p_vision, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_blurry),
+    Relation(left=p_patients_right_eye, r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right=p_healthy)
+])
 
 # Agent 1's initialization
 agent1 = Agent(name='Joe(patient)', actor=actor1, roles=[], knowledgebase=agent1_kb, competences=agent1_competences,
                places=agent1_places, resources=agent1_resources)
-agent1.places.add(Relation(left=agent1, r_type=RelationType.IS_AT, r_tense=RelationTense.PRESENT,
-                           right=place_any))
-agent1.places.add(Relation(left=agent1, r_type=RelationType.IS_AT, r_tense=RelationTense.PRESENT,
-                           right=place_waiting_room))
+agent1.places.add_multi([
+    Relation(left=agent1, r_type=RelationType.IS_AT, r_tense=RelationTense.PRESENT, right=place_any),
+    Relation(left=agent1, r_type=RelationType.IS_AT, r_tense=RelationTense.PRESENT, right=place_waiting_room)
+])
 
 # Agent 2: Jane - doctor
 # Agent 2's Relation Storages
@@ -132,8 +132,10 @@ agent2 = Agent(name='Jane(doctor)',
                knowledgebase=agent2_kb, competences=agent2_competences, places=agent2_places,
                resources=agent2_resources)
 
-agent2.places.add(Relation(left=agent2, r_type=RelationType.IS_AT, r_tense=RelationTense.PRESENT,
-                           right=place_any))
+agent2.places.add_multi([
+    Relation(left=agent2, r_type=RelationType.IS_AT, r_tense=RelationTense.PRESENT, right=place_any),
+    Relation(left=agent2, r_type=RelationType.IS_AT, r_tense=RelationTense.PRESENT, right=places_office)
+])
 
 # Utterances
 # utts = [
@@ -184,7 +186,12 @@ utterances = [
             right=p_pain
         ), rs=agent2.knowledgebase)
     ]),
-    Utterance("Did you take any medicine to ease your pain?", []),
+    Utterance("Did you take any medicine to ease your pain?", [
+        Ask(asker=agent2, r_tense=RelationTense.PRESENT, asked=Relation(
+            left=agent1, r_tense=RelationTense.PAST, r_type=RelationType.ACTION, negation=False,
+            right=Take(giver=agent1, taken=p_medicine, taker=agent1, r_tense=RelationTense.PRESENT, negation=False)
+        ), negation=False, rs=agent2.knowledgebase)
+    ]),
     Utterance("No, I was worried that would make it worse.", [
         Feel(felt_by=agent1, felt=p_worry, about=Relation(
             left=agent1, r_tense=RelationTense.PRESENT, r_type=RelationType.ACTION, negation=False,
@@ -203,13 +210,27 @@ utterances = [
             rs=agent1.knowledgebase)
     ]),
     Utterance("Yes, both eyes.", [Yes()]),
-    Utterance("Okay, I need to examine your eye now if that's okay for you.", []),
+    Utterance("Okay, I need to examine your eye now if that's okay for you.", [
+        Request(requester=agent2, requested=Relation(
+            left=agent2, r_type=RelationType.ACTION, r_tense=RelationTense.PRESENT,
+            right=Examine()
+        )),
+        Notify(notifier=agent2, notified_about=Relation(
+            left=agent2, r_type=RelationType.ACTION, r_tense=RelationTense.FUTURE,
+            right=Examine()
+        ), notified_to=agent1)
+    ]),
     Utterance("Okay.", [Yes()]),
     Utterance("Will it hurt?", []),
     Utterance("No, you will just feel mild pressure in your eye, but it shouldn't hurt.", []),
     Utterance("You can tell me if it hurts or you just feel uncomfortable.", []),
     Utterance("Okay doctor, thank you.", [Acknowledge(), Thank()]),
-    Utterance("Can you open your eyes now?", []),
+    Utterance("Can you open your eyes now?", [
+        Request(requester=agent2, requested=Relation(
+            left=agent1, r_type=RelationType.ACTION, r_tense=RelationTense.PRESENT, negation=False,
+            right=Open(target=p_patients_both_eyes, by=agent1)
+        ))
+    ]),
     Utterance("Perfect.", [Acknowledge()]),
     Utterance("Let me see.", [SelfTalk()]),
     Utterance("I see that the veins in your eye are red.", []),

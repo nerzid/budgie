@@ -48,24 +48,9 @@ class RelationStorage:
     def add(self, relation: Relation):
         self.relations.append(relation)
 
-    # def add(self, relation: Relation):
-    #     if relation.left in self.relations:
-    #         if relation.r_type in self.relations[relation.left]:
-    #             if relation.negation in self.relations[relation.left][relation.r_type]:
-    #                 if relation.r_tense in self.relations[relation.left][relation.r_type][relation.negation]:
-    #                     self.relations[relation.left][relation.r_type][relation.negation][relation.r_tense].append(
-    #                         relation.right)
-    #                 else:
-    #                     self.relations[relation.left][relation.r_type][relation.negation][relation.r_tense] = {
-    #                         relation.r_tense: [relation.right]}
-    #             else:
-    #                 self.relations[relation.left][relation.r_type] = {
-    #                     relation.negation: {relation.r_tense: [relation.right]}}
-    #         else:
-    #             self.relations[relation.left] = {
-    #                 relation.r_type: {relation.negation: {relation.r_tense: [relation.right]}}}
-    #     else:
-    #         self.relations[relation.left] = {relation.r_type: {relation.negation: {relation.r_tense: [relation.right]}}}
+    def add_multi(self, relations: [Relation]):
+        for rel in relations:
+            self.add(rel)
 
     def remove(self, relation: Relation):
         self.relations.remove(relation)
