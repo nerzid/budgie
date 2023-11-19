@@ -13,7 +13,8 @@ from socialds.states.relation import Relation, RelationType, RelationTense
 
 class DialogueSystem:
     def __init__(self, agents: List[Agent], utterances: List[Utterance],
-                 history=RelationStorage('Dialogue History', is_private=False)):
+                 history=RelationStorage('Dialogue History', is_private=False),
+                 ):
         self.history = history
         self.agents = agents
         self.utterances = utterances

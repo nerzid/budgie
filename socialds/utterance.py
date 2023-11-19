@@ -1,6 +1,6 @@
 from typing import List
 
-from socialds.actions.action import ActionObj
+from socialds.action.action_obj import ActionObj
 
 
 class Utterance:
@@ -14,6 +14,6 @@ class Utterance:
     def __repr__(self):
         action_str = ''
         for action in self.actions:
-            action_str += str(action.colorless_repr()) + ' -> '
-        action_str = action_str[:-4]
+            action_str += str(action.colorless_repr()) + ' '
+        action_str = action_str[:-1]
         return f'{self.text} ({action_str})'

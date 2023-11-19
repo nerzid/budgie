@@ -1,0 +1,25 @@
+from socialds.action.action import Action
+from socialds.action.action_operator import ActionOperator
+from socialds.condition import Condition
+from socialds.states.relation import Relation
+
+
+class When(ActionOperator):
+    def __init__(self, action: Action, conditions: [Condition]):
+        self.action = action
+        self.conditions = conditions
+        super().__init__('when', [])
+
+    def colorless_repr(self):
+        conditions_str = ""
+        for condition in self.conditions:
+            conditions_str += condition.colorless_repr() + '\n'
+        conditions_str = conditions_str[:-2]
+        return f"{super().colorless_repr()}WHEN {conditions_str} DO {self.action.colorless_repr()}"
+
+    def __repr__(self):
+        conditions_str = ""
+        for condition in self.conditions:
+            conditions_str += condition + '\n'
+        conditions_str = conditions_str[:-2]
+        return f"{super().__repr__()}WHEN {conditions_str} DO {self.action.colorless_repr()}"
