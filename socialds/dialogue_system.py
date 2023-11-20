@@ -1,6 +1,7 @@
 from termcolor import colored
 
 import socialds.simple_DST as dst
+from socialds.action.action import Action
 from socialds.relationstorage import RelationStorage
 from socialds.agent import Agent
 from typing import List
@@ -32,18 +33,21 @@ class DialogueSystem:
             while not end_turn:
                 dst.me = agent
                 if agent.auto:
-                    self.history.add(Relation(left=agent,
-                                              r_type=RelationType.ACTION,
-                                              r_tense=RelationTense.PAST,
-                                              right=agent.act()))
+                    pass
+                    # if isinstance(action, Action):
+                    #     self.history.add(Relation(left=agent,
+                    #                               r_type=RelationType.ACTION,
+                    #                               r_tense=RelationTense.PAST,
+                    #                               right=agent.act()))
                 else:
                     actions, end_turn = self.get_user_input(agent)
                     for action in actions:
                         action.execute()
-                        self.history.add(Relation(left=agent,
-                                                  r_type=RelationType.ACTION,
-                                                  r_tense=RelationTense.PAST,
-                                                  right=action))
+                        if isinstance(action, Action):
+                            self.history.add(Relation(left=agent,
+                                                      r_type=RelationType.ACTION,
+                                                      r_tense=RelationTense.PAST,
+                                                      right=action))
                 [print(agent.info()) for agent in self.agents]
                 print(self.history)
             dst.you = dst.me

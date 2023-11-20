@@ -1,3 +1,13 @@
+from socialds.action.actions.functional.have import Have
+from socialds.action.actiontimes.after import After
+from socialds.action.actiontimes.in_morning import InMorning
+from socialds.action.actions.physical.sleep import Sleep
+from socialds.action.actiontimes.before import Before
+from socialds.action.actiontimes.num_of_times import NumOfTimes
+from socialds.action.actions.physical.prescribe import Prescribe
+from socialds.action.actionoperators.op_or import Or
+from socialds.action.actions.physical.heal import Heal
+from socialds.action.actiontimes.in_week import InWeek
 from socialds.action.actions.functional.check import Check
 from socialds.action.actions.mental.deduce import Deduce
 from socialds.action.actionoperators.then import Then
@@ -51,6 +61,7 @@ p_patients_right_eye = Property("right eye")
 p_patients_both_eyes = Property('both eyes')
 p_veins_in_left_eye = Property('veins in left eye')
 p_veins_in_right_eye = Property('veins in right eye')
+p_eye = Property('eye')
 
 p_sick = Property('sick')
 p_teary = Property('teary')
@@ -64,6 +75,9 @@ p_worry = Property('worry')
 p_inflammation = Property('inflammation')
 p_medicine = Property('medicine')
 p_bacterial_conjunctivitis = Property('bacterial conjunctivitis')
+p_cold = Property('cold')
+p_antibiotics = Property('antibiotics')
+p_common = Property('common')
 
 # AGENT 1's relations
 agent1_kb.add_multi([
@@ -92,11 +106,8 @@ agent1.places.add_multi([
 # Agent 2: Jane - doctor
 # Agent 2's Relation Storages
 agent2_kb = RelationStorage('Jane\'s Knowledgebase')
-
 agent2_competences = RelationStorage('Jane\'s Competences')
-
 agent2_places = RelationStorage('Jane\'s Places')
-
 agent2_resources = RelationStorage('Jane\'s Resources')
 
 # Agent 2's initialization
@@ -165,7 +176,7 @@ utterances = [
         Check(checker=agent2, r_tense=RelationTense.PRESENT, checked=Relation(
             left=agent1, r_tense=RelationTense.PAST, r_type=RelationType.ACTION, negation=False,
             right=Take(taken=p_medicine, taker=agent1, r_tense=RelationTense.PRESENT, negation=False)
-        ), negation=False, rs=agent2.knowledgebase)
+        ), negation=False, checked_rs=agent2.knowledgebase)
     ]),
     Utterance("No, I was worried that would make it worse.", [
         Feel(felt_by=agent1, felt=p_worry, about=Relation(
@@ -184,7 +195,7 @@ utterances = [
                                right=p_teary),
               r_tense=RelationTense.PRESENT,
               negation=False,
-              rs=agent1.knowledgebase)
+              checked_rs=agent1.knowledgebase)
     ]),
     Utterance("Yes, both eyes.", [
         Yes(),
@@ -215,7 +226,7 @@ utterances = [
                                              right=Examine()),
                                r_type=RelationType.IS, r_tense=RelationTense.PRESENT,
                                right=p_painful
-                               ), rs=agent2.knowledgebase)
+                               ), checked_rs=agent2.knowledgebase)
     ]),
     Utterance("No, you will just feel mild pressure in your eye, but it shouldn't hurt.", [
         No(),
@@ -276,10 +287,10 @@ utterances = [
     ]),
     Utterance("And there is inflammation.", [
         Learn(learner=agent2,
-              learned=Relation(left=agent1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT,
+              learned=Relation(left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT,
                                right=p_inflammation)),
         And(),
-        Share(relation=Relation(left=agent1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT,
+        Share(relation=Relation(left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT,
                                 right=p_inflammation),
               rs=agent1.knowledgebase)
     ]),
@@ -287,45 +298,74 @@ utterances = [
         SelfTalk(),
         And(),
         Deduce(deducer=agent2,
-               deduced=Relation(left=agent1, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT,
+               deduced=Relation(left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT,
                                 right=p_bacterial_conjunctivitis)),
         And(),
         Deduce(deducer=agent2,
                deduced=Relation(left=p_patients_problem, r_type=RelationType.IS, r_tense=RelationTense.PRESENT,
-                                right=p_bacterial_conjunctivitis)),
-        And(),
-        Deduce(deducer=agent2,
-               deduced=Relation(left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT,
                                 right=p_bacterial_conjunctivitis))
     ]),
     Utterance("So, how is it doctor?", [
-
+        Ask(asker=agent1,
+            asked=Relation(left=p_patients_problem, r_type=RelationType.IS, r_tense=RelationTense.PRESENT,
+                           right='?'),
+            r_tense=RelationTense.PRESENT,
+            rs=agent2.knowledgebase),
+        Or(),
+        Ask(asker=agent1,
+            asked=Relation(left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT,
+                           right='?'),
+            r_tense=RelationTense.PRESENT,
+            rs=agent2.knowledgebase)
     ]),
     Utterance("Your left eye has bacterial conjunctivitis.", [
         Share(relation=Relation(left=p_patients_left_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT,
                                 right=p_bacterial_conjunctivitis), rs=agent1.knowledgebase)
     ]),
     Utterance("Did you have a cold recently?", [
-
+        Check(checker=agent2, r_tense=RelationTense.PRESENT, checked=Relation(
+            left=agent1, r_type=RelationType.HAS, r_tense=RelationTense.PAST,
+            right=p_cold
+        ), checked_rs=agent1.knowledgebase)
     ]),
     Utterance("Yes, is that why?", [
         Yes(),
+        And(),
+        Share(relation=Relation(
+            left=agent1, r_tense=RelationTense.PAST, r_type=RelationType.HAS, right=p_cold
+        ), rs=agent2.knowledgebase)
     ]),
     Utterance("Yeah, it is pretty common to get bacterial conjunctivitis after having a cold.", [
-
+        Share(relation=Relation(left=Relation(left=p_eye, r_type=RelationType.HAS, r_tense=RelationTense.PRESENT,
+                                right=p_bacterial_conjunctivitis), r_type=RelationType.IS, r_tense=RelationTense.PRESENT,
+                                right=p_common, times=[After(after=Have(owner=any_agent, target=p_cold))]),
+              rs=agent1.knowledgebase)
     ]),
     Utterance("Oh...", [
         Acknowledge()
     ]),
-    Utterance("I will prescribe you some antibiotics, take them twice a day, "
-              "one in the morning and one before you sleep.", [
-
-              ]),
+    Utterance(
+        "I will prescribe you some antibiotics, take them twice a day, one in the morning and one before you sleep.", [
+            Prescribe(prescriber=agent2, prescribed=p_antibiotics, prescribed_for=agent1),
+            And(),
+            Request(requester=agent2,
+                    requested=Relation(left=agent1, r_type=RelationType.ACTION, r_tense=RelationTense.FUTURE,
+                                       right=Take(taker=agent1, taken=p_antibiotics,
+                                                  r_tense=RelationTense.PRESENT,
+                                                  times=[InMorning(num_of_times=NumOfTimes(1)),
+                                                         Before(Sleep(sleeper=agent1), num_of_times=NumOfTimes(1))])))
+        ]),
     Utterance("Thank you, doctor.", [
         Thank()
     ]),
     Utterance("If it doesn't heal in a week, you can come again.", [
-
+        When(conditions=[
+            Condition(
+                relation=Relation(left=p_patients_left_eye, r_tense=RelationTense.PRESENT, r_type=RelationType.ACTION,
+                                  right=Heal(healed=p_patients_left_eye, negation=True, times=[InWeek(num=1)])))
+        ],
+            action=Move(mover=agent1, moved=agent1, from_place=place_any, to_place=places_office)
+        )
     ]),
     Utterance("Thank you.", [
         Thank()

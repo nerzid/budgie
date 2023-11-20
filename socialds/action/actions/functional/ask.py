@@ -6,7 +6,8 @@ from socialds.states.relation import Relation, RelationTense, RelationType
 
 
 class Ask(Action):
-    def __init__(self, asker: Agent, asked: Relation, r_tense: RelationTense, negation: bool, rs: RelationStorage):
+    def __init__(self, asker: Agent, asked: Relation, r_tense: RelationTense, rs: RelationStorage,
+                 negation: bool = False):
         self.relation = Relation(asker, RelationType.ACTION, r_tense, asked, negation)
         self.rs = rs
         self.asker = asker
@@ -14,7 +15,7 @@ class Ask(Action):
         super().__init__("ask", ActionObjType.FUNCTIONAL, [])
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}{str(self.asker.name)} asks what {self.asked.colorless_repr()}"
+        return f"{super().colorless_repr()}{self.asker.name} asks what {self.asked.colorless_repr()}"
 
     def __repr__(self):
         return f"{super().__repr__()}{self.asker.name} asks what {self.asked}"

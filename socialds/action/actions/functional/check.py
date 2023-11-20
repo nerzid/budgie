@@ -6,9 +6,10 @@ from socialds.states.relation import Relation, RelationTense, RelationType
 
 
 class Check(Action):
-    def __init__(self, checker: Agent, checked: Relation, r_tense: RelationTense, negation: bool, rs: RelationStorage):
+    def __init__(self, checker: Agent, checked: Relation, r_tense: RelationTense, checked_rs: RelationStorage,
+                 negation: bool = False):
         self.relation = Relation(checker, RelationType.ACTION, r_tense, checked, negation)
-        self.rs = rs
+        self.checked_rs = checked_rs
         self.checker = checker
         self.checked = checked
         super().__init__("check", ActionObjType.FUNCTIONAL, [])

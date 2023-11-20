@@ -2,6 +2,7 @@ from enum import Enum
 
 from termcolor import colored
 
+from socialds.action.action_time import ActionTime
 from socialds.action.action import Action
 from socialds.enums import TermColor
 from socialds.object import Object
@@ -102,24 +103,26 @@ class Relation(State):
         }
     }
 
-    def __init__(self, left: any, r_type: RelationType, r_tense: RelationTense, right: any, negation=False):
+    def __init__(self, left: any, r_type: RelationType, r_tense: RelationTense, right: any, negation=False,
+                 times: [ActionTime] = None):
         super().__init__()
         self.left = left
         self.r_type = r_type
         self.r_tense = r_tense
         self.right = right
         self.negation = negation
+        self.times = times
 
     def colorless_repr(self):
         if (isinstance(self.right, Action) or isinstance(self.right, Relation)) and \
                 (isinstance(self.left, Action) or isinstance(self.right, Relation)):
-            return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right.colorless_repr()}'
+            return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right.colorless_repr()}{self.get_times_str()}'
         elif isinstance(self.right, Action) or isinstance(self.right, Relation):
-            return f'{self.left}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right.colorless_repr()}'
+            return f'{self.left}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right.colorless_repr()}{self.get_times_str()}'
         elif isinstance(self.left, Action) or isinstance(self.left, Relation):
-            return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right}'
+            return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right}{self.get_times_str()}'
         else:
-            return f'{self.left}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right}'
+            return f'{self.left}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right}{self.get_times_str()}'
 
     def __repr__(self):
         left_color = TermColor.LIGHT_BLUE.value
@@ -131,7 +134,17 @@ class Relation(State):
                f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
                f'{colored(self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense], r_type_color)}' \
                f'{colored("->", TermColor.LIGHT_YELLOW.value)} ' \
-               f'{colored(self.right, right_color)}'
+               f'{colored(self.right, right_color)}{self.get_times_str()}'
+
+    def get_times_str(self):
+        if self.times is None:
+            return ''
+        times_str = ''
+        for time in self.times:
+            times_str += str(time) + ' AND '
+        if len(self.times) > 0:
+            times_str = ' ' + times_str[:-5]
+        return times_str
 
 
 # def __repr__(self):
