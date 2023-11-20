@@ -1,3 +1,4 @@
+from socialds.action.actions.functional.check import Check
 from socialds.action.actions.mental.deduce import Deduce
 from socialds.action.actionoperators.then import Then
 from socialds.action.actionoperators.when import When
@@ -161,15 +162,15 @@ utterances = [
         ), rs=agent2.knowledgebase)
     ]),
     Utterance("Did you take any medicine to ease your pain?", [
-        Ask(asker=agent2, r_tense=RelationTense.PRESENT, asked=Relation(
+        Check(checker=agent2, r_tense=RelationTense.PRESENT, checked=Relation(
             left=agent1, r_tense=RelationTense.PAST, r_type=RelationType.ACTION, negation=False,
-            right=Take(giver=agent1, taken=p_medicine, taker=agent1, r_tense=RelationTense.PRESENT, negation=False)
+            right=Take(taken=p_medicine, taker=agent1, r_tense=RelationTense.PRESENT, negation=False)
         ), negation=False, rs=agent2.knowledgebase)
     ]),
     Utterance("No, I was worried that would make it worse.", [
         Feel(felt_by=agent1, felt=p_worry, about=Relation(
             left=agent1, r_tense=RelationTense.PRESENT, r_type=RelationType.ACTION, negation=False,
-            right=Take(giver=any_agent, r_tense=RelationTense.PRESENT, taken=p_medicine, taker=agent1, negation=False)
+            right=Take(r_tense=RelationTense.PRESENT, taken=p_medicine, taker=agent1, negation=False)
         ),
              r_tense=RelationTense.PAST)
     ]),
@@ -177,13 +178,13 @@ utterances = [
         Acknowledge()
     ]),
     Utterance("Do you have any tears?", [
-        Ask(asker=agent2,
-            asked=Relation(left=p_patients_left_eye, r_type=RelationType.IS,
-                           r_tense=RelationTense.PRESENT, negation=False,
-                           right=p_teary),
-            r_tense=RelationTense.PRESENT,
-            negation=False,
-            rs=agent1.knowledgebase)
+        Check(checker=agent2,
+              checked=Relation(left=p_patients_left_eye, r_type=RelationType.IS,
+                               r_tense=RelationTense.PRESENT, negation=False,
+                               right=p_teary),
+              r_tense=RelationTense.PRESENT,
+              negation=False,
+              rs=agent1.knowledgebase)
     ]),
     Utterance("Yes, both eyes.", [
         Yes(),
@@ -209,12 +210,12 @@ utterances = [
         Yes()
     ]),
     Utterance("Will it hurt?", [
-        Ask(asker=agent1, r_tense=RelationTense.PRESENT, negation=False,
-            asked=Relation(left=Relation(left=agent2, r_type=RelationType.ACTION, r_tense=RelationTense.PRESENT,
-                                         right=Examine()),
-                           r_type=RelationType.IS, r_tense=RelationTense.PRESENT,
-                           right=p_painful
-                           ), rs=agent2.knowledgebase)
+        Check(checker=agent1, r_tense=RelationTense.PRESENT, negation=False,
+              checked=Relation(left=Relation(left=agent2, r_type=RelationType.ACTION, r_tense=RelationTense.PRESENT,
+                                             right=Examine()),
+                               r_type=RelationType.IS, r_tense=RelationTense.PRESENT,
+                               right=p_painful
+                               ), rs=agent2.knowledgebase)
     ]),
     Utterance("No, you will just feel mild pressure in your eye, but it shouldn't hurt.", [
         No(),
@@ -310,7 +311,9 @@ utterances = [
     Utterance("Yes, is that why?", [
         Yes(),
     ]),
-    Utterance("Yeah, it is pretty common to get bacterial conjunctivitis after having a cold.", []),
+    Utterance("Yeah, it is pretty common to get bacterial conjunctivitis after having a cold.", [
+
+    ]),
     Utterance("Oh...", [
         Acknowledge()
     ]),

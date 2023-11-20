@@ -5,19 +5,19 @@ from socialds.relationstorage import RelationStorage
 from socialds.states.relation import Relation, RelationTense, RelationType
 
 
-class Ask(Action):
-    def __init__(self, asker: Agent, asked: Relation, r_tense: RelationTense, negation: bool, rs: RelationStorage):
-        self.relation = Relation(asker, RelationType.ACTION, r_tense, asked, negation)
+class Check(Action):
+    def __init__(self, checker: Agent, checked: Relation, r_tense: RelationTense, negation: bool, rs: RelationStorage):
+        self.relation = Relation(checker, RelationType.ACTION, r_tense, checked, negation)
         self.rs = rs
-        self.asker = asker
-        self.asked = asked
-        super().__init__("ask", ActionObjType.FUNCTIONAL, [])
+        self.checker = checker
+        self.checked = checked
+        super().__init__("check", ActionObjType.FUNCTIONAL, [])
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}{str(self.asker.name)} asks what {self.asked.colorless_repr()}"
+        return f"{super().colorless_repr()}{self.checker.name} checks if {self.checked.colorless_repr()}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.asker.name} asks what {self.asked}"
+        return f"{super().__repr__()}{self.checker.name} checks if {self.checked}"
 
 # joe asks color of jane's dress
 # Joe -do-> ask (Jane's dress's color -is-> X)

@@ -9,7 +9,8 @@ from socialds.states.property import Property
 
 
 class Take(Action):
-    def __init__(self, giver: Agent, taken: Property, taker: Agent, r_tense: RelationTense, negation: bool = False):
+    def __init__(self, taken: Property, taker: Agent, r_tense: RelationTense, giver: Agent = None,
+                 negation: bool = False):
         self.giver = giver
         self.taken = taken
         self.taker = taker
@@ -18,10 +19,12 @@ class Take(Action):
         super().__init__('take', ActionObjType.PHYSICAL, [])
 
     def colorless_repr(self):
-        return f"{super().__repr__()}({str(self.taker.name)} takes {self.taken} from {self.giver})"
+        from_str = (f' from {self.giver})', f'')[self.giver is None]
+        return f"{super().__repr__()}({str(self.taker.name)} takes {self.taken}{from_str}"
 
     def __repr__(self):
-        return f"{super().__repr__()}({self.taker.name} takes {self.taken} from {self.giver})"
+        from_str = (f' from {self.giver})', f'')[self.giver is None]
+        return f"{super().__repr__()}({self.taker.name} takes {self.taken}{from_str}"
 
     def execute(self):
         # act = Relation(left=self.giver, r_type=RelationType.ACTION, right=self.taker r_tense=self.r_tense, negation=self.negation)

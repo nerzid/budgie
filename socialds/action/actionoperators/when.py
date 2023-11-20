@@ -20,6 +20,6 @@ class When(ActionOperator):
     def __repr__(self):
         conditions_str = ""
         for condition in self.conditions:
-            conditions_str += condition + '\n'
+            conditions_str += str(condition) + '\n'
         conditions_str = conditions_str[:-2]
         return f"{super().__repr__()}WHEN {conditions_str} DO {self.action.colorless_repr()}"
