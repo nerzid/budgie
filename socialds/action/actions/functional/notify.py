@@ -4,7 +4,8 @@ from socialds.repositories.operation_repository import create_then_add_relation,
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
-from socialds.states.relation import Relation, RelationTense, RelationType
+from socialds.states.relation import Relation, RType
+from socialds.enums import Tense
 
 
 class Notify(Action):
@@ -12,7 +13,7 @@ class Notify(Action):
         self.notifier = notifier
         self.notified_about = notified_about
         self.notified_to = notified_to
-        self.notification = Relation(notifier, RelationType.ACTION, RelationTense.FUTURE, notified_about, negation)
+        self.notification = Relation(notifier, RType.ACTION, Tense.FUTURE, notified_about, negation)
         super().__init__('notify', ActionObjType.FUNCTIONAL, [
             partial(add_relation, self.notification, notified_to.knowledgebase)])
 

@@ -5,13 +5,14 @@ from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
 from socialds.repositories.operation_repository import find_relation_by_place, modify_relation_right
 from socialds.socialpractice.context.place import Place
-from socialds.states.relation import Relation, RelationTense, RelationType
+from socialds.states.relation import Relation, RType
+from socialds.enums import Tense
 
 
 class Move(Action):
     def __init__(self, mover:Agent, moved:any, from_place:Place, to_place:Place):
         # self.relation = Relation(mover, RelationType.ACTION, RelationTense.PRESENT, )
-        self.relation = find_relation_by_place(moved, RelationTense.PRESENT, from_place)
+        self.relation = find_relation_by_place(moved, Tense.PRESENT, from_place)
         super().__init__('move', ActionObjType.FUNCTIONAL, op_seq=[partial(modify_relation_right, self.relation, to_place)])
         
 

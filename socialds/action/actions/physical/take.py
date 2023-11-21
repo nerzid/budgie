@@ -1,17 +1,12 @@
-from functools import partial
-from typing import List
-
-from socialds.action.action_time import ActionTime
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
-from socialds.object import Object
-from socialds.states.relation import Relation, RelationTense, RelationType
+from socialds.enums import Tense
 from socialds.states.property import Property
 
 
 class Take(Action):
-    def __init__(self, taken: Property, taker: Agent, r_tense: RelationTense, giver: Agent = None,
+    def __init__(self, taken: Property, taker: Agent, r_tense: Tense, giver: Agent = None,
                  negation: bool = False, times=None):
         self.giver = giver
         self.taken = taken

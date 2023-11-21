@@ -9,7 +9,7 @@ from socialds.enums import SemanticEvent
 from socialds.actions.action import Action
 from socialds.actions.action_obj import ActionObjType
 from socialds.socialpractice.context.info import Info
-from socialds.states.relation import Relation, RelationTense, RelationType
+from socialds.states.relation import Relation, RelationTense, RType
 
 
 # from senses.sense import Sense, SenseVariation

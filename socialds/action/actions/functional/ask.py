@@ -2,13 +2,14 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
 from socialds.relationstorage import RelationStorage
-from socialds.states.relation import Relation, RelationTense, RelationType
+from socialds.states.relation import Relation, RType
+from socialds.enums import Tense
 
 
 class Ask(Action):
-    def __init__(self, asker: Agent, asked: Relation, r_tense: RelationTense, rs: RelationStorage,
+    def __init__(self, asker: Agent, asked: Relation, r_tense: Tense, rs: RelationStorage,
                  negation: bool = False):
-        self.relation = Relation(asker, RelationType.ACTION, r_tense, asked, negation)
+        self.relation = Relation(asker, RType.ACTION, r_tense, asked, negation)
         self.rs = rs
         self.asker = asker
         self.asked = asked

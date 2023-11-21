@@ -6,7 +6,8 @@ from socialds.agent import Agent
 from socialds.repositories.operation_repository import find_relation_by_place, modify_relation_right, \
     modify_relation_tense, create_then_add_relation
 from socialds.socialpractice.context.place import Place
-from socialds.states.relation import Relation, RelationTense, RelationType
+from socialds.states.relation import Relation, RType
+from socialds.enums import Tense
 
 
 class Move(Action):
@@ -18,8 +19,8 @@ class Move(Action):
         self.from_place = from_place
         self.to_place = to_place
         super().__init__('move', ActionObjType.FUNCTIONAL,
-                         op_seq=[partial(modify_relation_tense, self.relation, RelationTense.PAST),
-                                 partial(create_then_add_relation, moved, RelationType.IS_AT, RelationTense.PRESENT,
+                         op_seq=[partial(modify_relation_tense, self.relation, Tense.PAST),
+                                 partial(create_then_add_relation, moved, RType.IS_AT, Tense.PRESENT,
                                          to_place, True)])
 
     def colorless_repr(self):

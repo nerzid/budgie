@@ -1,3 +1,5 @@
+from typing import List
+
 from socialds.action.action_time import ActionTime
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action import Action
@@ -5,7 +7,7 @@ from socialds.states.property import Property
 
 
 class Heal(Action):
-    def __init__(self, healed: Property, healer: any = None, negation: bool = False, times: [ActionTime] = None):
+    def __init__(self, healed: Property, healer: any = None, negation: bool = False, times: List[ActionTime] = None):
         self.healed = healed
         self.healer = healer
         self.negation = negation

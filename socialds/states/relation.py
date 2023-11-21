@@ -4,12 +4,12 @@ from termcolor import colored
 
 from socialds.action.action_time import ActionTime
 from socialds.action.action import Action
-from socialds.enums import TermColor
+from socialds.enums import TermColor, Tense
 from socialds.object import Object
 from socialds.states.state import State
 
 
-class RelationType(Enum):
+class RType(Enum):
     IS = 'is'
     HAS = 'has'
     CAN = 'can'
@@ -18,92 +18,86 @@ class RelationType(Enum):
     IS_AT = 'is_at'
 
 
-class RelationTense(Enum):
-    PRESENT = 'present'
-    PAST = 'past'
-    FUTURE = 'future'
-
-
 # e.g., Eren likes apples -> left: Eren, name: likes, right: apples
 
 
 class Relation(State):
     relation_types_with_tenses = {
-        RelationType.IS: {
+        RType.IS: {
             True: {
-                RelationTense.PAST: 'was',
-                RelationTense.PRESENT: 'is',
-                RelationTense.FUTURE: 'will'
+                Tense.PAST: 'was',
+                Tense.PRESENT: 'is',
+                Tense.FUTURE: 'will'
             },
             False: {
-                RelationTense.PAST: 'wasn\'t',
-                RelationTense.PRESENT: 'isn\'t',
-                RelationTense.FUTURE: 'won\'t'
+                Tense.PAST: 'wasn\'t',
+                Tense.PRESENT: 'isn\'t',
+                Tense.FUTURE: 'won\'t'
             }
         },
-        RelationType.HAS: {
+        RType.HAS: {
             True: {
-                RelationTense.PAST: 'had',
-                RelationTense.PRESENT: 'has',
-                RelationTense.FUTURE: 'will have'
+                Tense.PAST: 'had',
+                Tense.PRESENT: 'has',
+                Tense.FUTURE: 'will have'
             },
             False: {
-                RelationTense.PAST: 'hadn\'t',
-                RelationTense.PRESENT: 'hasn\'t',
-                RelationTense.FUTURE: 'won\'t have'
+                Tense.PAST: 'hadn\'t',
+                Tense.PRESENT: 'hasn\'t',
+                Tense.FUTURE: 'won\'t have'
             }
         },
-        RelationType.CAN: {
+        RType.CAN: {
             True: {
-                RelationTense.PAST: 'could',
-                RelationTense.PRESENT: 'can',
-                RelationTense.FUTURE: 'will be able to'
+                Tense.PAST: 'could',
+                Tense.PRESENT: 'can',
+                Tense.FUTURE: 'will be able to'
             },
             False: {
-                RelationTense.PAST: 'couldn\'t',
-                RelationTense.PRESENT: 'can\'t',
-                RelationTense.FUTURE: 'won\'t be able to'
+                Tense.PAST: 'couldn\'t',
+                Tense.PRESENT: 'can\'t',
+                Tense.FUTURE: 'won\'t be able to'
             }
         },
-        RelationType.ACTION: {
+        RType.ACTION: {
             True: {
-                RelationTense.PAST: 'did',
-                RelationTense.PRESENT: 'does',
-                RelationTense.FUTURE: 'will do'
+                Tense.PAST: 'did',
+                Tense.PRESENT: 'does',
+                Tense.FUTURE: 'will do'
             },
             False: {
-                RelationTense.PAST: 'didn\'t',
-                RelationTense.PRESENT: 'doesn\'t',
-                RelationTense.FUTURE: 'won\'t do'
+                Tense.PAST: 'didn\'t',
+                Tense.PRESENT: 'doesn\'t',
+                Tense.FUTURE: 'won\'t do'
             }
         },
-        RelationType.IS_PERMITTED_TO: {
+        RType.IS_PERMITTED_TO: {
             True: {
-                RelationTense.PAST: 'was permitted to',
-                RelationTense.PRESENT: 'is permitted to',
-                RelationTense.FUTURE: 'will be permitted to'
+                Tense.PAST: 'was permitted to',
+                Tense.PRESENT: 'is permitted to',
+                Tense.FUTURE: 'will be permitted to'
             },
             False: {
-                RelationTense.PAST: 'wasn\'t permitted to',
-                RelationTense.PRESENT: 'isn\'t permitted to',
-                RelationTense.FUTURE: 'won\'t be permitted to'
+                Tense.PAST: 'wasn\'t permitted to',
+                Tense.PRESENT: 'isn\'t permitted to',
+                Tense.FUTURE: 'won\'t be permitted to'
             }
         },
-        RelationType.IS_AT: {
+        RType.IS_AT: {
             True: {
-                RelationTense.PAST: 'was at',
-                RelationTense.PRESENT: 'is at',
-                RelationTense.FUTURE: 'will be at'
+                Tense.PAST: 'was at',
+                Tense.PRESENT: 'is at',
+                Tense.FUTURE: 'will be at'
             },
             False: {
-                RelationTense.PAST: 'wasn\'t at',
-                RelationTense.PRESENT: 'isn\'t at',
-                RelationTense.FUTURE: 'won\'t be at'
+                Tense.PAST: 'wasn\'t at',
+                Tense.PRESENT: 'isn\'t at',
+                Tense.FUTURE: 'won\'t be at'
             }
         }
     }
 
-    def __init__(self, left: any, r_type: RelationType, r_tense: RelationTense, right: any, negation=False,
+    def __init__(self, left: any, r_type: RType, r_tense: Tense, right: any, negation=False,
                  times: [ActionTime] = None):
         super().__init__()
         self.left = left
@@ -153,4 +147,4 @@ class Relation(State):
 
 
 if __name__ == '__main__':
-    print(Relation(left="Eren", r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right="dirty"))
+    print(Relation(left="Eren", r_type=RType.IS, r_tense=Tense.PRESENT, right="dirty"))

@@ -1,3 +1,5 @@
+from typing import List
+
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action_time import ActionTime
@@ -7,7 +9,7 @@ from socialds.states.property import Property
 
 class Prescribe(Action):
 
-    def __init__(self, prescriber: Agent, prescribed: [Property], prescribed_for: Agent, negation: bool = False,
+    def __init__(self, prescriber: Agent, prescribed: List[Property], prescribed_for: Agent, negation: bool = False,
                  times=None):
         self.prescriber = prescriber
         self.prescribed = prescribed

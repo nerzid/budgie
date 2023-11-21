@@ -1,7 +1,6 @@
 from socialds.action.action import Action
 from socialds.action.action_operator import ActionOperator
-from socialds.condition import Condition
-from socialds.states.relation import Relation
+from socialds.conditions.condition import Condition
 
 
 class When(ActionOperator):

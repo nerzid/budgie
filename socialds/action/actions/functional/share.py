@@ -1,15 +1,17 @@
 from functools import partial
+from typing import List
 
 from socialds.action.action_time import ActionTime
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.relationstorage import RelationStorage
 from socialds.repositories.operation_repository import add_relation
-from socialds.states.relation import Relation, RelationType, RelationTense
+from socialds.states.relation import Relation, RType
+from socialds.enums import Tense
 
 
 class Share(Action):
-    def __init__(self, relation: Relation, rs: RelationStorage, times: [ActionTime] = None):
+    def __init__(self, relation: Relation, rs: RelationStorage, times: List[ActionTime] = None):
         super().__init__(name="share", act_type=ActionObjType.FUNCTIONAL, op_seq=[partial(add_relation, relation, rs)],
                          times=times)
         self.relation = relation
@@ -25,8 +27,8 @@ class Share(Action):
 if __name__ == '__main__':
     a = Share(
         Relation(left="Eren",
-                 r_type=RelationType.IS,
-                 r_tense=RelationTense.PRESENT,
+                 r_type=RType.IS,
+                 r_tense=Tense.PRESENT,
                  right='dirty')
         , RelationStorage(name='test kb'))
     print(a)

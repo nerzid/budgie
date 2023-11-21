@@ -1,12 +1,13 @@
 from socialds.agent import Agent
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action import Action
-from socialds.states.relation import Relation, RelationTense, RelationType
+from socialds.states.relation import Relation, RType
 from socialds.states.property import Property
+from socialds.enums import Tense
 
 
 class Feel(Action):
-    def __init__(self, felt_by: Agent, felt: Property, about: Relation, r_tense: RelationTense,
+    def __init__(self, felt_by: Agent, felt: Property, about: Relation, r_tense: Tense,
                  negation: bool = False):
         self.felt_by = felt_by
         self.felt = felt

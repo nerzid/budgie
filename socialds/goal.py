@@ -1,4 +1,4 @@
-from socialds.condition import Condition
+from conditions.condition import Condition
 
 
 class Goal:

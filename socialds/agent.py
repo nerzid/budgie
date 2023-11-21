@@ -21,7 +21,6 @@ class Agent(Object):
         self.competences = competences
         self.resources = resources
         self.places = places
-        self.event_manager = EventManager()
         self.plan_manager = PlanManager()
         self.auto = auto
 
@@ -32,7 +31,8 @@ class Agent(Object):
         if self.auto:
             pass
         else:
-            questionary.text(message="Choose")
+            pass
+        self.plan_manager.plan()
 
     def update_competences(self):
         for role in self.roles:
@@ -42,15 +42,15 @@ class Agent(Object):
         pretty_info = ''
         pretty_info += self.name + ' auto=' + str(self.auto) + '\n'
         pretty_info += str(self.knowledgebase) + '\n'
-        pretty_info += str(self.actor.knowledgebase) + '\n'
+        # pretty_info += str(self.actor.knowledgebase) + '\n'
         for role in self.roles:
             pretty_info += role.name + '\n' + role.competences + '\n'
-        # pretty_info += str(self.roles) + '\n'
-        pretty_info += str(self.competences) + '\n'
-        pretty_info += str(self.resources) + '\n'
+        # # pretty_info += str(self.roles) + '\n'
+        # pretty_info += str(self.competences) + '\n'
+        # pretty_info += str(self.resources) + '\n'
         pretty_info += str(self.places)
         return pretty_info
 
 
-any_agent = Agent('any', Actor('any'), [], RelationStorage(''), 
+any_agent = Agent('any-agent', Actor('any-actor'), [], RelationStorage(''),
                   RelationStorage(''), RelationStorage(''), RelationStorage(''))

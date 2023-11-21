@@ -1,29 +1,34 @@
 from termcolor import colored
 
 import socialds.simple_DST as dst
+from socialds.managers.managers import session_manager
+import socialds.managers.managers as managers
 from socialds.action.action import Action
-from socialds.relationstorage import RelationStorage
+from socialds.relationstorage import RelationStorage, merge_relation_storages
 from socialds.agent import Agent
 from typing import List
 # from pick import pick
 import questionary
 
 from socialds.utterance import Utterance
-from socialds.states.relation import Relation, RelationType, RelationTense
+from socialds.states.relation import Relation, RType
+from socialds.enums import Tense
 
 
 class DialogueSystem:
-    def __init__(self, agents: List[Agent], utterances: List[Utterance],
-                 history=RelationStorage('Dialogue History', is_private=False),
-                 ):
-        self.history = history
+    def __init__(self, agents: List[Agent], utterances: List[Utterance], history: RelationStorage = None):
+        if history is not None:
+            managers.dialogue_history = merge_relation_storages(managers.dialogue_history, history)
         self.agents = agents
         self.utterances = utterances
+        self.session_manager = session_manager
         # self.dst = SimpleDST()
 
     def run(self, turns=4):
         [print(agent.info()) for agent in self.agents]
-        print(self.history)
+        print(managers.dialogue_history)
+        self.session_manager.update_session_statuses()
+        print(self.session_manager.get_colorful_sessions_info())
         for i in range(0, turns):
             self.next()
 
@@ -44,12 +49,14 @@ class DialogueSystem:
                     for action in actions:
                         action.execute()
                         if isinstance(action, Action):
-                            self.history.add(Relation(left=agent,
-                                                      r_type=RelationType.ACTION,
-                                                      r_tense=RelationTense.PAST,
-                                                      right=action))
+                            managers.dialogue_history.add(Relation(left=agent,
+                                                                   r_type=RType.ACTION,
+                                                                   r_tense=Tense.PAST,
+                                                                   right=action))
+                agent.act()
+                self.session_manager.update_session_statuses()
                 [print(agent.info()) for agent in self.agents]
-                print(self.history)
+                print(managers.dialogue_history)
             dst.you = dst.me
             dst.me = None
 

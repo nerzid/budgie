@@ -4,14 +4,13 @@ from socialds.repositories.operation_repository import find_relation, modify_rel
 from socialds.agent import Agent
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action import Action
-from socialds.states.relation import RelationType, RelationTense
+from socialds.states.relation import RType
+from socialds.enums import Tense
 
 
 class Give(Action):
     def __init__(self, giver: Agent, taker: Agent, given: any):
-        current_holding_relation = find_relation(giver, RelationType.HAS,
-                                                 RelationTense.PRESENT, given,
-                                                 True, giver.resources)
+        current_holding_relation = find_relation(giver, RType.HAS, Tense.PRESENT, given, True, giver.resources)
         super().__init__('give', ActionObjType.FUNCTIONAL, [
             partial(move_relation, current_holding_relation, giver.resources, taker.resources),
             partial(modify_relation_left, current_holding_relation, taker)])

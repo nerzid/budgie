@@ -1,7 +1,8 @@
 from socialds.agent import Agent
 from socialds.relationstorage import RelationStorage
 from socialds.socialpractice.context.place import Place
-from socialds.states.relation import Relation, RelationTense, RelationType
+from socialds.states.relation import Relation, RType
+from socialds.enums import Tense
 
 
 def op_and():
@@ -20,18 +21,18 @@ def add_relation(relation: Relation, rs: RelationStorage):
     rs.add(relation)
 
 
-def create_then_add_relation(left: any, r_type: RelationType, r_tense: RelationTense,
+def create_then_add_relation(left: any, r_type: RType, r_tense: Tense,
                              right: any, negation: bool, rs: RelationStorage):
     rs.add(Relation(left, r_type, r_tense, right, negation))
 
 
-def find_relation(left: any, r_type: RelationType, r_tense: RelationTense,
+def find_relation(left: any, r_type: RType, r_tense: Tense,
                   right: any, negation: bool, rs: RelationStorage):
     return rs.get(left, r_type, r_tense, right, negation)
 
 
-def find_relation_by_place(agent: Agent, r_tense: RelationTense, place: Place) -> Relation:
-    return agent.places.get(agent, RelationType.IS_AT, r_tense, place, True)
+def find_relation_by_place(agent: Agent, r_tense: Tense, place: Place) -> Relation:
+    return agent.places.get(agent, RType.IS_AT, r_tense, place, True)
 
 
 def move_relation(relation: Relation, from_rs: RelationStorage, to_rs: RelationStorage):
@@ -51,7 +52,7 @@ def modify_relation_left(relation: Relation, new_left: any):
     relation.left = new_left
 
 
-def modify_relation_tense(relation: Relation, new_tense: RelationTense):
+def modify_relation_tense(relation: Relation, new_tense: Tense):
     relation.r_tense = new_tense
 
 
@@ -60,7 +61,7 @@ def modify_relation_negation(relation: Relation, new_negation: bool):
 
 
 if __name__ == '__main__':
-    rel = Relation(left="Eren", r_type=RelationType.IS, r_tense=RelationTense.PRESENT, right="dirty")
+    rel = Relation(left="Eren", r_type=RType.IS, r_tense=Tense.PRESENT, right="dirty")
     rs = RelationStorage(name='rs')
     rs.add(rel)
     print(rs)

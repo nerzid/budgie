@@ -1,3 +1,5 @@
+from typing import List
+
 from socialds.action.action_time import ActionTime
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
@@ -5,7 +7,7 @@ from socialds.agent import Agent
 
 
 class Sleep(Action):
-    def __init__(self, sleeper: Agent, times: [ActionTime]=None):
+    def __init__(self, sleeper: Agent, times: List[ActionTime] = None):
         self.sleeper = sleeper
         super().__init__('sleep', ActionObjType.PHYSICAL, [], times=times)
 

@@ -1,17 +1,24 @@
-from socialds.agent import Agent
-from socialds.relationstorage import RelationStorage
+from typing import List
+
+from termcolor import colored
+
+from socialds.enums import TermColor
 from socialds.exceptions.no_ongoing_session_found_error import NoOngoingSessionFoundError
 from socialds.session import Session, SessionStatus
-from socialds.states.relation import RelationType
-from socialpractice.context.place import Place
-from states.property import Property
 
 
 class SessionManager:
-    def __init__(self, sessions: [Session], agents: [Agent], history: RelationStorage):
+    def __init__(self, sessions: List[Session] = None):
+        if sessions is None:
+            sessions = []
         self.sessions = sessions
-        self.agents = agents
-        self.history = history
+
+    def add_session(self, session: Session):
+        self.sessions.append(session)
+
+    def add_multi_sessions(self, sessions: List[Session]):
+        for session in sessions:
+            self.add_session(session)
 
     def get_ongoing_session(self):
         for session in self.sessions:
@@ -37,51 +44,85 @@ class SessionManager:
                     session.status = SessionStatus.COMPLETED
 
     def check_conditions(self, conditions):
-        """
-        Returns true if all conditions are true
-        :param conditions:
-        """
-        is_all_conditions_true = True
         for condition in conditions:
-            relation = condition.relation
-            if relation.r_type == RelationType.ACTION:
-                if relation in self.history and not condition.negation:
-                    continue
-                elif relation not in self.history and condition.negation:
-                    continue
-                else:
-                    # TODO handle if relation.left is another relation
-                    is_all_conditions_true = False
-            elif relation.r_type == RelationType.HAS:
-                if isinstance(relation.left, Agent) and \
-                        relation in relation.left.knowledgebase and not \
-                        condition.negation:
-                    continue
-                elif isinstance(relation.left, Agent) and \
-                        relation not in relation.left.knowledgebase and \
-                        condition.negation:
-                    continue
-                else:
-                    # TODO handle if relation.left is Property
-                    # TODO handle if relation.left is another relation
-                    is_all_conditions_true = False
-            elif relation.r_type == RelationType.IS_AT:
-                if isinstance(relation.left, Agent) and \
-                        isinstance(relation.right, Place) and \
-                        relation.right in relation.left.places and \
-                        not condition.negation:
-                    continue
-                elif isinstance(relation.left, Agent) and \
-                        isinstance(relation.right, Place) and \
-                        relation.right not in relation.left.places and \
-                        condition.negation:
-                    continue
-                else:
-                    is_all_conditions_true = False
-            elif relation.r_type == RelationType.IS:
-                pass
-            elif relation.r_type == RelationType.CAN:
-                pass
-            elif relation.r_type == RelationType.IS_PERMITTED_TO:
-                pass
-        return is_all_conditions_true
+            if condition.check() is False:
+                return False
+        return True
+
+    # def check_conditions(self, conditions):
+    #     """
+    #     Returns true if all conditions are true
+    #     :param conditions:
+    #     """
+    #     is_all_conditions_true = True
+    #     for condition in conditions:
+    #         relation = condition.relation
+    #         if relation.r_type == RelationType.ACTION:
+    #             if relation in managers.dialogue_history and not condition.negation:
+    #                 continue
+    #             elif relation not in managers.dialogue_history and condition.negation:
+    #                 continue
+    #             else:
+    #                 # TODO handle if relation.left is another relation
+    #                 is_all_conditions_true = False
+    #         elif relation.r_type == RelationType.HAS:
+    #             if isinstance(relation.left, Agent) and \
+    #                     relation in relation.left.knowledgebase and not \
+    #                     condition.negation:
+    #                 continue
+    #             elif isinstance(relation.left, Agent) and \
+    #                     relation not in relation.left.knowledgebase and \
+    #                     condition.negation:
+    #                 continue
+    #             else:
+    #                 # TODO handle if relation.left is Property
+    #                 # TODO handle if relation.left is another relation
+    #                 is_all_conditions_true = False
+    #         elif relation.r_type == RelationType.IS_AT:
+    #             if isinstance(relation.left, Agent) and \
+    #                     isinstance(relation.right, Place) and \
+    #                     relation.right in relation.left.places and \
+    #                     not condition.negation:
+    #                 continue
+    #             elif isinstance(relation.left, Agent) and \
+    #                     isinstance(relation.right, Place) and \
+    #                     relation.right not in relation.left.places and \
+    #                     condition.negation:
+    #                 continue
+    #             else:
+    #                 is_all_conditions_true = False
+    #         elif relation.r_type == RelationType.IS:
+    #             pass
+    #         elif relation.r_type == RelationType.CAN:
+    #             pass
+    #         elif relation.r_type == RelationType.IS_PERMITTED_TO:
+    #             pass
+    #     return is_all_conditions_true
+
+    def get_sessions_info(self):
+        info = ''
+        for session in self.sessions:
+            info += session.name + '\n'
+            info += 'Start Conditions' + '\n'
+            for condition in session.start_conditions:
+                info += str(condition) + '\n'
+
+            info += 'End Conditions' + '\n'
+            for condition in session.end_conditions:
+                info += str(condition) + '\n'
+        return info
+
+    def get_colorful_sessions_info(self):
+        info = colored('Sessions\n', on_color=TermColor.ON_MAGENTA.value)
+        for session in self.sessions:
+            info += colored(text=session.name, on_color=TermColor.ON_LIGHT_MAGENTA.value)
+            info += colored(text=session.status.value + '\n', on_color=TermColor.ON_WHITE.value,
+                            color=TermColor.BLACK.value)
+            info += colored(text='Start Conditions\n', color=TermColor.LIGHT_MAGENTA.value)
+            for condition in session.start_conditions:
+                info += str(condition) + '\n'
+
+            info += colored(text='End Conditions\n', color=TermColor.LIGHT_MAGENTA.value)
+            for condition in session.end_conditions:
+                info += str(condition) + '\n'
+        return info
