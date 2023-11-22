@@ -17,16 +17,16 @@ class AgentDoes(Condition):
         self.action = action
 
     def check(self):
-        if self.negation:
-            return Relation(left=self.agent,
-                            r_type=RType.ACTION,
-                            r_tense=self.tense,
-                            right=self.action) in dialogue_history
+        if not self.negation:
+            return dialogue_history.contains(Relation(left=self.agent,
+                                                      r_type=RType.ACTION,
+                                                      r_tense=self.tense,
+                                                      right=self.action))
         else:
-            return Relation(left=self.agent,
-                            r_type=RType.ACTION,
-                            r_tense=self.tense,
-                            right=self.action) not in dialogue_history
+            return not dialogue_history.contains(Relation(left=self.agent,
+                                                          r_type=RType.ACTION,
+                                                          r_tense=self.tense,
+                                                          right=self.action))
 
     def colorless_repr(self):
         return f"{self.agent} ({not self.negation})does({self.tense.value}) {self.action.colorless_repr()}{super().get_times_str()}"

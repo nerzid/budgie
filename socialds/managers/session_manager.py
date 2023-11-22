@@ -116,13 +116,18 @@ class SessionManager:
         info = colored('Sessions\n', on_color=TermColor.ON_MAGENTA.value)
         for session in self.sessions:
             info += colored(text=session.name, on_color=TermColor.ON_LIGHT_MAGENTA.value)
-            info += colored(text=session.status.value + '\n', on_color=TermColor.ON_WHITE.value,
+            info += colored(text=session.status.value, on_color=TermColor.ON_WHITE.value,
                             color=TermColor.BLACK.value)
+            info += '\n'
             info += colored(text='Start Conditions\n', color=TermColor.LIGHT_MAGENTA.value)
             for condition in session.start_conditions:
+                info += ('Not Satisfied', 'Satisfied')[condition.check()]
+                info += ' -> '
                 info += str(condition) + '\n'
 
             info += colored(text='End Conditions\n', color=TermColor.LIGHT_MAGENTA.value)
             for condition in session.end_conditions:
+                info += ('Not Satisfied', 'Satisfied')[condition.check()]
+                info += ' -> '
                 info += str(condition) + '\n'
         return info

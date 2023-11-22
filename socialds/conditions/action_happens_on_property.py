@@ -17,16 +17,16 @@ class ActionOnPropertyHappens(Condition):
         self.action = action
 
     def check(self):
-        if self.negation:
-            return Relation(left=self.property,
-                            r_type=RType.ACTION,
-                            r_tense=self.tense,
-                            right=self.action) in dialogue_history
+        if not self.negation:
+            return dialogue_history.contains(Relation(left=self.property,
+                                                      r_type=RType.ACTION,
+                                                      r_tense=self.tense,
+                                                      right=self.action))
         else:
-            return Relation(left=self.property,
-                            r_type=RType.ACTION,
-                            r_tense=self.tense,
-                            right=self.action) not in dialogue_history
+            return not dialogue_history.contains(Relation(left=self.property,
+                                                          r_type=RType.ACTION,
+                                                          r_tense=self.tense,
+                                                          right=self.action))
 
     def colorless_repr(self):
         return f"{self.action} ({not self.negation})happens{self.tense.value} on {self.property}{super().get_times_str()}"

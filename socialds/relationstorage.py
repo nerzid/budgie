@@ -1,6 +1,9 @@
 from typing import List
 from uu import Error
 
+from socialds.action.actiontimes.num_of_times import NumOfTimes
+from socialds.action.action_time import ActionTime
+from socialds.any.any_object import AnyObject
 from socialds.states.relation import Relation, RType
 from termcolor import colored
 from socialds.other.utility import colorize_relations_dict
@@ -42,8 +45,20 @@ class RelationStorage:
     #     except KeyError:
     #         return False
 
+    # checks for the exact relation based on the reference of relation
     def __contains__(self, item):
         return item in self.relations
+
+    # checks for the exact relation based on the values of the relation
+    def contains(self, relation: Relation):
+        try:
+            rel_in_rs = self.get(relation.left, relation.r_type, relation.r_tense, relation.right, relation.negation)
+            if rel_in_rs is not None:
+                return True
+            else:
+                return False
+        except Error:
+            return False
 
     def add(self, relation: Relation):
         self.relations.append(relation)
@@ -55,10 +70,23 @@ class RelationStorage:
     def remove(self, relation: Relation):
         self.relations.remove(relation)
 
-    def get(self, left: any, r_type: RType, r_tense: Tense, right: any, negation=False):
+    def get(self, left: any, r_type: RType, r_tense: Tense, right: any, negation=False, times: [ActionTime] = None):
+        # if times is not None:
+        #     for time in times:
+        #         if isinstance(time, NumOfTimes):
+        #             time_num = time.num
         for relation in self.relations:
-            if relation.left == left and relation.r_type == r_type and relation.r_tense == r_tense and relation.right == right and relation.negation == negation:
-                return relation
+            if isinstance(left, AnyObject):
+                if relation.r_type == r_type and relation.r_tense == r_tense and relation.right == right and relation.negation == negation:
+                    return relation
+            elif isinstance(right, AnyObject):
+                if relation.left == left and relation.r_type == r_type and relation.r_tense == r_tense and relation.negation == negation:
+                    return relation
+            else:
+                if relation.left == left and relation.r_type == r_type and relation.r_tense == r_tense and relation.right == right and relation.negation == negation:
+                    return relation
+        # print('time num: ' + str(time_num))
+        # print('found rel: ' + str(found_rel))
         raise Error
 
 

@@ -1,3 +1,5 @@
+from socialds.any.any_agent import AnyAgent
+from socialds.any.any_place import AnyPlace
 from socialds.conditions.action_happens_on_property import ActionOnPropertyHappens
 from socialds.conditions.agent_at_place import AgentAtPlace
 from socialds.conditions.agent_does import AgentDoes
@@ -38,7 +40,7 @@ from socialds.action.actions.verbal.no import No
 from socialds.action.actions.verbal.selftalk import SelfTalk
 from socialds.action.actions.verbal.thank import Thank
 from socialds.action.actions.verbal.yes import Yes
-from socialds.agent import Agent, any_agent
+from socialds.agent import Agent
 from socialds.dialogue_system import DialogueSystem
 from socialds.relationstorage import RelationStorage
 from socialds.socialpractice.context.actor import Actor
@@ -49,10 +51,12 @@ from socialds.utterance import Utterance
 from socialds.enums import Tense
 
 # Global properties
-place_any = Place('any')
+any_place = AnyPlace()
 places_office = Place('office')
 place_waiting_room = Place('waiting room')
 
+
+any_agent = AnyAgent()
 # Agent 1: Joe - patient
 # Agent 1's Relation Storages
 agent1_kb = RelationStorage('Joe\'s Knowledgebase')
@@ -106,7 +110,7 @@ agent1_kb.add_multi([
 agent1 = Agent(name='Joe(patient)', actor=actor1, roles=[], knowledgebase=agent1_kb, competences=agent1_competences,
                places=agent1_places, resources=agent1_resources)
 agent1.places.add_multi([
-    Relation(left=agent1, r_type=RType.IS_AT, r_tense=Tense.PRESENT, right=place_any),
+    Relation(left=agent1, r_type=RType.IS_AT, r_tense=Tense.PRESENT, right=any_place),
     Relation(left=agent1, r_type=RType.IS_AT, r_tense=Tense.PRESENT, right=place_waiting_room)
 ])
 
@@ -125,7 +129,7 @@ agent2 = Agent(name='Jane(doctor)',
                resources=agent2_resources)
 
 agent2.places.add_multi([
-    Relation(left=agent2, r_type=RType.IS_AT, r_tense=Tense.PRESENT, right=place_any),
+    Relation(left=agent2, r_type=RType.IS_AT, r_tense=Tense.PRESENT, right=any_place),
     Relation(left=agent2, r_type=RType.IS_AT, r_tense=Tense.PRESENT, right=places_office)
 ])
 
@@ -140,12 +144,14 @@ utterances = [
         Permit(permitter=agent2,
                permitted=Relation(left=agent1, r_type=RType.ACTION,
                                   r_tense=Tense.PRESENT, negation=False,
-                                  right=Move(mover=agent1, moved=agent1, from_place=place_any,
+                                  right=Move(mover=agent1, moved=agent1, from_place=any_place,
                                              to_place=places_office)),
                r_tense=Tense.PRESENT, negation=False, rs=agent1.knowledgebase)
     ]),
     Utterance("Thank you.", [
-        Thank()
+        Thank(),
+        And(),
+        Move(mover=agent1, moved=agent1, from_place=place_waiting_room, to_place=places_office)
     ]),
     Utterance("So, what brings you here today?", [
         Ask(asker=agent2,
@@ -379,7 +385,7 @@ utterances = [
             ActionOnPropertyHappens(property=p_patients_left_eye, tense=Tense.PRESENT,
                                     action=Heal(healed=p_patients_left_eye, negation=True, times=[InWeek(num=1)]))
         ],
-            action=Move(mover=agent1, moved=agent1, from_place=place_any, to_place=places_office)
+            action=Move(mover=agent1, moved=agent1, from_place=any_place, to_place=places_office)
         )
     ]),
     Utterance("Thank you.", [

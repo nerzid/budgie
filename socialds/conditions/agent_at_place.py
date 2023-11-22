@@ -15,16 +15,16 @@ class AgentAtPlace(Condition):
         self.place = place
 
     def check(self):
-        if self.negation:
-            return Relation(left=self.agent,
-                            r_type=RType.IS_AT,
-                            r_tense=Tense.PRESENT,
-                            right=self.place) in self.agent.places
+        if not self.negation:
+            return self.agent.places.contains(Relation(left=self.agent,
+                                                       r_type=RType.IS_AT,
+                                                       r_tense=Tense.PRESENT,
+                                                       right=self.place))
         else:
-            return Relation(left=self.agent,
-                            r_type=RType.IS_AT,
-                            r_tense=Tense.PRESENT,
-                            right=self.place) not in self.agent.places
+            return not self.agent.places.contains(Relation(left=self.agent,
+                                                           r_type=RType.IS_AT,
+                                                           r_tense=Tense.PRESENT,
+                                                           right=self.place))
 
     def colorless_repr(self):
         return f"{self.agent} ({not self.negation})at({self.tense.value}) {self.place}{super().get_times_str()}"

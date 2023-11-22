@@ -32,7 +32,7 @@ def find_relation(left: any, r_type: RType, r_tense: Tense,
 
 
 def find_relation_by_place(agent: Agent, r_tense: Tense, place: Place) -> Relation:
-    return agent.places.get(agent, RType.IS_AT, r_tense, place, True)
+    return agent.places.get(agent, RType.IS_AT, r_tense, place, False)
 
 
 def move_relation(relation: Relation, from_rs: RelationStorage, to_rs: RelationStorage):

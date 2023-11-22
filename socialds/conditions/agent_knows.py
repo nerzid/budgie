@@ -14,10 +14,10 @@ class AgentKnows(Condition):
         self.knows = knows
 
     def check(self):
-        if self.negation:
-            return self.knows in self.agent.knowledgebase
+        if not self.negation:
+            return self.agent.knowledgebase.contains(self.knows)
         else:
-            return self.knows not in self.agent.knowledgebase
+            return not self.agent.knowledgebase.contains(self.knows)
 
     def colorless_repr(self):
         return f"{self.agent} ({not self.negation})knows({self.tense.value}) {self.knows.colorless_repr()}{super().get_times_str()}"

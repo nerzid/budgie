@@ -19,9 +19,11 @@ class Move(Action):
         self.from_place = from_place
         self.to_place = to_place
         super().__init__('move', ActionObjType.FUNCTIONAL,
-                         op_seq=[partial(modify_relation_tense, self.relation, Tense.PAST),
-                                 partial(create_then_add_relation, moved, RType.IS_AT, Tense.PRESENT,
-                                         to_place, True)])
+                         # op_seq=[partial(modify_relation_tense, self.relation, Tense.PAST),
+                         #         partial(create_then_add_relation, moved, RType.IS_AT, Tense.PRESENT,
+                         #                 to_place, True, moved.places)]
+                         []
+                         )
 
     def colorless_repr(self):
         return super().colorless_repr() + '(' + str(self.mover.name) + ' moves ' + str(self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ')'
@@ -30,7 +32,9 @@ class Move(Action):
         return super().colorless_repr() + '(' + str(self.mover.name) + ' moves ' + str(self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ')'
 
     def execute(self):
-        self.relation = find_relation_by_place(self.moved, RelationTense.PRESENT, self.from_place)
+        self.relation = find_relation_by_place(self.moved, Tense.PRESENT, self.from_place)
+        modify_relation_tense(self.relation, Tense.PAST)
+        create_then_add_relation(self.moved, RType.IS_AT, Tense.PRESENT, self.to_place, False, self.moved.places)
         super().execute()
 
 # Joe -is at-> office

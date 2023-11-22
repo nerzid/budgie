@@ -57,6 +57,7 @@ class DialogueSystem:
                 self.session_manager.update_session_statuses()
                 [print(agent.info()) for agent in self.agents]
                 print(managers.dialogue_history)
+                print(session_manager.get_colorful_sessions_info())
             dst.you = dst.me
             dst.me = None
 
