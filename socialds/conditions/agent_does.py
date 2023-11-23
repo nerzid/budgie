@@ -1,6 +1,6 @@
 from typing import List
 
-from socialds.managers.managers import dialogue_history
+from socialds.other.variables import dialogue_history
 from socialds.action.action import Action
 from socialds.agent import Agent
 from socialds.action.action_time import ActionTime

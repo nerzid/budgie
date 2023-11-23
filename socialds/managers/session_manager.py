@@ -2,38 +2,44 @@ from typing import List
 
 from termcolor import colored
 
+from socialds.conditions.condition import Condition
 from socialds.enums import TermColor
 from socialds.exceptions.no_ongoing_session_found_error import NoOngoingSessionFoundError
 from socialds.session import Session, SessionStatus
+import socialds.other.variables as vars
 
 
 class SessionManager:
     def __init__(self, sessions: List[Session] = None):
         if sessions is None:
             sessions = []
-        self.sessions = sessions
+        vars.sessions = sessions
 
-    def add_session(self, session: Session):
-        self.sessions.append(session)
+    @staticmethod
+    def add_session(session: Session):
+        vars.sessions.append(session)
 
-    def add_multi_sessions(self, sessions: List[Session]):
+    @staticmethod
+    def add_multi_sessions(sessions: List[Session]):
         for session in sessions:
-            self.add_session(session)
+            SessionManager.add_session(session)
 
-    def get_ongoing_session(self):
-        for session in self.sessions:
+    @staticmethod
+    def get_ongoing_session():
+        for session in vars.sessions:
             if session.status == SessionStatus.ONGOING:
                 return session
         raise NoOngoingSessionFoundError
 
-    def update_session_statuses(self):
-        for session in self.sessions:
+    @staticmethod
+    def update_session_statuses():
+        for session in vars.sessions:
             # No need to update the status of session if it is already completed or failed
             if session.status == SessionStatus.COMPLETED or session.status == SessionStatus.FAILED:
                 continue
 
-            is_start_conditions_true = self.check_conditions(session.start_conditions)
-            is_end_conditions_true = self.check_conditions(session.end_conditions)
+            is_start_conditions_true = Condition.check_conditions(session.start_conditions)
+            is_end_conditions_true = Condition.check_conditions(session.end_conditions)
             if session.status == SessionStatus.NOT_STARTED:
                 if is_end_conditions_true:
                     session.status = SessionStatus.COMPLETED
@@ -42,12 +48,6 @@ class SessionManager:
             elif session.status == SessionStatus.ONGOING:
                 if is_end_conditions_true:
                     session.status = SessionStatus.COMPLETED
-
-    def check_conditions(self, conditions):
-        for condition in conditions:
-            if condition.check() is False:
-                return False
-        return True
 
     # def check_conditions(self, conditions):
     #     """
@@ -99,9 +99,10 @@ class SessionManager:
     #             pass
     #     return is_all_conditions_true
 
-    def get_sessions_info(self):
+    @staticmethod
+    def get_sessions_info():
         info = ''
-        for session in self.sessions:
+        for session in vars.sessions:
             info += session.name + '\n'
             info += 'Start Conditions' + '\n'
             for condition in session.start_conditions:
@@ -112,9 +113,10 @@ class SessionManager:
                 info += str(condition) + '\n'
         return info
 
-    def get_colorful_sessions_info(self):
+    @staticmethod
+    def get_colorful_sessions_info():
         info = colored('Sessions\n', on_color=TermColor.ON_MAGENTA.value)
-        for session in self.sessions:
+        for session in vars.sessions:
             info += colored(text=session.name, on_color=TermColor.ON_LIGHT_MAGENTA.value)
             info += colored(text=session.status.value, on_color=TermColor.ON_WHITE.value,
                             color=TermColor.BLACK.value)

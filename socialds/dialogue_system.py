@@ -2,7 +2,7 @@ from termcolor import colored
 
 import socialds.simple_DST as dst
 from socialds.managers.managers import session_manager
-import socialds.managers.managers as managers
+import socialds.other.variables as vars
 from socialds.action.action import Action
 from socialds.relationstorage import RelationStorage, merge_relation_storages
 from socialds.agent import Agent
@@ -18,7 +18,7 @@ from socialds.enums import Tense
 class DialogueSystem:
     def __init__(self, agents: List[Agent], utterances: List[Utterance], history: RelationStorage = None):
         if history is not None:
-            managers.dialogue_history = merge_relation_storages(managers.dialogue_history, history)
+            vars.dialogue_history = merge_relation_storages(vars.dialogue_history, history)
         self.agents = agents
         self.utterances = utterances
         self.session_manager = session_manager
@@ -26,7 +26,7 @@ class DialogueSystem:
 
     def run(self, turns=4):
         [print(agent.info()) for agent in self.agents]
-        print(managers.dialogue_history)
+        print(vars.dialogue_history)
         self.session_manager.update_session_statuses()
         print(self.session_manager.get_colorful_sessions_info())
         for i in range(0, turns):
@@ -49,14 +49,14 @@ class DialogueSystem:
                     for action in actions:
                         action.execute()
                         if isinstance(action, Action):
-                            managers.dialogue_history.add(Relation(left=agent,
-                                                                   r_type=RType.ACTION,
-                                                                   r_tense=Tense.PAST,
-                                                                   right=action))
+                            vars.dialogue_history.add(Relation(left=agent,
+                                                               r_type=RType.ACTION,
+                                                               r_tense=Tense.PAST,
+                                                               right=action))
                 agent.act()
                 self.session_manager.update_session_statuses()
                 [print(agent.info()) for agent in self.agents]
-                print(managers.dialogue_history)
+                print(vars.dialogue_history)
                 print(session_manager.get_colorful_sessions_info())
             dst.you = dst.me
             dst.me = None

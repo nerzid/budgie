@@ -41,3 +41,10 @@ class Condition:
 
     def __repr__(self):
         return f"({not self.negation}){self.relation}"
+
+    @staticmethod
+    def check_conditions(conditions):
+        for condition in conditions:
+            if condition.check() is False:
+                return False
+        return True
