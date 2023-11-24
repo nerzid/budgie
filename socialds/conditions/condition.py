@@ -37,10 +37,10 @@ class Condition:
         pass
 
     def colorless_repr(self):
-        return f"({not self.negation}){self.relation.colorless_repr()}"
+        return ""
 
     def __repr__(self):
-        return f"({not self.negation}){self.relation}"
+        return ""
 
     @staticmethod
     def check_conditions(conditions):
