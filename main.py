@@ -363,8 +363,7 @@ utterances = [
     Utterance("Oh...", [
         Acknowledge()
     ]),
-    Utterance(
-        "I will prescribe you some antibiotics, take them twice a day, one in the morning and one before you sleep.", [
+    Utterance("I will prescribe you some antibiotics, take them twice a day, one in the morning and one before you sleep.", [
             Prescribe(prescriber=agent2, prescribed=[p_antibiotics], prescribed_for=agent1),
             And(),
             Request(requester=agent2,
