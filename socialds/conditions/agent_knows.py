@@ -27,7 +27,7 @@ class AgentKnows(Condition):
 
 
 # to satisfy the condition of agent knows, there are a few options
-# the first choice is observing the knowledgebase of the place.
+# the first choice is observing the knowledgebase of the places that the agent is at.
 # E.g., if I don't know if the apple in the room is red, I look for the apple first, then see that the apple is red.
 # Therefore, it uses Find and Learn. It specifically looks for the relation (Find) in all public knowledgebases and
 # then add it to his own knowledgebase (Learn).

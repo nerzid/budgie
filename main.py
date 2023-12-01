@@ -55,7 +55,6 @@ any_place = AnyPlace()
 places_office = Place('office')
 place_waiting_room = Place('waiting room')
 
-
 any_agent = AnyAgent()
 # Agent 1: Joe - patient
 # Agent 1's Relation Storages
@@ -63,6 +62,7 @@ agent1_kb = RelationStorage('Joe\'s Knowledgebase')
 agent1_competences = RelationStorage('Joe\'s Competences')
 agent1_places = RelationStorage('Joe\'s Places')
 agent1_resources = RelationStorage('Joe\'s Resources')
+agent1_forgotten = RelationStorage('Joe\'s Forgotten Knowledgebase')
 actor1 = Actor(name="Joe", knowledgebase=RelationStorage('Actor Joe\'s Knowledgebase'))
 
 # Agent 1's properties
@@ -107,8 +107,8 @@ agent1_kb.add_multi([
 ])
 
 # Agent 1's initialization
-agent1 = Agent(name='Joe(patient)', actor=actor1, roles=[], knowledgebase=agent1_kb, competences=agent1_competences,
-               places=agent1_places, resources=agent1_resources)
+agent1 = Agent(name='Joe(patient)', actor=actor1, roles=[], knowledgebase=agent1_kb, forgotten=agent1_forgotten,
+               competences=agent1_competences, places=agent1_places, resources=agent1_resources)
 agent1.places.add_multi([
     Relation(left=agent1, r_type=RType.IS_AT, r_tense=Tense.PRESENT, right=any_place),
     Relation(left=agent1, r_type=RType.IS_AT, r_tense=Tense.PRESENT, right=place_waiting_room)
@@ -117,6 +117,7 @@ agent1.places.add_multi([
 # Agent 2: Jane - doctor
 # Agent 2's Relation Storages
 agent2_kb = RelationStorage('Jane\'s Knowledgebase')
+agent2_forgotten = RelationStorage('Jane\'s Forgotten Knowledgebase')
 agent2_competences = RelationStorage('Jane\'s Competences')
 agent2_places = RelationStorage('Jane\'s Places')
 agent2_resources = RelationStorage('Jane\'s Resources')
@@ -124,6 +125,7 @@ agent2_resources = RelationStorage('Jane\'s Resources')
 # Agent 2's initialization
 agent2 = Agent(name='Jane(doctor)',
                actor=Actor(name="Jane", knowledgebase=RelationStorage('Actor Jane\'s Knowledgebase ')),
+               forgotten=agent2_forgotten,
                roles=[],
                knowledgebase=agent2_kb, competences=agent2_competences, places=agent2_places,
                resources=agent2_resources)
@@ -363,7 +365,8 @@ utterances = [
     Utterance("Oh...", [
         Acknowledge()
     ]),
-    Utterance("I will prescribe you some antibiotics, take them twice a day, one in the morning and one before you sleep.", [
+    Utterance(
+        "I will prescribe you some antibiotics, take them twice a day, one in the morning and one before you sleep.", [
             Prescribe(prescriber=agent2, prescribed=[p_antibiotics], prescribed_for=agent1),
             And(),
             Request(requester=agent2,

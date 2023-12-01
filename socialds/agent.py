@@ -13,11 +13,13 @@ from socialds.socialpractice.context.role import Role
 
 class Agent(Object):
     def __init__(self, name: str, actor: Actor, roles: List[Role], knowledgebase: RelationStorage,
+                 forgotten: RelationStorage,
                  competences: RelationStorage, resources: RelationStorage, places: RelationStorage, auto: bool = False):
         super().__init__(name)
         self.actor = actor
         self.roles = roles
         self.knowledgebase = knowledgebase
+        self.forgotten = forgotten
         self.competences = competences
         self.resources = resources
         self.places = places
