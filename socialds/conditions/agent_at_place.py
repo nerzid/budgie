@@ -31,3 +31,22 @@ class AgentAtPlace(Condition):
 
     def __repr__(self):
         return f"{self.agent} ({not self.negation})at({self.tense.value}) {self.place}{super().get_times_str()}"
+
+
+# there are few options to satisfy the agent at place condition
+# first option is If I can do it, I move to the place
+# E.g., I move from this room to another room in the house
+# Therefore it is the (Move) action
+# second option is if I cannot move to the place, due to a permit, I request to have the permit
+# E.g., I need to ask the doctor if I can enter the office. Request (Permit for Move)
+# third option is if I cannot move to the place because I don't know where that is
+# E.g., I need to attend a meeting in the room A216 but don't know where it is. So I ask the other agent share it.
+# (Request (Share) from the other agent)
+# fourth option is if I cannot move because I have an impairment that prevents me from walking
+# E.g., I cannot walk, so I ask other agent to move me
+# (Request (Move me) from the other agent)
+# fifth option is if I cannot move because there is a physical restriction, so I try to undo the restriction if possible
+# E.g., I cannot come to work because there is snow blocking my apartment entrance, so I shovel the snow out of the way
+# This concept introduces the restrictions for the actions which is a future work.
+# But it should look like this
+# (Fix(issue) then Move())
