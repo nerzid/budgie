@@ -3,6 +3,7 @@ from typing import List
 from socialds.action.action_time import ActionTime
 from socialds.agent import Agent
 from socialds.conditions.condition import Condition
+from socialds.relationstorage import RSType
 from socialds.socialpractice.context.place import Place
 from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
@@ -16,22 +17,21 @@ class AgentAtPlace(Condition):
 
     def check(self):
         if not self.negation:
-            return self.agent.places.contains(Relation(left=self.agent,
-                                                       r_type=RType.IS_AT,
-                                                       r_tense=Tense.PRESENT,
-                                                       right=self.place))
+            return self.agent.relation_storages[RSType.PLACES].contains(Relation(left=self.agent,
+                                                                                 rtype=RType.IS_AT,
+                                                                                 rtense=Tense.PRESENT,
+                                                                                 right=self.place))
         else:
-            return not self.agent.places.contains(Relation(left=self.agent,
-                                                           r_type=RType.IS_AT,
-                                                           r_tense=Tense.PRESENT,
-                                                           right=self.place))
+            return not self.agent.relation_storages[RSType.PLACES].contains(Relation(left=self.agent,
+                                                                                     rtype=RType.IS_AT,
+                                                                                     rtense=Tense.PRESENT,
+                                                                                     right=self.place))
 
     def colorless_repr(self):
         return f"{self.agent} ({not self.negation})at({self.tense.value}) {self.place}{super().get_times_str()}"
 
     def __repr__(self):
         return f"{self.agent} ({not self.negation})at({self.tense.value}) {self.place}{super().get_times_str()}"
-
 
 # there are few options to satisfy the agent at place condition
 # first option is If I can do it, I move to the place

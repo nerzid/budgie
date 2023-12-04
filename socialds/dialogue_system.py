@@ -3,6 +3,7 @@ from termcolor import colored
 import socialds.simple_DST as dst
 from socialds.managers.managers import session_manager
 import socialds.other.variables as vars
+import socialds.other.dst_pronouns as pronouns
 from socialds.action.action import Action
 from socialds.relationstorage import RelationStorage, merge_relation_storages
 from socialds.agent import Agent
@@ -13,6 +14,8 @@ import questionary
 from socialds.utterance import Utterance
 from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
+import socialds.other.dst_pronouns as dst_pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 
 
 class DialogueSystem:
@@ -29,6 +32,10 @@ class DialogueSystem:
         print(vars.dialogue_history)
         self.session_manager.update_session_statuses()
         print(self.session_manager.get_colorful_sessions_info())
+
+        dst_pronouns.pronouns[DSTPronoun.I] = self.agents[1]
+        dst_pronouns.pronouns[DSTPronoun.YOU] = self.agents[0]
+
         for i in range(0, turns):
             self.next()
 
@@ -36,7 +43,10 @@ class DialogueSystem:
         for agent in self.agents:
             end_turn = False
             while not end_turn:
-                dst.me = agent
+                dst_pronouns.pronouns[DSTPronoun.YOU] = dst_pronouns.pronouns[DSTPronoun.I]
+                dst_pronouns.pronouns[DSTPronoun.I] = agent
+                print("PRONOUNS")
+                print(dst_pronouns.pronouns)
                 if agent.auto:
                     pass
                     # if isinstance(action, Action):
@@ -50,16 +60,15 @@ class DialogueSystem:
                         action.execute()
                         if isinstance(action, Action):
                             vars.dialogue_history.add(Relation(left=agent,
-                                                               r_type=RType.ACTION,
-                                                               r_tense=Tense.PAST,
+                                                               rtype=RType.ACTION,
+                                                               rtense=Tense.PAST,
                                                                right=action))
                 agent.act()
                 self.session_manager.update_session_statuses()
                 [print(agent.info()) for agent in self.agents]
                 print(vars.dialogue_history)
                 print(session_manager.get_colorful_sessions_info())
-            dst.you = dst.me
-            dst.me = None
+
 
     def get_user_input(self, agent):
         choose_type_of_act_question = f'{agent.name} chooses to do...'

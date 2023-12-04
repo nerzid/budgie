@@ -19,13 +19,13 @@ class ActionOnPropertyHappens(Condition):
     def check(self):
         if not self.negation:
             return dialogue_history.contains(Relation(left=self.property,
-                                                      r_type=RType.ACTION,
-                                                      r_tense=self.tense,
+                                                      rtype=RType.ACTION,
+                                                      rtense=self.tense,
                                                       right=self.action))
         else:
             return not dialogue_history.contains(Relation(left=self.property,
-                                                          r_type=RType.ACTION,
-                                                          r_tense=self.tense,
+                                                          rtype=RType.ACTION,
+                                                          rtense=self.tense,
                                                           right=self.action))
 
     def colorless_repr(self):

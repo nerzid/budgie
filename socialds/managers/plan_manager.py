@@ -5,6 +5,7 @@ from socialds.goal import Goal
 from socialds.plan import Plan
 
 
+
 class PlanManager:
     def __init__(self):
         self.active_plans: List[Plan] = []

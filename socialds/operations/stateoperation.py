@@ -7,3 +7,6 @@ class StateOperation(Operation):
 
     def execute(self):
         super().execute()
+
+    def execute_param_state_operations(self):
+        pass

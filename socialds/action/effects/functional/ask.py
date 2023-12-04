@@ -1,17 +1,19 @@
+from __future__ import annotations
+
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
+from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RelationStorage
 from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
 
 
 class Ask(Action):
-    def __init__(self, asker: Agent, asked: Relation, r_tense: Tense, rs: RelationStorage,
-                 negation: bool = False):
-        self.relation = Relation(asker, RType.ACTION, r_tense, asked, negation)
-        self.rs = rs
-        self.asker = asker
+    def __init__(self, asked: Relation, r_tense: Tense, negation: bool = False):
+        self.relation = Relation(DSTPronoun.I, RType.ACTION, r_tense, asked, negation)
+        self.asked_to = DSTPronoun.YOU
+        self.asker = DSTPronoun.I
         self.asked = asked
         super().__init__("ask", ActionObjType.FUNCTIONAL, [])
 
@@ -21,6 +23,18 @@ class Ask(Action):
     def __repr__(self):
         return f"{super().__repr__()}{self.asker.name} asks what {self.asked}"
 
+    def insert_pronouns(self):
+        if isinstance(self.asker, DSTPronoun):
+            self.asker = pronouns[self.asker]
+        if isinstance(self.asked_to, DSTPronoun):
+            self.asked_to = pronouns[self.asked_to]
+        self.relation.insert_pronouns()
+        self.asked.insert_pronouns()
+        super().insert_pronouns()
+
+    def execute(self):
+        self.insert_pronouns()
+        super().execute()
 # joe asks color of jane's dress
 # Joe -do-> ask (Jane's dress's color -is-> X)
 

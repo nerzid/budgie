@@ -6,6 +6,7 @@ from socialds.action.action_time import ActionTime
 from socialds.action.action import Action
 from socialds.enums import TermColor, Tense
 from socialds.object import Object
+from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.states.state import State
 
 
@@ -97,12 +98,12 @@ class Relation(State):
         }
     }
 
-    def __init__(self, left: any, r_type: RType, r_tense: Tense, right: any, negation=False,
+    def __init__(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False,
                  times: [ActionTime] = None):
         super().__init__()
         self.left = left
-        self.r_type = r_type
-        self.r_tense = r_tense
+        self.rtype = rtype
+        self.rtense = rtense
         self.right = right
         self.negation = negation
         self.times = times
@@ -110,13 +111,13 @@ class Relation(State):
     def colorless_repr(self):
         if (isinstance(self.right, Action) or isinstance(self.right, Relation)) and \
                 (isinstance(self.left, Action) or isinstance(self.right, Relation)):
-            return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right.colorless_repr()}{self.get_times_str()}'
+            return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right.colorless_repr()}{self.get_times_str()}'
         elif isinstance(self.right, Action) or isinstance(self.right, Relation):
-            return f'{self.left}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right.colorless_repr()}{self.get_times_str()}'
+            return f'{self.left}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right.colorless_repr()}{self.get_times_str()}'
         elif isinstance(self.left, Action) or isinstance(self.left, Relation):
-            return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right}{self.get_times_str()}'
+            return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right}{self.get_times_str()}'
         else:
-            return f'{self.left}-{self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense]}->{self.right}{self.get_times_str()}'
+            return f'{self.left}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right}{self.get_times_str()}'
 
     def __repr__(self):
         left_color = TermColor.LIGHT_BLUE.value
@@ -126,9 +127,20 @@ class Relation(State):
 
         return f'{colored(self.left, left_color)} ' \
                f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
-               f'{colored(self.relation_types_with_tenses[self.r_type][not self.negation][self.r_tense], r_type_color)}' \
+               f'{colored(self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense], r_type_color)}' \
                f'{colored("->", TermColor.LIGHT_YELLOW.value)} ' \
                f'{colored(self.right, right_color)}{self.get_times_str()}'
+
+    def insert_pronouns(self,):
+        if isinstance(self.left, Relation):
+            self.left.insert_pronouns()
+        elif isinstance(self.left, DSTPronoun):
+            self.left = pronouns[self.left]
+        elif isinstance(self.right, Relation):
+            self.right.insert_pronouns()
+        elif isinstance(self.right, DSTPronoun):
+            self.right = pronouns[self.right]
+
 
     def get_times_str(self):
         if self.times is None:
@@ -147,4 +159,4 @@ class Relation(State):
 
 
 if __name__ == '__main__':
-    print(Relation(left="Eren", r_type=RType.IS, r_tense=Tense.PRESENT, right="dirty"))
+    print(Relation(left="Eren", rtype=RType.IS, rtense=Tense.PRESENT, right="dirty"))

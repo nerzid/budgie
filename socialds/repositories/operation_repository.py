@@ -4,17 +4,8 @@ from socialds.socialpractice.context.place import Place
 from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
 
-
-def op_and():
-    pass
-
-
-def op_then():
-    pass
-
-
-def op_or():
-    pass
+# to be used as other operations in op_seq when the actions are executed.
+found_relation: Relation
 
 
 def add_relation(relation: Relation, rs: RelationStorage):
@@ -28,11 +19,11 @@ def create_then_add_relation(left: any, r_type: RType, r_tense: Tense,
 
 def find_relation(left: any, r_type: RType, r_tense: Tense,
                   right: any, negation: bool, rs: RelationStorage):
-    return rs.get(left, r_type, r_tense, right, negation)
+    return rs.get_one(left, r_type, r_tense, right, negation)
 
 
 def find_relation_by_place(agent: Agent, r_tense: Tense, place: Place) -> Relation:
-    return agent.places.get(agent, RType.IS_AT, r_tense, place, False)
+    return agent.places.get_one(agent, RType.IS_AT, r_tense, place, False)
 
 
 def move_relation(relation: Relation, from_rs: RelationStorage, to_rs: RelationStorage):
@@ -40,8 +31,8 @@ def move_relation(relation: Relation, from_rs: RelationStorage, to_rs: RelationS
     to_rs.add(relation)
 
 
-def share_relation(relation: Relation, shared_with: RelationStorage):
-    shared_with.add(relation)
+# def share_relation(relation: Relation, shared_with: RelationStorage):
+#     shared_with.add(relation)
 
 
 def modify_relation_right(relation: Relation, new_right: any):
@@ -53,7 +44,7 @@ def modify_relation_left(relation: Relation, new_left: any):
 
 
 def modify_relation_tense(relation: Relation, new_tense: Tense):
-    relation.r_tense = new_tense
+    relation.rtense = new_tense
 
 
 def modify_relation_negation(relation: Relation, new_negation: bool):
@@ -61,7 +52,7 @@ def modify_relation_negation(relation: Relation, new_negation: bool):
 
 
 if __name__ == '__main__':
-    rel = Relation(left="Eren", r_type=RType.IS, r_tense=Tense.PRESENT, right="dirty")
+    rel = Relation(left="Eren", rtype=RType.IS, rtense=Tense.PRESENT, right="dirty")
     rs = RelationStorage(name='rs')
     rs.add(rel)
     print(rs)

@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from typing import List
 
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.other.variables import dialogue_history
 from socialds.action.action import Action
 from socialds.agent import Agent
@@ -10,7 +13,7 @@ from socialds.enums import Tense
 
 
 class AgentDoes(Condition):
-    def __init__(self, agent: Agent, action: Action, tense: Tense, times: List[ActionTime] = None,
+    def __init__(self, agent: Agent | DSTPronoun, action: Action, tense: Tense, times: List[ActionTime] = None,
                  negation=False):
         super().__init__(tense, times, negation)
         self.agent = agent
@@ -19,13 +22,13 @@ class AgentDoes(Condition):
     def check(self):
         if not self.negation:
             return dialogue_history.contains(Relation(left=self.agent,
-                                                      r_type=RType.ACTION,
-                                                      r_tense=self.tense,
+                                                      rtype=RType.ACTION,
+                                                      rtense=self.tense,
                                                       right=self.action))
         else:
             return not dialogue_history.contains(Relation(left=self.agent,
-                                                          r_type=RType.ACTION,
-                                                          r_tense=self.tense,
+                                                          rtype=RType.ACTION,
+                                                          rtense=self.tense,
                                                           right=self.action))
 
     def colorless_repr(self):

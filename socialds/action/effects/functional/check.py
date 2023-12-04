@@ -1,25 +1,41 @@
+from __future__ import annotations
+
 from socialds.enums import Tense
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
+from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RelationStorage
 from socialds.states.relation import Relation, RType
 
 
 class Check(Action):
-    def __init__(self, checker: Agent, checked: Relation, r_tense: Tense, checked_rs: RelationStorage,
+    def __init__(self, checked: Relation, r_tense: Tense, checked_agent: Agent | DSTPronoun,
                  negation: bool = False):
-        self.relation = Relation(checker, RType.ACTION, r_tense, checked, negation)
-        self.checked_rs = checked_rs
-        self.checker = checker
+        self.checked_agent = checked_agent
+        self.checker = DSTPronoun.I
         self.checked = checked
+        self.relation = Relation(self.checker, RType.ACTION, r_tense, checked, negation)
         super().__init__("check", ActionObjType.FUNCTIONAL, [])
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.checker.name} checks if {self.checked.colorless_repr()}"
+        return f"{super().colorless_repr()}{self.checker} checks if {self.checked.colorless_repr()}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.checker.name} checks if {self.checked}"
+        return f"{super().__repr__()}{self.checker} checks if {self.checked}"
+
+    def insert_pronouns(self):
+        if isinstance(self.checker, DSTPronoun):
+            self.checker = pronouns[self.checker]
+        if isinstance(self.checked_agent, DSTPronoun):
+            self.checked_agent = pronouns[self.checked_agent]
+        self.relation.insert_pronouns()
+        self.checked.insert_pronouns()
+        super().insert_pronouns()
+
+    def execute(self):
+        self.insert_pronouns()
+        super().execute()
 
 # joe asks color of jane's dress
 # Joe -do-> ask (Jane's dress's color -is-> X)

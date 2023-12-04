@@ -1,6 +1,8 @@
 from functools import partial
 from typing import List
 
+from socialds.operations.operation import Operation
+
 
 class ActionObjType:
     VERBAL = 'verbal'
@@ -14,14 +16,14 @@ class ActionObjType:
 
 
 class ActionObj:
-    def __init__(self, name: str, act_type: ActionObjType, op_seq: List[partial]):
+    def __init__(self, name: str, act_type: ActionObjType, op_seq: List[Operation]):
         self.name = name
         self.op_seq = op_seq
         self.act_type = act_type
 
     def execute(self):
         for op in self.op_seq:
-            op()
+            op.execute()
 
     # def colorless_repr(self):
     #     return f'{self.act_type}:{self.name}'

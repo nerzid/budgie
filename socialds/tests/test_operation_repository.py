@@ -55,7 +55,7 @@ class TestOperations(unittest.TestCase):
         self.property2 = Property('property2')
 
     def test_add_relation(self):
-        relation = Relation(left=self.agent1, r_type=RType.IS, r_tense=Tense.PRESENT, right=self.property1)
+        relation = Relation(left=self.agent1, rtype=RType.IS, rtense=Tense.PRESENT, right=self.property1)
         add_relation(relation, self.knowledgebase)
         self.assertIn(member=relation, container=self.knowledgebase)
 
@@ -63,7 +63,7 @@ class TestOperations(unittest.TestCase):
         create_then_add_relation(left=self.agent1, r_type=RType.IS, r_tense=Tense.PRESENT, right=self.property1,
                                  negation=False, rs=self.knowledgebase)
         self.assertTrue(self.knowledgebase.contains(
-            relation=Relation(left=self.agent1, r_type=RType.IS, r_tense=Tense.PRESENT, right=self.property1,
+            relation=Relation(left=self.agent1, rtype=RType.IS, rtense=Tense.PRESENT, right=self.property1,
                               negation=False)))
 
 

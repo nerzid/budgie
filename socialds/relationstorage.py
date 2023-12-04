@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List
 from uu import Error
 
@@ -8,6 +9,15 @@ from socialds.states.relation import Relation, RType
 from termcolor import colored
 from socialds.other.utility import colorize_relations_dict
 from socialds.enums import TermColor, Tense
+
+
+class RSType(Enum):
+    KNOWLEDGEBASE = 'Knowledgebase'
+    PLACES = 'Places'
+    RESOURCES = 'Resources'
+    COMPETENCES = 'Competences'
+    FORGOTTEN = 'Forgotten'
+    ANY = 'Any RS'
 
 
 class RelationStorage:
@@ -52,7 +62,7 @@ class RelationStorage:
     # checks for the exact relation based on the values of the relation
     def contains(self, relation: Relation):
         try:
-            rel_in_rs = self.get(relation.left, relation.r_type, relation.r_tense, relation.right, relation.negation)
+            rel_in_rs = self.get_one(relation.left, relation.rtype, relation.rtense, relation.right, relation.negation)
             if rel_in_rs is not None:
                 return True
             else:
@@ -62,6 +72,7 @@ class RelationStorage:
 
     def add(self, relation: Relation):
         self.relations.append(relation)
+        return relation
 
     def add_multi(self, relations: [Relation]):
         for rel in relations:
@@ -70,24 +81,46 @@ class RelationStorage:
     def remove(self, relation: Relation):
         self.relations.remove(relation)
 
-    def get(self, left: any, r_type: RType, r_tense: Tense, right: any, negation=False, times: [ActionTime] = None):
+    def get_one(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False, times: [ActionTime] = None):
         # if times is not None:
         #     for time in times:
         #         if isinstance(time, NumOfTimes):
         #             time_num = time.num
+
         for relation in self.relations:
             if isinstance(left, AnyObject):
-                if relation.r_type == r_type and relation.r_tense == r_tense and relation.right == right and relation.negation == negation:
+                if relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
                     return relation
             elif isinstance(right, AnyObject):
-                if relation.left == left and relation.r_type == r_type and relation.r_tense == r_tense and relation.negation == negation:
+                if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.negation == negation:
                     return relation
             else:
-                if relation.left == left and relation.r_type == r_type and relation.r_tense == r_tense and relation.right == right and relation.negation == negation:
+                if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
                     return relation
+        raise Error
+
+    def get_many(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False, times: [ActionTime] = None):
+        # if times is not None:
+        #     for time in times:
+        #         if isinstance(time, NumOfTimes):
+        #             time_num = time.num
+        found = []
+        for relation in self.relations:
+            if isinstance(left, AnyObject):
+                if relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
+                    found.append(relation)
+            elif isinstance(right, AnyObject):
+                if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.negation == negation:
+                    found.append(relation)
+            else:
+                if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
+                    found.append(relation)
         # print('time num: ' + str(time_num))
         # print('found rel: ' + str(found_rel))
-        raise Error
+        if len(found) <= 0:
+            raise Error
+        else:
+            return found
 
 
 def merge_relation_storages(s1: RelationStorage, s2: RelationStorage):

@@ -4,11 +4,12 @@ from functools import partial
 from socialds.action.action_time import ActionTime
 from socialds.enums import SemanticEvent
 from socialds.action.action_obj import ActionObj, ActionObjType
+from socialds.operations.operation import Operation
 from socialds.operations.stateoperation import StateOperation
 
 
 class Action(ActionObj):
-    def __init__(self, name, act_type: ActionObjType, op_seq: List[partial], preconditions=None,
+    def __init__(self, name, act_type: ActionObjType, op_seq: List[Operation], preconditions=None,
                  times=None):
         super().__init__(name, act_type, op_seq)
         if times is None:
@@ -28,6 +29,9 @@ class Action(ActionObj):
         if len(self.times) > 0:
             times_str = ' ' + times_str[:-5]
         return times_str
+
+    def insert_pronouns(self):
+        pass
 
     # def update(self, key: SemanticEvent, value: any):
     #     self.semantic_roles[key] = value
