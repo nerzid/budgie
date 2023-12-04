@@ -30,10 +30,10 @@ class Learn(Action):
                          )
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.learner} learns {self.learned.colorless_repr()}"
+        return f"{super().colorless_repr()}{self.learner} learn {self.learned.colorless_repr()}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.learner} learns {self.learned}"
+        return f"{super().__repr__()}{self.learner} learn {self.learned}"
 
     def insert_pronouns(self):
         if isinstance(self.learner, DSTPronoun):

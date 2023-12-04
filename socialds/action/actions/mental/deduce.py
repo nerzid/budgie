@@ -24,10 +24,10 @@ class Deduce(Action):
         ])
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}({self.deducer.name} deduces that {self.deduced.colorless_repr()})"
+        return f"{super().colorless_repr()}({self.deducer.name} deduce that {self.deduced.colorless_repr()})"
 
     def __repr__(self):
-        return f"{super().__repr__()}({self.deducer.name} deduces that {self.deduced})"
+        return f"{super().__repr__()}({self.deducer.name} deduce that {self.deduced})"
 
     def insert_pronouns(self):
         if isinstance(self.deducer, DSTPronoun):

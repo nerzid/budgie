@@ -20,10 +20,10 @@ class Feel(Action):
         super().__init__('feel', ActionObjType.FUNCTIONAL, [])
 
     def colorless_repr(self):
-        return f"{super().__repr__()}{self.felt_by.name} feels {self.felt} about {self.about.colorless_repr()}"
+        return f"{super().__repr__()}{self.felt_by.name} feel {self.felt} about {self.about.colorless_repr()}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.felt_by.name} feels {self.felt} about {self.about}"
+        return f"{super().__repr__()}{self.felt_by.name} feel {self.felt} about {self.about}"
 
     def insert_pronouns(self):
         if isinstance(self.felt_by, DSTPronoun):

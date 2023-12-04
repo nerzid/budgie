@@ -14,10 +14,10 @@ class Request(Action):
         super().__init__('request', ActionObjType.FUNCTIONAL, [])
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}{str(self.requester.name)} requests {self.requested.colorless_repr()}"
+        return f"{super().colorless_repr()}{str(self.requester.name)} request {self.requested.colorless_repr()}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.requester.name} requests {self.requested}"
+        return f"{super().__repr__()}{self.requester.name} request {self.requested}"
 
     def insert_pronouns(self):
         if isinstance(self.requester, DSTPronoun):

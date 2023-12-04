@@ -21,11 +21,11 @@ class Take(Action):
 
     def colorless_repr(self):
         from_str = (f' from {self.giver})', f'')[self.giver is None]
-        return f"{super().__repr__()}{self.taker.name} takes {self.taken}{from_str}{super().get_times_str()}"
+        return f"{super().__repr__()}{self.taker.name} take {self.taken}{from_str}{super().get_times_str()}"
 
     def __repr__(self):
         from_str = (f' from {self.giver})', f'')[self.giver is None]
-        return f"{super().__repr__()}{self.taker.name} takes {self.taken}{from_str}{super().get_times_str()}"
+        return f"{super().__repr__()}{self.taker.name} take {self.taken}{from_str}{super().get_times_str()}"
 
     def insert_pronouns(self):
         if isinstance(self.taker, DSTPronoun):

@@ -9,10 +9,10 @@ class SelfTalk(SimpleAction):
         super().__init__('self-talk', ActionObjType.VERBAL)
 
     def colorless_repr(self):
-        return f'{self.name}'
+        return f'{self.selftaker} {self.name}'
 
     def __repr__(self):
-        return f'{self.name}'
+        return f'{self.selftaker} {self.name}'
     
     def insert_pronouns(self):
         if isinstance(self.selftalker, DSTPronoun):

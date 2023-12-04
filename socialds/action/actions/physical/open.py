@@ -13,10 +13,10 @@ class Open(SimpleAction):
         super().__init__('open', ActionObjType.PHYSICAL)
 
     def colorless_repr(self):
-        return f"{super().__repr__()}({str(self.by.name)} opens {self.target.name}"
+        return f"{super().__repr__()}({str(self.by.name)} open {self.target.name}"
 
     def __repr__(self):
-        return f"{super().__repr__()}({self.by.name} opens {self.target.name}"
+        return f"{super().__repr__()}({self.by.name} open {self.target.name}"
     
     def insert_pronouns(self):
         if isinstance(self.by, DSTPronoun):

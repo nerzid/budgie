@@ -21,6 +21,9 @@ class ActionObj:
         self.op_seq = op_seq
         self.act_type = act_type
 
+    def insert_pronouns(self):
+        pass
+
     def execute(self):
         for op in self.op_seq:
             op.execute()

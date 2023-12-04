@@ -61,12 +61,12 @@ class Move(Action):
             self.moved = pronouns[self.moved]
 
     def colorless_repr(self):
-        return super().colorless_repr() + '(' + str(self.mover.name) + ' move ' + str(
-            self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ')'
+        return super().colorless_repr() + '' + str(self.mover.name) + ' move ' + str(
+            self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ''
 
     def __repr__(self):
-        return super().colorless_repr() + '(' + str(self.mover.name) + ' move ' + str(
-            self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ')'
+        return super().colorless_repr() + '' + str(self.mover.name) + ' move ' + str(
+            self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ''
 
     def execute(self):
         self.insert_pronouns()

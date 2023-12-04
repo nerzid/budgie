@@ -29,10 +29,10 @@ class Permit(Action):
                          ])
 
     def colorless_repr(self):
-        return f"{super().__repr__()}({str(self.permitter.name)} permit {self.permitted.colorless_repr()})"
+        return f"{super().__repr__()}{str(self.permitter.name)} permit {self.permitted.colorless_repr()}"
 
     def __repr__(self):
-        return f"{super().__repr__()}({self.permitter} permit {self.permitted})"
+        return f"{super().__repr__()}{self.permitter} permit {self.permitted}"
 
     def insert_pronouns(self):
         if isinstance(self.permitter, DSTPronoun):

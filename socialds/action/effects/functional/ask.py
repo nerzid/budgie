@@ -18,10 +18,10 @@ class Ask(Action):
         super().__init__("ask", ActionObjType.FUNCTIONAL, [])
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.asker.name} asks what {self.asked.colorless_repr()}"
+        return f"{super().colorless_repr()}{self.asker.name} ask what {self.asked.colorless_repr()}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.asker.name} asks what {self.asked}"
+        return f"{super().__repr__()}{self.asker.name} ask what {self.asked}"
 
     def insert_pronouns(self):
         if isinstance(self.asker, DSTPronoun):

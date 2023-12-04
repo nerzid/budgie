@@ -19,10 +19,10 @@ class Check(Action):
         super().__init__("check", ActionObjType.FUNCTIONAL, [])
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.checker} checks if {self.checked.colorless_repr()}"
+        return f"{super().colorless_repr()}{self.checker} check if {self.checked.colorless_repr()}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.checker} checks if {self.checked}"
+        return f"{super().__repr__()}{self.checker} check if {self.checked}"
 
     def insert_pronouns(self):
         if isinstance(self.checker, DSTPronoun):

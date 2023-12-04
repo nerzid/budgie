@@ -263,23 +263,13 @@ utterances = [
 
     ]),
     Utterance("You can tell me if it hurts or you just feel uncomfortable.", [
-        When(action=Notify(notifier=DSTPronoun.I, notified_to=DSTPronoun.YOU,
-                           notified_about=Relation(
-                               left=DSTPronoun.YOU, rtype=RType.ACTION, rtense=Tense.PRESENT,
-                               right=Feel(felt=p_pain, felt_by=DSTPronoun.YOU, r_tense=Tense.PRESENT,
-                                          about=Relation(left=DSTPronoun.I, rtype=RType.ACTION,
-                                                         rtense=Tense.PRESENT,
-                                                         right=Examine()))
-                           )),
+        When(action=Notify(notifier=DSTPronoun.YOU, notified_to=DSTPronoun.I,
+                           notified_about=Feel(felt=p_pain, felt_by=DSTPronoun.YOU, r_tense=Tense.PRESENT,
+                                               about=Relation(left=DSTPronoun.I, rtype=RType.ACTION,
+                                                              rtense=Tense.PRESENT,
+                                                              right=Examine()))
+                           ),
              conditions=[
-                 # Condition(
-                 #     relation=Relation(
-                 #         left=Relation(left=agent2, r_type=RType.ACTION, r_tense=Tense.PRESENT,
-                 #                       right=Examine()),
-                 #         r_type=RType.IS,
-                 #         r_tense=Tense.PRESENT,
-                 #         right=p_painful
-                 #     ))
                  AgentDoes(agent=DSTPronoun.YOU, tense=Tense.PRESENT,
                            action=Feel(felt_by=DSTPronoun.YOU, felt=p_pain, r_tense=Tense.PRESENT,
                                        about=Relation(left=DSTPronoun.I, rtype=RType.ACTION,
@@ -379,9 +369,6 @@ utterances = [
     ]),
     Utterance("If it doesn't heal in a week, you can come again.", [
         When(conditions=[
-            # Condition(
-            #     relation=Relation(left=p_patients_left_eye, r_tense=Tense.PRESENT, r_type=RType.ACTION,
-            #                       right=Heal(healed=p_patients_left_eye, negation=True, times=[InWeek(num=1)])))
             ActionOnPropertyHappens(property=p_patients_left_eye, tense=Tense.PRESENT,
                                     action=Heal(healed=p_patients_left_eye, negation=True, times=[InWeek(num=1)]))
         ],

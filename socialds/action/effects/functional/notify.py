@@ -11,7 +11,7 @@ from socialds.enums import Tense
 
 
 class Notify(Action):
-    def __init__(self, notifier: Agent | DSTPronoun, notified_about: Relation, notified_to: Agent | DSTPronoun,
+    def __init__(self, notifier: Agent | DSTPronoun, notified_about: Relation | Action, notified_to: Agent | DSTPronoun,
                  negation=False):
         self.notifier = notifier
         self.notified_about = notified_about
@@ -25,10 +25,10 @@ class Notify(Action):
                          ])
 
     def colorless_repr(self):
-        return f"{super().__repr__()}({self.notifier.name} notifies {self.notified_to} about {self.notified_about.colorless_repr()})"
+        return f"{super().__repr__()}({self.notifier.name} notify {self.notified_to} about {self.notified_about.colorless_repr()})"
 
     def __repr__(self):
-        return f"{super().__repr__()}({self.notifier.name} notifies {self.notified_to} about {self.notified_about})"
+        return f"{super().__repr__()}({self.notifier.name} notify {self.notified_to} about {self.notified_about})"
 
     def insert_pronouns(self):
         if isinstance(self.notifier, DSTPronoun):

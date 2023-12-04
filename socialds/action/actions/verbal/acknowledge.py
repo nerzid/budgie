@@ -10,10 +10,10 @@ class Acknowledge(SimpleAction):
         super().__init__('acknowledge', ActionObjType.VERBAL)
 
     def colorless_repr(self):
-        return f'{self.name}'
+        return f'{self.acknowledger} {self.name} {self.acknowledged_to}'
 
     def __repr__(self):
-        return f'{self.name}'
+        return f'{self.acknowledger} {self.name} {self.acknowledged_to}'
     
     def insert_pronouns(self):
         if isinstance(self.acknowledger, DSTPronoun):

@@ -10,7 +10,7 @@ from socialds.operations.stateoperation import StateOperation
 
 class Action(ActionObj):
     def __init__(self, name, act_type: ActionObjType, op_seq: List[Operation], preconditions=None,
-                 times=None):
+                 times: List[ActionTime] = None):
         super().__init__(name, act_type, op_seq)
         if times is None:
             times = []
@@ -31,8 +31,8 @@ class Action(ActionObj):
         return times_str
 
     def insert_pronouns(self):
-        pass
-
+        for time in self.times:
+            time.insert_pronouns()
     # def update(self, key: SemanticEvent, value: any):
     #     self.semantic_roles[key] = value
     #     return self

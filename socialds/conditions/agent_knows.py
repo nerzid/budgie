@@ -1,15 +1,18 @@
+from __future__ import annotations
+
 from typing import List
 
 from socialds.enums import Tense
 from socialds.action.action_time import ActionTime
 from socialds.agent import Agent
 from socialds.conditions.condition import Condition
+from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RSType
 from socialds.states.relation import Relation
 
 
 class AgentKnows(Condition):
-    def __init__(self, agent: Agent, knows: Relation, tense: Tense, times: List[ActionTime] = None, negation=False):
+    def __init__(self, agent: Agent | DSTPronoun, knows: Relation, tense: Tense, times: List[ActionTime] = None, negation=False):
         super().__init__(tense, times, negation)
         self.agent = agent
         self.knows = knows
@@ -26,6 +29,11 @@ class AgentKnows(Condition):
     def __repr__(self):
         return f"{self.agent} ({not self.negation})knows({self.tense.value}) {self.knows}{super().get_times_str()}"
 
+    def insert_pronouns(self):
+        if isinstance(self.agent, DSTPronoun):
+            self.agent = pronouns[self.agent]
+        self.knows.insert_pronouns()
+        super().insert_pronouns()
 
 # to satisfy the condition of agent knows, there are a few options
 # the first choice is observing the knowledgebase of the places that the agent is at.

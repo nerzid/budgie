@@ -11,10 +11,10 @@ class Thank(SimpleAction):
         super().__init__('thank', ActionObjType.VERBAL)
 
     def colorless_repr(self):
-        return f'{self.name}'
+        return f'{self.thanker} {self.name} {self.thanked_to}'
 
     def __repr__(self):
-        return f'{self.name}'
+        return f'{self.thanker} {self.name} {self.thanked_to}'
 
     def insert_pronouns(self):
         if isinstance(self.thanker, DSTPronoun):

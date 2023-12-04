@@ -23,10 +23,10 @@ class Prescribe(Action):
         super().__init__('prescribe', ActionObjType.PHYSICAL, [], times=times)
 
     def colorless_repr(self):
-        return f"{self.prescriber} prescribes {self.prescribed} for {self.prescribed_for}{super().get_times_str()}"
+        return f"{self.prescriber} prescribe {self.prescribed} for {self.prescribed_for}{super().get_times_str()}"
 
     def __repr__(self):
-        return f"{self.prescriber} prescribes {self.prescribed} for {self.prescribed_for}{super().get_times_str()}"
+        return f"{self.prescriber} prescribe {self.prescribed} for {self.prescribed_for}{super().get_times_str()}"
 
     def insert_pronouns(self):
         if isinstance(self.prescriber, DSTPronoun):

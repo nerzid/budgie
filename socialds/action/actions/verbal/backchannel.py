@@ -9,10 +9,10 @@ class Backchannel(SimpleAction):
         super().__init__('backchannel', ActionObjType.VERBAL)
 
     def colorless_repr(self):
-        return f'{self.name}'
+        return f'{self.backchanneler} {self.name}'
 
     def __repr__(self):
-        return f'{self.name}'
+        return f'{self.backchanneler} {self.name}'
     
     def insert_pronouns(self):
         if isinstance(self.backchanneler, DSTPronoun):

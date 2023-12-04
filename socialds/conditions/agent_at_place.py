@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 from typing import List
 
 from socialds.action.action_time import ActionTime
 from socialds.agent import Agent
 from socialds.conditions.condition import Condition
+from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RSType
 from socialds.socialpractice.context.place import Place
 from socialds.states.relation import Relation, RType
@@ -10,7 +13,7 @@ from socialds.enums import Tense
 
 
 class AgentAtPlace(Condition):
-    def __init__(self, agent: Agent, place: Place, tense: Tense, times: List[ActionTime] = None, negation=False):
+    def __init__(self, agent: Agent | DSTPronoun, place: Place, tense: Tense, times: List[ActionTime] = None, negation=False):
         super().__init__(tense, times, negation)
         self.agent = agent
         self.place = place
@@ -33,6 +36,10 @@ class AgentAtPlace(Condition):
     def __repr__(self):
         return f"{self.agent} ({not self.negation})at({self.tense.value}) {self.place}{super().get_times_str()}"
 
+    def insert_pronouns(self):
+        if isinstance(self.agent, DSTPronoun):
+            self.agent = pronouns[self.agent]
+        super().insert_pronouns()
 # there are few options to satisfy the agent at place condition
 # first option is If I can do it, I move to the place
 # E.g., I move from this room to another room in the house

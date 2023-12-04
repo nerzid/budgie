@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from socialds.other.dst_pronouns import DSTPronoun
+from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.other.variables import dialogue_history
 from socialds.action.action import Action
 from socialds.agent import Agent
@@ -32,11 +32,16 @@ class AgentDoes(Condition):
                                                           right=self.action))
 
     def colorless_repr(self):
-        return f"{self.agent} ({not self.negation})does({self.tense.value}) {self.action.colorless_repr()}{super().get_times_str()}"
+        return f"{self.agent} {Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]} {self.action.colorless_repr()}{super().get_times_str()}"
 
     def __repr__(self):
-        return f"{self.agent} ({not self.negation})does({self.tense.value}) {self.action}{super().get_times_str()}"
+        return f"{self.agent} {Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]}{self.tense.value} {self.action}{super().get_times_str()}"
 
+    def insert_pronouns(self):
+        if isinstance(self.agent, DSTPronoun):
+            self.agent = pronouns[self.agent]
+        self.action.insert_pronouns()
+        super().insert_pronouns()
 
 # to satisfy the condition agent does, there are few options
 # first option is, if the agent can do it, he does it.

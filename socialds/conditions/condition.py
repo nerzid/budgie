@@ -42,6 +42,10 @@ class Condition:
     def __repr__(self):
         return ""
 
+    def insert_pronouns(self):
+        for time in self.times:
+            time.insert_pronouns()
+
     @staticmethod
     def check_conditions(conditions):
         for condition in conditions:
