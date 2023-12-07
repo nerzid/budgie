@@ -2,11 +2,9 @@ from __future__ import annotations
 
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
-from socialds.agent import Agent
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
-from socialds.relationstorage import RelationStorage
-from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
+from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.states.relation import Relation, RType
 
 
 class Ask(Action):

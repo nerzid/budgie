@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from socialds.action.action_obj import ActionObjType
+from socialds.action.effects.effect import Effect, EffectType
 from socialds.agent import Agent
 from socialds.operations.add_relation_to_agent_rs import AddRelationToAgentRS
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
@@ -10,7 +11,7 @@ from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
 
 
-class Permit(Action):
+class Permit(Effect):
     def __init__(self, permitter: Agent | DSTPronoun, permitted: Action, permit_given_to: Agent | DSTPronoun,
                  r_tense: Tense, negation: bool):
         # self.relation = Relation(permitter, RelationType.IS_PERMITTED_TO, r_tense, permitted, negation)
@@ -20,7 +21,7 @@ class Permit(Action):
         self.relation = Relation(permitter, RType.IS_PERMITTED_TO, r_tense, permitted, negation)
         # super().__init__(name='permit', act_type=ActionObjType.FUNCTIONAL,
         #                  op_seq=[partial(add_relation, self.relation, rs)])
-        super().__init__(name='permit', act_type=ActionObjType.FUNCTIONAL,
+        super().__init__(name='permit', etype=EffectType.SOCIAL,
                          op_seq=[
                              # partial(create_then_add_relation, permitter, RType.IS_PERMITTED_TO, r_tense, permitted, negation, rs)
                              AddRelationToAgentRS(relation=self.relation,
