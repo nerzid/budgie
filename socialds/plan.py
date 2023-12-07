@@ -15,12 +15,12 @@ class Plan:
     """
     Plan is the action sequence that allows the agent to reach a certain goal (or goals)
     """
-    def __init__(self, goal: Goal, actions: List[Action] = None):
+    def __init__(self, goals: List[Goal], actions: List[Action] = None):
         if actions is None:
             self.actions = []
         else:
             self.actions = actions
-        self.goal = goal
+        self.goals = goals
         self.actions_ix = 0
         self.status = PlanStatus.NOT_STARTED
 

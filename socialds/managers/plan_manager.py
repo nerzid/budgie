@@ -1,9 +1,10 @@
 from typing import List
 
 import socialds.managers.managers as managers
+from socialds.action.action import Action
 from socialds.goal import Goal
 from socialds.plan import Plan
-
+from socialds.utterance import Utterance
 
 
 class PlanManager:
@@ -30,4 +31,19 @@ class PlanManager:
     #     print(managers.session_manager.get_sessions_info())
 
     def plan(self):
+        """
+        Creates plans for the available goals
+        """
         pass
+
+    def get_possible_actions(self) -> List[Action]:
+        """
+        Returns list of actions that are possible to use for pursuing activate plans
+        """
+        pass
+
+    def get_the_best_matching_utterance(self) -> Utterance:
+        pass
+
+
+
