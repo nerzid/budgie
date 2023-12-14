@@ -11,7 +11,7 @@ class Request(Action):
     def __init__(self, requester: Agent | DSTPronoun, requested: Action):
         self.requester = requester
         self.requested = requested
-        super().__init__('request', ActionObjType.FUNCTIONAL, [])
+        super().__init__('request', ActionObjType.VERBAL, [])
 
     def colorless_repr(self):
         return f"{super().colorless_repr()}{str(self.requester.name)} request {self.requested.colorless_repr()}"

@@ -2,15 +2,10 @@ from __future__ import annotations
 
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
+from socialds.action.effects.functional.change_place import ChangeLocation
 from socialds.agent import Agent
-from socialds.operations.add_relation_to_agent_rs import AddRelationToAgentRS
-from socialds.operations.find_one_relation_in_agent import FindOneRelationInAgent
-from socialds.operations.modify_relation_tense import ModifyRelationTense
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
-from socialds.relationstorage import RSType
 from socialds.socialpractice.context.place import Place
-from socialds.states.relation import Relation, RType
-from socialds.enums import Tense
 
 
 class Move(Action):
@@ -21,36 +16,41 @@ class Move(Action):
         self.moved = moved
         self.from_place = from_place
         self.to_place = to_place
-        if isinstance(moved, Agent) or isinstance(moved, DSTPronoun):
-            op_seq = [
-                ModifyRelationTense(
-                    relation=FindOneRelationInAgent(
-                        agent=self.moved,
-                        rstype=RSType.PLACES,
-                        left=self.moved,
-                        rtype=RType.IS_AT,
-                        rtense=Tense.PRESENT,
-                        right=self.from_place,
-                        negation=False
-                    ), rtense=Tense.PAST),
-                AddRelationToAgentRS(
-                    relation=Relation(
-                        left=self.moved,
-                        rtype=RType.IS_AT,
-                        rtense=Tense.PRESENT,
-                        right=self.to_place,
-                        negation=False
-                    ), agent=self.moved, rstype=RSType.PLACES)
-            ]
-        else:
-            op_seq = [
-                #     TODO
-            ]
-        super().__init__('move', ActionObjType.FUNCTIONAL,
+        # if isinstance(moved, Agent) or isinstance(moved, DSTPronoun):
+        #     effects = [
+        #         ModifyRelationTense(
+        #             relation=FindOneRelationInAgent(
+        #                 agent=self.moved,
+        #                 rstype=RSType.PLACES,
+        #                 left=self.moved,
+        #                 rtype=RType.IS_AT,
+        #                 rtense=Tense.PRESENT,
+        #                 right=self.from_place,
+        #                 negation=False
+        #             ), rtense=Tense.PAST),
+        #         AddRelationToAgentRS(
+        #             relation=Relation(
+        #                 left=self.moved,
+        #                 rtype=RType.IS_AT,
+        #                 rtense=Tense.PRESENT,
+        #                 right=self.to_place,
+        #                 negation=False
+        #             ), agent=self.moved, rstype=RSType.PLACES)
+        #     ]
+        # else:
+        #     effects = [
+        #         #     TODO
+        #     ]
+        effects = [
+            ChangeLocation(from_place=self.from_place,
+                           to_place=self.to_place,
+                           affected=self.moved)
+        ]
+        super().__init__('move', ActionObjType.PHYSICAL,
                          # op_seq=[partial(modify_relation_tense, self.relation, Tense.PAST),
                          #         partial(create_then_add_relation, moved, RType.IS_AT, Tense.PRESENT,
                          #                 to_place, True, moved.places)]
-                         op_seq=op_seq
+                         effects=effects
                          )
 
     def insert_pronouns(self):

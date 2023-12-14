@@ -7,25 +7,19 @@ from socialds.managers.plan_manager import PlanManager
 from socialds.object import Object
 from socialds.relationstorage import RelationStorage, RSType
 from socialds.relationstorage import merge_relation_storages
+from socialds.rs_holder import RSHolder, RSHolderType
 from socialds.socialpractice.context.actor import Actor
 from socialds.socialpractice.context.role import Role
 
 
-class Agent(Object):
+class Agent(Object, RSHolder):
     def __init__(self, name: str, actor: Actor, roles: List[Role], relation_storages: dict = None, auto: bool = False):
-        super().__init__(name)
+        Object.__init__(self, name=name)
+        RSHolder.__init__(self, rsholder_name=name,
+                          rsholder_type=RSHolderType.AGENT,
+                          relation_storages=relation_storages)
 
         self.actor = actor
-        if relation_storages is None:
-            self.relation_storages = {
-                RSType.KNOWLEDGEBASE: RelationStorage(actor.name + ' Knowledgebase'),
-                RSType.FORGOTTEN: RelationStorage(actor.name + ' Forgotten'),
-                RSType.COMPETENCES: RelationStorage(actor.name + ' Competences'),
-                RSType.RESOURCES: RelationStorage(actor.name + ' Resources'),
-                RSType.PLACES: RelationStorage(actor.name + ' Places')
-            }
-        else:
-            self.relation_storages = relation_storages
         self.roles = roles
         self.plan_manager = PlanManager()
         self.auto = auto

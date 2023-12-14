@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
+from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.agent import Agent
-from socialds.operations.add_relation_to_agent_rs import AddRelationToAgentRS
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RSType
 from socialds.states.relation import Relation
@@ -19,8 +19,8 @@ class Deduce(Action):
         """
         self.deducer = deducer
         self.deduced = deduced
-        super().__init__('deduce', ActionObjType.MENTAL, op_seq=[
-            AddRelationToAgentRS(relation=deduced, agent=deducer, rstype=RSType.KNOWLEDGEBASE)
+        super().__init__('deduce', ActionObjType.MENTAL, effects=[
+            GainKnowledge(knowledge=deduced, affected=deducer)
         ])
 
     def colorless_repr(self):

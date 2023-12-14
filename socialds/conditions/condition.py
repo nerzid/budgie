@@ -3,8 +3,6 @@ from typing import List
 
 from socialds.enums import Tense
 from socialds.action.action_time import ActionTime
-from socialds.relationstorage import RelationStorage
-from socialds.states.relation import Relation
 
 
 # class ConditionType(Enum):

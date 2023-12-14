@@ -16,7 +16,7 @@ class Check(Action):
         self.checker = DSTPronoun.I
         self.checked = checked
         self.relation = Relation(self.checker, RType.ACTION, r_tense, checked, negation)
-        super().__init__("check", ActionObjType.FUNCTIONAL, [])
+        super().__init__("check", ActionObjType.VERBAL, [])
 
     def colorless_repr(self):
         return f"{super().colorless_repr()}{self.checker} check if {self.checked.colorless_repr()}"

@@ -1,14 +1,13 @@
 from functools import partial
 from typing import List
 
-from socialds.operations.operation import Operation
+from socialds.action.effects.effect import Effect
 
 
 class ActionObjType:
     VERBAL = 'verbal'
     PHYSICAL = 'physical'
     MENTAL = 'mental'
-    FUNCTIONAL = 'functional'
     OPERATOR = 'op'
 
     def __repr__(self) -> str:
@@ -16,16 +15,16 @@ class ActionObjType:
 
 
 class ActionObj:
-    def __init__(self, name: str, act_type: ActionObjType, op_seq: List[Operation]):
+    def __init__(self, name: str, act_type: ActionObjType, effects: List[Effect]):
         self.name = name
-        self.op_seq = op_seq
+        self.effects = effects
         self.act_type = act_type
 
     def insert_pronouns(self):
         pass
 
     def execute(self):
-        for op in self.op_seq:
+        for op in self.effects:
             op.execute()
 
     # def colorless_repr(self):

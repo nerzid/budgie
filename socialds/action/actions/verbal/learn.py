@@ -4,8 +4,8 @@ from functools import partial
 
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
+from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.agent import Agent
-from socialds.operations.add_relation_to_agent_rs import AddRelationToAgentRS
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RSType
 from socialds.states.relation import Relation
@@ -22,10 +22,10 @@ class Learn(Action):
         """
         self.learner = learner
         self.learned = learned
-        super().__init__(name="learn", act_type=ActionObjType.FUNCTIONAL,
+        super().__init__(name="learn", act_type=ActionObjType.VERBAL,
                          # op_seq=[partial(add_relation, learned, learner.knowledgebase)]
-                         op_seq=[
-                             AddRelationToAgentRS(relation=learned, agent=self.learner, rstype=RSType.KNOWLEDGEBASE)
+                         effects=[
+                             GainKnowledge(knowledge=learned, affected=learner)
                          ]
                          )
 

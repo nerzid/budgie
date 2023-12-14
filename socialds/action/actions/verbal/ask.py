@@ -15,7 +15,7 @@ class Ask(Action):
         self.asked_to = DSTPronoun.YOU
         self.asker = DSTPronoun.I
         self.asked = asked
-        super().__init__("ask", ActionObjType.FUNCTIONAL, [])
+        super().__init__("ask", ActionObjType.VERBAL, [])
 
     def colorless_repr(self):
         return f"{super().colorless_repr()}{self.asker.name} ask what {self.asked.colorless_repr()}"

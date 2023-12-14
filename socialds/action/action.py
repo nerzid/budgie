@@ -2,16 +2,17 @@ from typing import List
 from functools import partial
 
 from socialds.action.action_time import ActionTime
+from socialds.action.effects.effect import Effect
 from socialds.enums import SemanticEvent
 from socialds.action.action_obj import ActionObj, ActionObjType
-from socialds.operations.operation import Operation
+
 from socialds.operations.stateoperation import StateOperation
 
 
 class Action(ActionObj):
-    def __init__(self, name, act_type: ActionObjType, op_seq: List[Operation], preconditions=None,
+    def __init__(self, name, act_type: ActionObjType, effects: List[Effect], preconditions=None,
                  times: List[ActionTime] = None):
-        super().__init__(name, act_type, op_seq)
+        super().__init__(name, act_type, effects)
         if times is None:
             times = []
         self.times = times

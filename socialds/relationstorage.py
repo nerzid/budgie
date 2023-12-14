@@ -12,6 +12,7 @@ from socialds.enums import TermColor, Tense
 
 
 class RSType(Enum):
+    PROPERTIES = 'Properties'
     KNOWLEDGEBASE = 'Knowledgebase'
     PLACES = 'Places'
     RESOURCES = 'Resources'

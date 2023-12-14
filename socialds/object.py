@@ -5,7 +5,7 @@ from socialds.states.property import Property
 
 # Agents and Resources are both objects
 class Object:
-    def __init__(self, name):
+    def __init__(self, name: str):
         self.name = name
 
     # def get_left_relations(self):

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from socialds.action.action_obj import ActionObjType
+from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.agent import Agent
-from socialds.operations.add_relation_to_agent_rs import AddRelationToAgentRS
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RSType
 from socialds.action.action import Action
@@ -20,12 +20,9 @@ class Permit(Action):
         self.relation = Relation(permitter, RType.IS_PERMITTED_TO, r_tense, permitted, negation)
         # super().__init__(name='permit', act_type=ActionObjType.FUNCTIONAL,
         #                  op_seq=[partial(add_relation, self.relation, rs)])
-        super().__init__(name='permit', act_type=ActionObjType.FUNCTIONAL,
-                         op_seq=[
-                             # partial(create_then_add_relation, permitter, RType.IS_PERMITTED_TO, r_tense, permitted, negation, rs)
-                             AddRelationToAgentRS(relation=self.relation,
-                                                  agent=self.permit_given_to,
-                                                  rstype=RSType.KNOWLEDGEBASE)
+        super().__init__(name='permit', act_type=ActionObjType.VERBAL,
+                         effects=[
+                             GainKnowledge(knowledge=self.relation, affected=self.permit_given_to)
                          ])
 
     def colorless_repr(self):

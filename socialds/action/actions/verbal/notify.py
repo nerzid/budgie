@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from socialds.operations.add_relation_to_agent_rs import AddRelationToAgentRS
+from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
@@ -17,11 +17,11 @@ class Notify(Action):
         self.notified_about = notified_about
         self.notified_to = notified_to
         self.notification = Relation(notifier, RType.ACTION, Tense.FUTURE, notified_about, negation)
-        super().__init__('notify', ActionObjType.FUNCTIONAL,
-                         op_seq=[
-                             # partial(add_relation, self.notification, notified_to.knowledgebase)
-                             AddRelationToAgentRS(relation=self.notification, agent=self.notified_to,
-                                                  rstype=RSType.KNOWLEDGEBASE)
+        super().__init__('notify', ActionObjType.VERBAL,
+                         effects=[
+                             # this effect is incorrect for notify because there isnt any knowledge gain
+                             # but it is an expectation that a certain action will happen
+                             GainKnowledge(knowledge=self.notification, affected=notified_to)
                          ])
 
     def colorless_repr(self):

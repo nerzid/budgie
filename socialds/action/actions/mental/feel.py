@@ -17,7 +17,7 @@ class Feel(Action):
         self.about = about
         self.r_tense = r_tense
         self.negation = negation
-        super().__init__('feel', ActionObjType.FUNCTIONAL, [])
+        super().__init__('feel', ActionObjType.MENTAL, [])
 
     def colorless_repr(self):
         return f"{super().__repr__()}{self.felt_by.name} feel {self.felt} about {self.about.colorless_repr()}"
