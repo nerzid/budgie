@@ -10,16 +10,19 @@ from socialds.operations.stateoperation import StateOperation
 
 
 class Action(ActionObj):
-    def __init__(self, name, act_type: ActionObjType, effects: List[Effect], preconditions=None,
+    def __init__(self, name, act_type: ActionObjType, base_effects: List[Effect], extra_effects: List[Effect] = None,
+                 preconditions=None,
                  times: List[ActionTime] = None):
-        super().__init__(name, act_type, effects)
         if times is None:
             times = []
+        if extra_effects is None:
+            extra_effects = []
         self.times = times
         if preconditions is None:
             preconditions = []
         self.name = name
         self.preconditions = preconditions
+        super().__init__(name, act_type, base_effects, extra_effects)
 
     def get_times_str(self):
         if self.times is None:

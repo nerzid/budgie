@@ -19,7 +19,7 @@ class Deduce(Action):
         """
         self.deducer = deducer
         self.deduced = deduced
-        super().__init__('deduce', ActionObjType.MENTAL, effects=[
+        super().__init__('deduce', ActionObjType.MENTAL, base_effects=[
             GainKnowledge(knowledge=deduced, affected=deducer)
         ])
 

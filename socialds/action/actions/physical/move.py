@@ -50,7 +50,7 @@ class Move(Action):
                          # op_seq=[partial(modify_relation_tense, self.relation, Tense.PAST),
                          #         partial(create_then_add_relation, moved, RType.IS_AT, Tense.PRESENT,
                          #                 to_place, True, moved.places)]
-                         effects=effects
+                         base_effects=effects
                          )
 
     def insert_pronouns(self):

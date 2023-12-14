@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 from functools import partial
+from typing import List
 
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
+from socialds.action.effects.effect import Effect
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.agent import Agent
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
@@ -13,7 +15,7 @@ from socialds.states.relation import Relation
 
 class Learn(Action):
 
-    def __init__(self, learner: Agent | DSTPronoun, learned: Relation):
+    def __init__(self, learner: Agent | DSTPronoun, learned: Relation, extra_effects: List[Effect] = None):
         """
         Learns a piece of information as relation. Learn is similar to Share except only agent who does
         the action saves the new information in their knowledgebase.
@@ -24,9 +26,9 @@ class Learn(Action):
         self.learned = learned
         super().__init__(name="learn", act_type=ActionObjType.VERBAL,
                          # op_seq=[partial(add_relation, learned, learner.knowledgebase)]
-                         effects=[
+                         base_effects=[
                              GainKnowledge(knowledge=learned, affected=learner)
-                         ]
+                         ], extra_effects=extra_effects
                          )
 
     def colorless_repr(self):

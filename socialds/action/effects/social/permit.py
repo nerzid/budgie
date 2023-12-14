@@ -21,7 +21,7 @@ class Permit(Action):
         # super().__init__(name='permit', act_type=ActionObjType.FUNCTIONAL,
         #                  op_seq=[partial(add_relation, self.relation, rs)])
         super().__init__(name='permit', act_type=ActionObjType.VERBAL,
-                         effects=[
+                         base_effects=[
                              GainKnowledge(knowledge=self.relation, affected=self.permit_given_to)
                          ])
 

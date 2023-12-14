@@ -17,7 +17,7 @@ class Share(Action):
         self.shared_by = DSTPronoun.I
         self.shared_with = DSTPronoun.YOU
         super().__init__(name="share", act_type=ActionObjType.VERBAL,
-                         effects=[
+                         base_effects=[
                              # partial(add_relation, relation, rs)
                              GainKnowledge(knowledge=relation, affected=self.shared_with)
                          ],

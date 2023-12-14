@@ -18,7 +18,7 @@ class Notify(Action):
         self.notified_to = notified_to
         self.notification = Relation(notifier, RType.ACTION, Tense.FUTURE, notified_about, negation)
         super().__init__('notify', ActionObjType.VERBAL,
-                         effects=[
+                         base_effects=[
                              # this effect is incorrect for notify because there isnt any knowledge gain
                              # but it is an expectation that a certain action will happen
                              GainKnowledge(knowledge=self.notification, affected=notified_to)

@@ -15,16 +15,17 @@ class ActionObjType:
 
 
 class ActionObj:
-    def __init__(self, name: str, act_type: ActionObjType, effects: List[Effect]):
+    def __init__(self, name: str, act_type: ActionObjType, base_effects: List[Effect], extra_effects: List[Effect]):
         self.name = name
-        self.effects = effects
+        self.base_effects = base_effects
+        self.extra_effects = extra_effects
         self.act_type = act_type
 
     def insert_pronouns(self):
         pass
 
     def execute(self):
-        for op in self.effects:
+        for op in self.base_effects:
             op.execute()
 
     # def colorless_repr(self):
