@@ -3,9 +3,7 @@ from __future__ import annotations
 from typing import List
 
 from socialds.action.action_time import ActionTime
-from socialds.agent import Agent
 from socialds.conditions.condition import Condition
-from socialds.object import Object
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RSType
 from socialds.rs_holder import RSHolder

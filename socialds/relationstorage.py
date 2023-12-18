@@ -18,7 +18,14 @@ class RSType(Enum):
     RESOURCES = 'Resources'
     COMPETENCES = 'Competences'
     FORGOTTEN = 'Forgotten'
+    EXPECTED_ACTIONS = 'Expected Actions'
+    EXPECTED_EFFECTS = 'Expected Effects'
+    VALUES = 'Values'
     ANY = 'Any RS'
+
+
+class RelationNotFoundError(Exception):
+    pass
 
 
 class RelationStorage:
@@ -71,6 +78,9 @@ class RelationStorage:
         except Error:
             return False
 
+    def contains_unique(self, relation: Relation, excluded: List[Relation]):
+        pass
+
     def add(self, relation: Relation):
         self.relations.append(relation)
         return relation
@@ -82,23 +92,41 @@ class RelationStorage:
     def remove(self, relation: Relation):
         self.relations.remove(relation)
 
-    def get_one(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False, times: [ActionTime] = None):
+    def get_one(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False,
+                times: List[ActionTime] = None, excluded: List[Relation] = None):
         # if times is not None:
         #     for time in times:
         #         if isinstance(time, NumOfTimes):
         #             time_num = time.num
 
+        found = False
         for relation in self.relations:
+            print('relation right ' + str(relation.right))
+            print('right ' + str(right))
             if isinstance(left, AnyObject):
                 if relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
-                    return relation
+                    found = True
             elif isinstance(right, AnyObject):
                 if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.negation == negation:
-                    return relation
+                    found = True
             else:
                 if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
+                    found = True
+            if found:
+                print('YES!')
+                print(excluded)
+                if excluded is None or len(excluded) == 0:
+                    print(';ASDASDASD')
                     return relation
-        raise Error
+                else:
+                    if relation in excluded:
+                        found = False
+                        continue
+        print('left: ' + str(left))
+        print('right: ' + str(right))
+        if not found:
+            return None
+
 
     def get_many(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False, times: [ActionTime] = None):
         # if times is not None:

@@ -3,7 +3,7 @@ from enum import Enum
 from termcolor import colored
 
 from socialds.action.action_time import ActionTime
-from socialds.action.action import Action
+import socialds.action.action as a
 from socialds.enums import TermColor, Tense
 from socialds.object import Object
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
@@ -16,7 +16,9 @@ class RType(Enum):
     CAN = 'can'
     IS_PERMITTED_TO = 'has_permit'
     ACTION = 'action'
+    EFFECT = 'effect'
     IS_AT = 'is_at'
+    ANY = 'any'
 
 
 # e.g., Eren likes apples -> left: Eren, name: likes, right: apples
@@ -95,6 +97,26 @@ class Relation(State):
                 Tense.PRESENT: 'isn\'t at',
                 Tense.FUTURE: 'won\'t be at'
             }
+        },
+        RType.EFFECT: {
+            True: {
+                Tense.PAST: 'did the effect',
+                Tense.PRESENT: 'does the effect',
+                Tense.FUTURE: 'will do the effect'
+            },
+            False: {
+                Tense.PAST: 'didn\'t do the effect',
+                Tense.PRESENT: 'don\'t do the effect',
+                Tense.FUTURE: 'won\'t do the effect'
+            }
+        },
+        RType.ANY: {
+            True: {
+                Tense.ANY: ''
+            },
+            False: {
+                Tense.ANY: ''
+            }
         }
     }
 
@@ -109,12 +131,12 @@ class Relation(State):
         self.times = times
 
     def colorless_repr(self):
-        if (isinstance(self.right, Action) or isinstance(self.right, Relation)) and \
-                (isinstance(self.left, Action) or isinstance(self.right, Relation)):
+        if (isinstance(self.right, a.Action) or isinstance(self.right, Relation)) and \
+                (isinstance(self.left, a.Action) or isinstance(self.right, Relation)):
             return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right.colorless_repr()}{self.get_times_str()}'
-        elif isinstance(self.right, Action) or isinstance(self.right, Relation):
+        elif isinstance(self.right, a.Action) or isinstance(self.right, Relation):
             return f'{self.left}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right.colorless_repr()}{self.get_times_str()}'
-        elif isinstance(self.left, Action) or isinstance(self.left, Relation):
+        elif isinstance(self.left, a.Action) or isinstance(self.left, Relation):
             return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right}{self.get_times_str()}'
         else:
             return f'{self.left}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right}{self.get_times_str()}'
@@ -131,7 +153,7 @@ class Relation(State):
                f'{colored("->", TermColor.LIGHT_YELLOW.value)} ' \
                f'{colored(self.right, right_color)}{self.get_times_str()}'
 
-    def insert_pronouns(self,):
+    def insert_pronouns(self, ):
         if isinstance(self.left, Relation):
             self.left.insert_pronouns()
         elif isinstance(self.left, DSTPronoun):
@@ -140,7 +162,6 @@ class Relation(State):
             self.right.insert_pronouns()
         elif isinstance(self.right, DSTPronoun):
             self.right = pronouns[self.right]
-
 
     def get_times_str(self):
         if self.times is None:

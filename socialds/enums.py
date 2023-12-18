@@ -10,6 +10,8 @@ class TermColor(Enum):
     LIGHT_MAGENTA = 'light_magenta'
     RED = 'red'
     BLACK = 'black'
+    GREY = 'grey'
+    GREEN = 'green'
     ON_RED = 'on_red'
     ON_CYAN = 'on_cyan'
     ON_BLUE = 'on_blue'
@@ -74,3 +76,4 @@ class Tense(Enum):
     PAST = 'past'
     PRESENT = 'present'
     FUTURE = 'future'
+    ANY = 'any'

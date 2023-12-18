@@ -10,22 +10,16 @@ from socialds.states.relation import Relation, RType
 class Ask(Action):
     def __init__(self, asked: Relation, r_tense: Tense, negation: bool = False):
         self.relation = Relation(DSTPronoun.I, RType.ACTION, r_tense, asked, negation)
-        self.asked_to = DSTPronoun.YOU
-        self.asker = DSTPronoun.I
         self.asked = asked
-        super().__init__("ask", ActionObjType.VERBAL, [])
+        super().__init__("ask", DSTPronoun.I, ActionObjType.VERBAL, [], recipient=DSTPronoun.YOU)
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.asker.name} ask what {self.asked.colorless_repr()}"
+        return f"{super().colorless_repr()}{self.done_by.name} ask what {self.asked.colorless_repr()}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.asker.name} ask what {self.asked}"
+        return f"{super().__repr__()}{self.done_by.name} ask what {self.asked}"
 
     def insert_pronouns(self):
-        if isinstance(self.asker, DSTPronoun):
-            self.asker = pronouns[self.asker]
-        if isinstance(self.asked_to, DSTPronoun):
-            self.asked_to = pronouns[self.asked_to]
         self.relation.insert_pronouns()
         self.asked.insert_pronouns()
         super().insert_pronouns()

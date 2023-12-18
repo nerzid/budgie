@@ -6,21 +6,17 @@ from socialds.other.dst_pronouns import DSTPronoun, pronouns
 class Thank(SimpleAction):
 
     def __init__(self):
-        self.thanker = DSTPronoun.I
-        self.thanked_to = DSTPronoun.YOU
-        super().__init__('thank', ActionObjType.VERBAL)
+        super().__init__('thank', DSTPronoun.I, ActionObjType.VERBAL, recipient=DSTPronoun.YOU)
 
     def colorless_repr(self):
-        return f'{self.thanker} {self.name} {self.thanked_to}'
+        return f'{self.done_by} {self.name} {self.recipient}'
 
     def __repr__(self):
-        return f'{self.thanker} {self.name} {self.thanked_to}'
+        return f'{self.done_by} {self.name} {self.recipient}'
 
     def insert_pronouns(self):
-        if isinstance(self.thanker, DSTPronoun):
-            self.thanker = pronouns[self.thanker]
-        if isinstance(self.thanked_to, DSTPronoun):
-            self.thanked_to = pronouns[self.thanked_to]
+        if isinstance(self.recipient, DSTPronoun):
+            self.recipient = pronouns[self.recipient]
         super().insert_pronouns()
 
     def execute(self):

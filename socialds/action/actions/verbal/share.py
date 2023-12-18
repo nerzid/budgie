@@ -13,27 +13,22 @@ from socialds.states.relation import Relation
 
 class Share(Action):
     def __init__(self, relation: Relation, times: List[ActionTime] = None):
+        self.recipient = DSTPronoun.YOU
         self.relation = relation
-        self.shared_by = DSTPronoun.I
-        self.shared_with = DSTPronoun.YOU
-        super().__init__(name="share", act_type=ActionObjType.VERBAL,
+        super().__init__(name="share", done_by=DSTPronoun.I, act_type=ActionObjType.VERBAL,
                          base_effects=[
-                             # partial(add_relation, relation, rs)
-                             GainKnowledge(knowledge=relation, affected=self.shared_with)
+                             GainKnowledge(knowledge=relation, affected=self.recipient)
                          ],
+                         recipient=self.recipient,
                          times=times)
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.relation.colorless_repr()} is shared with {self.shared_with.name}{super().get_times_str()}"
+        return f"{super().colorless_repr()}{self.done_by} share {self.relation.colorless_repr()} with {self.recipient.name}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.relation} is shared with {self.shared_with.name}{super().get_times_str()}"
+        return f"{super().__repr__()}{self.done_by} share {self.relation} with {self.recipient.name}"
 
     def insert_pronouns(self):
-        if isinstance(self.shared_by, DSTPronoun):
-            self.shared_by = pronouns[self.shared_by]
-        if isinstance(self.shared_with, DSTPronoun):
-            self.shared_with = pronouns[self.shared_with]
         self.relation.insert_pronouns()
         super().insert_pronouns()
 

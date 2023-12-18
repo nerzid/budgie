@@ -1,2 +1,3 @@
 class AnyObject:
-    pass
+    def __repr__(self):
+        return 'any-object'

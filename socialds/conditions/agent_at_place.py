@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List
 
 from socialds.action.action_time import ActionTime
-from socialds.agent import Agent
+import socialds.agent as a
 from socialds.conditions.condition import Condition
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RSType
@@ -13,7 +13,7 @@ from socialds.enums import Tense
 
 
 class AgentAtPlace(Condition):
-    def __init__(self, agent: Agent | DSTPronoun, place: Place, tense: Tense, times: List[ActionTime] = None, negation=False):
+    def __init__(self, agent: a.Agent | DSTPronoun, place: Place, tense: Tense, times: List[ActionTime] = None, negation=False):
         super().__init__(tense, times, negation)
         self.agent = agent
         self.place = place
@@ -31,10 +31,10 @@ class AgentAtPlace(Condition):
                                                                                      right=self.place))
 
     def colorless_repr(self):
-        return f"{self.agent} ({not self.negation})at({self.tense.value}) {self.place}{super().get_times_str()}"
+        return f"{self.agent} {Relation.relation_types_with_tenses[RType.IS_AT][not self.negation][self.tense]} {self.place}{super().get_times_str()}"
 
     def __repr__(self):
-        return f"{self.agent} ({not self.negation})at({self.tense.value}) {self.place}{super().get_times_str()}"
+        return f"{self.agent} {Relation.relation_types_with_tenses[RType.IS_AT][not self.negation][self.tense]} {self.place}{super().get_times_str()}"
 
     def insert_pronouns(self):
         if isinstance(self.agent, DSTPronoun):

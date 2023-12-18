@@ -5,18 +5,15 @@ from socialds.other.dst_pronouns import DSTPronoun, pronouns
 
 class Backchannel(SimpleAction):
     def __init__(self):
-        self.backchanneler = DSTPronoun.I
-        super().__init__('backchannel', ActionObjType.VERBAL)
+        super().__init__('backchannel', DSTPronoun.I, ActionObjType.VERBAL)
 
     def colorless_repr(self):
-        return f'{self.backchanneler} {self.name}'
+        return f'{self.done_by} {self.name}'
 
     def __repr__(self):
-        return f'{self.backchanneler} {self.name}'
+        return f'{self.done_by} {self.name}'
     
     def insert_pronouns(self):
-        if isinstance(self.backchanneler, DSTPronoun):
-            self.backchanneler = pronouns[self.backchanneler]
         super().insert_pronouns()
     
     def execute(self):

@@ -1,20 +1,17 @@
 from socialds.action.effects.effect import Effect
-from socialds.agent import Agent
-from socialds.conditions.agent_at_place import AgentAtPlace
 from socialds.conditions.object_at_place import ObjectAtPlace
 from socialds.enums import Tense
 from socialds.operations.add_relation_to_rsholder import AddRelationToRSHolder
-from socialds.operations.find_one_relation_in_resource import FindOneRelationInResource
 from socialds.operations.find_one_relation_in_rsholder import FindOneRelationInRSHolder
 from socialds.operations.modify_relation_tense import ModifyRelationTense
-from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
-from socialds.socialpractice.context.resource import Resource
 from socialds.states.relation import RType, Relation
 
 
-class ChangeLocation(Effect):
+class ChangePlace(Effect):
     def __init__(self, from_place: any, to_place: any, affected: any):
+        self.from_place = from_place
+        self.to_place = to_place
         op_seq = [
             ModifyRelationTense(
                 relation=FindOneRelationInRSHolder(
@@ -52,3 +49,6 @@ class ChangeLocation(Effect):
                          ],
                          affected=affected,
                          op_seq=op_seq)
+
+    def __repr__(self):
+        return f'Change the place of {self.affected} from {self.from_place} to {self.to_place}'

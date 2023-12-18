@@ -2,70 +2,38 @@ from __future__ import annotations
 
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
-from socialds.action.effects.functional.change_place import ChangeLocation
+from socialds.action.effects.functional.change_place import ChangePlace
 from socialds.agent import Agent
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.socialpractice.context.place import Place
 
 
 class Move(Action):
-    def __init__(self, mover: Agent | DSTPronoun, moved: any, from_place: Place, to_place: Place):
+    def __init__(self, done_by: Agent | DSTPronoun, moved: any, from_place: Place, to_place: Place):
         # self.relation = Relation(mover, RelationType.ACTION, RelationTense.PRESENT, )
         self.relation = None
-        self.mover = mover
         self.moved = moved
         self.from_place = from_place
         self.to_place = to_place
-        # if isinstance(moved, Agent) or isinstance(moved, DSTPronoun):
-        #     effects = [
-        #         ModifyRelationTense(
-        #             relation=FindOneRelationInAgent(
-        #                 agent=self.moved,
-        #                 rstype=RSType.PLACES,
-        #                 left=self.moved,
-        #                 rtype=RType.IS_AT,
-        #                 rtense=Tense.PRESENT,
-        #                 right=self.from_place,
-        #                 negation=False
-        #             ), rtense=Tense.PAST),
-        #         AddRelationToAgentRS(
-        #             relation=Relation(
-        #                 left=self.moved,
-        #                 rtype=RType.IS_AT,
-        #                 rtense=Tense.PRESENT,
-        #                 right=self.to_place,
-        #                 negation=False
-        #             ), agent=self.moved, rstype=RSType.PLACES)
-        #     ]
-        # else:
-        #     effects = [
-        #         #     TODO
-        #     ]
+
         effects = [
-            ChangeLocation(from_place=self.from_place,
-                           to_place=self.to_place,
-                           affected=self.moved)
+            ChangePlace(from_place=self.from_place,
+                        to_place=self.to_place,
+                        affected=self.moved)
         ]
-        super().__init__('move', ActionObjType.PHYSICAL,
-                         # op_seq=[partial(modify_relation_tense, self.relation, Tense.PAST),
-                         #         partial(create_then_add_relation, moved, RType.IS_AT, Tense.PRESENT,
-                         #                 to_place, True, moved.places)]
-                         base_effects=effects
-                         )
+        super().__init__('move', done_by, ActionObjType.PHYSICAL, base_effects=effects)
 
     def insert_pronouns(self):
         super().insert_pronouns()
-        if isinstance(self.mover, DSTPronoun):
-            self.mover = pronouns[self.mover]
         if isinstance(self.moved, DSTPronoun):
             self.moved = pronouns[self.moved]
 
     def colorless_repr(self):
-        return super().colorless_repr() + '' + str(self.mover.name) + ' move ' + str(
+        return super().colorless_repr() + '' + str(self.done_by.name) + ' move ' + str(
             self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ''
 
     def __repr__(self):
-        return super().colorless_repr() + '' + str(self.mover.name) + ' move ' + str(
+        return super().colorless_repr() + '' + str(self.done_by.name) + ' move ' + str(
             self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ''
 
     def execute(self):

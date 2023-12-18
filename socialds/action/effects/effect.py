@@ -1,10 +1,11 @@
 from typing import List
 
+from socialds.conditions.SolutionStep import SolutionStep
 from socialds.conditions.condition import Condition
 from socialds.operations.operation import Operation
 
 
-class Effect:
+class Effect(SolutionStep):
     def __init__(self, name: str, from_state: List[Condition], to_state: List[Condition], affected: any,
                  op_seq: List[Operation]):
         self.op_seq = op_seq

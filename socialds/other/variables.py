@@ -7,7 +7,7 @@ dialogue_history = RelationStorage(name='Dialogue History', is_private=False)
 # relations that can be used to deduce another relation from
 deducibles = RelationStorage(name='Deducibles', is_private=False)
 
-
+utterances = []
 
 # sessions of the social practice. E.g., opening, history-taking, closing, examination, etc.
 sessions = []

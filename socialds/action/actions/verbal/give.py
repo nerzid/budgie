@@ -1,46 +1,32 @@
 from __future__ import annotations
 
-from functools import partial
-
-from socialds.operations.find_one_relation import FindOneRelation
-from socialds.operations.find_one_relation_in_agent import FindOneRelationInAgent
+from socialds.action.action import Action
+from socialds.action.action_obj import ActionObjType
+from socialds.agent import Agent
+from socialds.enums import Tense
 from socialds.operations.move_relation import MoveRelation
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RSType
-from socialds.repositories.operation_repository import find_relation, modify_relation_left, move_relation
-from socialds.agent import Agent
-from socialds.action.action_obj import ActionObjType
-from socialds.action.action import Action
 from socialds.states.relation import RType
-from socialds.enums import Tense
 
 
 class Give(Action):
-    def __init__(self, giver: Agent | DSTPronoun, taker: Agent | DSTPronoun, given: any):
-        # current_holding_relation = find_relation(giver, RType.HAS, Tense.PRESENT, given, True, giver.resources)
-        # super().__init__('give', ActionObjType.FUNCTIONAL, [
-        #     partial(move_relation, current_holding_relation, giver.resources, taker.resources),
-        #     partial(modify_relation_left, current_holding_relation, taker)])
-        self.giver = giver
-        self.taker = taker
-        self.given = given
-        super().__init__('give', ActionObjType.FUNCTIONAL, [
-            MoveRelation(relation=FindOneRelationInAgent(agent=giver,
-                                                         rstype=RSType.RESOURCES,
-                                                         left=giver,
-                                                         rtype=RType.HAS,
-                                                         rtense=Tense.PRESENT,
-                                                         right=given,
-                                                         negation=False),
-                         from_rs=giver.relation_storages[RSType.RESOURCES],
-                         to_rs=taker.relation_storages[RSType.RESOURCES])
-        ])
+    def __init__(self, done_by: Agent | DSTPronoun, recipient: Agent | DSTPronoun, target_resource: any):
+        super().__init__('give', done_by, ActionObjType.PHYSICAL, [
+            # MoveRelation(relation=FindOneRelationInAgent(agent=done_by,
+            #                                              rstype=RSType.RESOURCES,
+            #                                              left=done_by,
+            #                                              rtype=RType.HAS,
+            #                                              rtense=Tense.PRESENT,
+            #                                              right=given,
+            #                                              negation=False),
+            #              from_rs=done_by.relation_storages[RSType.RESOURCES],
+            #              to_rs=taker.relation_storages[RSType.RESOURCES])
+        ], recipient=recipient, target_resource=target_resource)
 
     def insert_pronouns(self):
-        if isinstance(self.giver, DSTPronoun):
-            self.giver = pronouns[self.giver]
-        if isinstance(self.taker, DSTPronoun):
-            self.taker = pronouns[self.taker]
+        if isinstance(self.recipient, DSTPronoun):
+            self.recipient = pronouns[self.recipient]
         super().insert_pronouns()
 
     def execute(self):

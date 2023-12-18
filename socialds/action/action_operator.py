@@ -6,6 +6,6 @@ from socialds.action.effects.effect import Effect
 
 
 class ActionOperator(ActionObj):
-    def __init__(self, name, op_seq: List[Effect]):
-        super().__init__(name, ActionObjType.OPERATOR, op_seq)
+    def __init__(self, name, base_effects: List[Effect], extra_effects: List[Effect]):
+        super().__init__(name, ActionObjType.OPERATOR, base_effects, extra_effects)
         self.name = name

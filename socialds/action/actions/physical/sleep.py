@@ -10,19 +10,16 @@ from socialds.other.dst_pronouns import DSTPronoun, pronouns
 
 
 class Sleep(Action):
-    def __init__(self, sleeper: Agent | DSTPronoun, times: List[ActionTime] = None):
-        self.sleeper = sleeper
-        super().__init__('sleep', ActionObjType.PHYSICAL, [], times=times)
+    def __init__(self, done_by: Agent | DSTPronoun, times: List[ActionTime] = None):
+        super().__init__('sleep', done_by, ActionObjType.PHYSICAL, [], times=times)
 
     def colorless_repr(self):
-        return f"{self.sleeper} sleeps{super().get_times_str()}"
+        return f"{self.done_by} sleeps{super().get_times_str()}"
 
     def __repr__(self):
-        return f"{self.sleeper} sleeps{super().get_times_str()}"
+        return f"{self.done_by} sleeps{super().get_times_str()}"
     
     def insert_pronouns(self):
-        if isinstance(self.sleeper, DSTPronoun):
-            self.sleeper = pronouns[self.sleeper]
         super().insert_pronouns()
         
     def execute(self):

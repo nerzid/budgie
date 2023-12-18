@@ -5,21 +5,17 @@ from socialds.other.dst_pronouns import DSTPronoun, pronouns
 
 class Acknowledge(SimpleAction):
     def __init__(self):
-        self.acknowledger = DSTPronoun.I
-        self.acknowledged_to = DSTPronoun.YOU
-        super().__init__('acknowledge', ActionObjType.VERBAL)
+        super().__init__('acknowledge', DSTPronoun.I, ActionObjType.VERBAL, recipient=DSTPronoun.YOU)
 
     def colorless_repr(self):
-        return f'{self.acknowledger} {self.name} {self.acknowledged_to}'
+        return f'{self.done_by} {self.name} {self.recipient}'
 
     def __repr__(self):
-        return f'{self.acknowledger} {self.name} {self.acknowledged_to}'
+        return f'{self.done_by} {self.name} {self.recipient}'
     
     def insert_pronouns(self):
-        if isinstance(self.acknowledger, DSTPronoun):
-            self.acknowledger = pronouns[self.acknowledger]
-        if isinstance(self.acknowledged_to, DSTPronoun):
-            self.acknowledged_to = pronouns[self.acknowledged_to]
+        if isinstance(self.recipient, DSTPronoun):
+            self.recipient = pronouns[self.recipient]
         super().insert_pronouns()
     
     def execute(self):

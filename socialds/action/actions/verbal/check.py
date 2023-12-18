@@ -10,25 +10,19 @@ from socialds.states.relation import Relation, RType
 
 
 class Check(Action):
-    def __init__(self, checked: Relation, r_tense: Tense, checked_agent: Agent | DSTPronoun,
+    def __init__(self, checked: Relation, r_tense: Tense, recipient: Agent | DSTPronoun,
                  negation: bool = False):
-        self.checked_agent = checked_agent
-        self.checker = DSTPronoun.I
+        super().__init__("check", DSTPronoun.I, ActionObjType.VERBAL, [], recipient=recipient)
         self.checked = checked
-        self.relation = Relation(self.checker, RType.ACTION, r_tense, checked, negation)
-        super().__init__("check", ActionObjType.VERBAL, [])
+        self.relation = Relation(self.done_by, RType.ACTION, r_tense, checked, negation)
 
     def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.checker} check if {self.checked.colorless_repr()}"
+        return f"{super().colorless_repr()}{self.done_by} check if {self.checked.colorless_repr()}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.checker} check if {self.checked}"
+        return f"{super().__repr__()}{self.done_by} check if {self.checked}"
 
     def insert_pronouns(self):
-        if isinstance(self.checker, DSTPronoun):
-            self.checker = pronouns[self.checker]
-        if isinstance(self.checked_agent, DSTPronoun):
-            self.checked_agent = pronouns[self.checked_agent]
         self.relation.insert_pronouns()
         self.checked.insert_pronouns()
         super().insert_pronouns()

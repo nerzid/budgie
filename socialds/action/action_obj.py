@@ -2,6 +2,7 @@ from functools import partial
 from typing import List
 
 from socialds.action.effects.effect import Effect
+from socialds.conditions.SolutionStep import SolutionStep
 
 
 class ActionObjType:
@@ -9,12 +10,13 @@ class ActionObjType:
     PHYSICAL = 'physical'
     MENTAL = 'mental'
     OPERATOR = 'op'
+    ANY = 'any'
 
     def __repr__(self) -> str:
         return str(self.name).lower()
 
 
-class ActionObj:
+class ActionObj(SolutionStep):
     def __init__(self, name: str, act_type: ActionObjType, base_effects: List[Effect], extra_effects: List[Effect]):
         self.name = name
         self.base_effects = base_effects

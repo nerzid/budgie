@@ -5,6 +5,7 @@ from termcolor import colored
 from socialds.conditions.condition import Condition
 from socialds.enums import TermColor
 from socialds.exceptions.no_ongoing_session_found_error import NoOngoingSessionFoundError
+from socialds.goal import Goal
 from socialds.session import Session, SessionStatus
 import socialds.other.variables as vars
 
@@ -32,6 +33,17 @@ class SessionManager:
         raise NoOngoingSessionFoundError
 
     @staticmethod
+    def get_all_ongoing_sessions() -> List[Session]:
+        ongoing_sessions = []
+        for session in vars.sessions:
+            if session.status == SessionStatus.ONGOING:
+                ongoing_sessions.append(session)
+        if len(ongoing_sessions) == 0:
+            raise NoOngoingSessionFoundError
+        else:
+            return ongoing_sessions
+
+    @staticmethod
     def update_session_statuses():
         for session in vars.sessions:
             # No need to update the status of session if it is already completed or failed
@@ -39,7 +51,9 @@ class SessionManager:
                 continue
 
             is_start_conditions_true = Condition.check_conditions(session.start_conditions)
-            is_end_conditions_true = Condition.check_conditions(session.end_conditions)
+            is_end_conditions_true = True
+            for goal in session.end_goals:
+                is_end_conditions_true = is_start_conditions_true and goal.is_reached()
             if session.status == SessionStatus.NOT_STARTED:
                 if is_end_conditions_true:
                     session.status = SessionStatus.COMPLETED
@@ -109,7 +123,7 @@ class SessionManager:
                 info += str(condition) + '\n'
 
             info += 'End Conditions' + '\n'
-            for condition in session.end_conditions:
+            for condition in session.end_goals:
                 info += str(condition) + '\n'
         return info
 
@@ -127,9 +141,20 @@ class SessionManager:
                 info += ' -> '
                 info += str(condition) + '\n'
 
-            info += colored(text='End Conditions\n', color=TermColor.LIGHT_MAGENTA.value)
-            for condition in session.end_conditions:
-                info += ('Not Satisfied', 'Satisfied')[condition.check()]
-                info += ' -> '
-                info += str(condition) + '\n'
+            info += colored(text='Expectations\n', color=TermColor.LIGHT_MAGENTA.value)
+            for expectation in session.expectations:
+                # info += ('Not Satisfied', 'Satisfied')[condition.check()]
+                # info += ' -> '
+                info += str(expectation) + '\n'
+
+            info += colored(text='End Goals\n', color=TermColor.LIGHT_MAGENTA.value)
+            for goal in session.end_goals:
+                info += f'Goal: {goal.name}\n'
+                if goal.desc is not '':
+                    info += f'Desc: {goal.desc}\n'
+                info += f'Conditions:\n'
+                for condition in goal.conditions:
+                    info += ('Not Satisfied', 'Satisfied')[condition.check()]
+                    info += ' -> '
+                    info += str(condition) + '\n'
         return info

@@ -1,6 +1,6 @@
-from socialds.action.effects.effect import Effect, EffectType
+from socialds.action.effects.effect import Effect
 
 
 class TransferObject(Effect):
-    def __init__(self):
-        super().__init__(name='transfer-object', etype=EffectType.FUNCTIONAL, op_seq=[])
+    def __init__(self, affected: any):
+        super().__init__('transfer-object', [], [], affected, [])

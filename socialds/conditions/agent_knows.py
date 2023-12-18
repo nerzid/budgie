@@ -4,15 +4,15 @@ from typing import List
 
 from socialds.enums import Tense
 from socialds.action.action_time import ActionTime
-from socialds.agent import Agent
+import socialds.agent as a
 from socialds.conditions.condition import Condition
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RSType
-from socialds.states.relation import Relation
+from socialds.states.relation import Relation, RType
 
 
 class AgentKnows(Condition):
-    def __init__(self, agent: Agent | DSTPronoun, knows: Relation, tense: Tense, times: List[ActionTime] = None, negation=False):
+    def __init__(self, agent: a.Agent | DSTPronoun, knows: Relation, tense: Tense, times: List[ActionTime] = None, negation=False):
         super().__init__(tense, times, negation)
         self.agent = agent
         self.knows = knows
@@ -24,10 +24,10 @@ class AgentKnows(Condition):
             return not self.agent.relation_storages[RSType.PLACES].contains(self.knows)
 
     def colorless_repr(self):
-        return f"{self.agent} ({not self.negation})knows({self.tense.value}) {self.knows.colorless_repr()}{super().get_times_str()}"
+        return f"{self.agent} {Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]} know {self.knows.colorless_repr()}{super().get_times_str()}"
 
     def __repr__(self):
-        return f"{self.agent} ({not self.negation})knows({self.tense.value}) {self.knows}{super().get_times_str()}"
+        return f"{self.agent} {Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]} know {self.knows}{super().get_times_str()}"
 
     def insert_pronouns(self):
         if isinstance(self.agent, DSTPronoun):
@@ -46,3 +46,5 @@ class AgentKnows(Condition):
 # the third choice is asking the other agent about the information
 # E.g., if I don't the know if the apple in the other agent's pocket is red, I ask him what is it.
 # Therefore, it uses Ask to ask for the specific information.
+
+# by remembering it

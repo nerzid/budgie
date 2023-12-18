@@ -11,30 +11,25 @@ from socialds.enums import Tense
 
 
 class Notify(Action):
-    def __init__(self, notifier: Agent | DSTPronoun, notified_about: Relation | Action, notified_to: Agent | DSTPronoun,
+    def __init__(self, done_by: Agent | DSTPronoun, notified_about: Relation | Action, recipient: Agent | DSTPronoun,
                  negation=False):
-        self.notifier = notifier
+        self.done_by = done_by
         self.notified_about = notified_about
-        self.notified_to = notified_to
-        self.notification = Relation(notifier, RType.ACTION, Tense.FUTURE, notified_about, negation)
-        super().__init__('notify', ActionObjType.VERBAL,
+        self.notification = Relation(done_by, RType.ACTION, Tense.FUTURE, notified_about, negation)
+        super().__init__('notify',done_by, ActionObjType.VERBAL,
                          base_effects=[
                              # this effect is incorrect for notify because there isnt any knowledge gain
                              # but it is an expectation that a certain action will happen
-                             GainKnowledge(knowledge=self.notification, affected=notified_to)
+                             GainKnowledge(knowledge=self.notification, affected=recipient)
                          ])
 
     def colorless_repr(self):
-        return f"{super().__repr__()}({self.notifier.name} notify {self.notified_to} about {self.notified_about.colorless_repr()})"
+        return f"{super().__repr__()}({self.done_by.name} notify {self.recipient} about {self.notified_about.colorless_repr()})"
 
     def __repr__(self):
-        return f"{super().__repr__()}({self.notifier.name} notify {self.notified_to} about {self.notified_about})"
+        return f"{super().__repr__()}({self.done_by.name} notify {self.recipient} about {self.notified_about})"
 
     def insert_pronouns(self):
-        if isinstance(self.notifier, DSTPronoun):
-            self.notifier = pronouns[self.notifier]
-        if isinstance(self.notified_to, DSTPronoun):
-            self.notified_to = pronouns[self.notified_to]
         self.notified_about.insert_pronouns()
         self.notification.insert_pronouns()
         super().insert_pronouns()

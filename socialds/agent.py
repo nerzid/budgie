@@ -1,9 +1,9 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 import questionary
 
 from socialds.managers.event_manager import EventManager
-from socialds.managers.plan_manager import PlanManager
+from socialds.managers.planner import Planner
 from socialds.object import Object
 from socialds.relationstorage import RelationStorage, RSType
 from socialds.relationstorage import merge_relation_storages
@@ -13,7 +13,7 @@ from socialds.socialpractice.context.role import Role
 
 
 class Agent(Object, RSHolder):
-    def __init__(self, name: str, actor: Actor, roles: List[Role], relation_storages: dict = None, auto: bool = False):
+    def __init__(self, name: str, actor: Actor, roles: List[Role], relation_storages: Dict[RSType, RelationStorage] = None, auto: bool = False):
         Object.__init__(self, name=name)
         RSHolder.__init__(self, rsholder_name=name,
                           rsholder_type=RSHolderType.AGENT,
@@ -21,9 +21,10 @@ class Agent(Object, RSHolder):
 
         self.actor = actor
         self.roles = roles
-        self.plan_manager = PlanManager()
+        self.planner = Planner(self)
         self.auto = auto
 
+        self.update_competences_from_roles()
         # adds the knowledgebase into the agent's knowledgebase
         merge_relation_storages(self.relation_storages[RSType.KNOWLEDGEBASE], actor.knowledgebase)
 
@@ -35,9 +36,9 @@ class Agent(Object, RSHolder):
             pass
         else:
             pass
-        self.plan_manager.plan()
+        self.planner.plan()
 
-    def update_competences(self):
+    def update_competences_from_roles(self):
         for role in self.roles:
             merge_relation_storages(self.relation_storages[RSType.COMPETENCES], role.competences)
 
@@ -45,6 +46,7 @@ class Agent(Object, RSHolder):
         pretty_info = ''
         pretty_info += self.name + ' auto=' + str(self.auto) + '\n'
         pretty_info += str(self.relation_storages[RSType.KNOWLEDGEBASE]) + '\n'
+        pretty_info += str(self.relation_storages[RSType.COMPETENCES]) + '\n'
         # pretty_info += str(self.actor.knowledgebase) + '\n'
         for role in self.roles:
             pretty_info += role.name + '\n' + role.competences + '\n'

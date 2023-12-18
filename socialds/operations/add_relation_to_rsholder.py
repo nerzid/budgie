@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from socialds.agent import Agent
-from socialds.operations.add_relation import AddRelation
 from socialds.operations.stateoperation import StateOperation
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType

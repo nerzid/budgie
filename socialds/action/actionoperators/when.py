@@ -7,7 +7,7 @@ class When(ActionOperator):
     def __init__(self, action: Action, conditions: [Condition]):
         self.action = action
         self.conditions = conditions
-        super().__init__('when', [])
+        super().__init__('when', [], [])
 
     def colorless_repr(self):
         conditions_str = ""

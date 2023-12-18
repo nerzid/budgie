@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from socialds.agent import Agent
 from socialds.enums import Tense
-from socialds.operations.find_one_relation import FindOneRelation
 from socialds.operations.stateoperation import StateOperation
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
-from socialds.relationstorage import RSType, RelationStorage
+from socialds.relationstorage import RSType
 from socialds.rs_holder import RSHolder
 from socialds.states.relation import RType, Relation
 

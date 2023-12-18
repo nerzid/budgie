@@ -1,7 +1,6 @@
 from enum import Enum
 from typing import List
 
-from socialds.action.action import Action
 from socialds.goal import Goal
 
 
@@ -15,7 +14,7 @@ class Plan:
     """
     Plan is the action sequence that allows the agent to reach a certain goal (or goals)
     """
-    def __init__(self, goals: List[Goal], actions: List[Action] = None):
+    def __init__(self, goals: List[Goal], actions):
         if actions is None:
             self.actions = []
         else:
