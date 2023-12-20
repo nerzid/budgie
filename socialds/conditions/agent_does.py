@@ -11,7 +11,7 @@ from socialds.conditions.condition import Condition
 from socialds.relationstorage import RelationNotFoundError
 from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
-
+import socialds.other.variables as vars
 
 class AgentDoes(Condition):
     def __init__(self, agent: a.Agent | DSTPronoun, action, tense: Tense, times: List[ActionTime] = None,
@@ -21,40 +21,45 @@ class AgentDoes(Condition):
         self.action = action
 
     def check(self):
-        max_count = 1
-        if self.times is not None:
-            for time in self.times:
-                if isinstance(time, NumOfTimes):
-                    max_count = time.num
-        found = []
-        for i in range(max_count):
-            if not self.negation:
-                try:
-                    relation = dialogue_history.get_one(left=self.agent,
-                                                        rtype=RType.ACTION,
-                                                        rtense=self.tense,
-                                                        right=self.action,
-                                                        excluded=found)
-                    print(relation)
-                    if relation is None:
-                        return False
-                    else:
-                        found.append(relation)
+        if self.negation:
+            return self.action not in vars.actions_history
+        else:
+            return self.action in vars.actions_history
 
-                except RelationNotFoundError:
-                    return False
-
-            else:
-                # if agent didnt do the action, then it is either missing
-                # from the dialogue history, or it is explicitly has
-                # the negation True
-                # however, it doesnt make sense to mention someone hasn't been done twice
-                # so this just returns based on one
-                return not dialogue_history.contains(Relation(left=self.agent,
-                                                              rtype=RType.ACTION,
-                                                              rtense=self.tense,
-                                                              right=self.action))
-        return len(found) == max_count
+    # def check(self):
+    #     max_count = 1
+    #     if self.times is not None:
+    #         for time in self.times:
+    #             if isinstance(time, NumOfTimes):
+    #                 max_count = time.num
+    #     found = []
+    #     for i in range(max_count):
+    #         if not self.negation:
+    #             try:
+    #                 relation = dialogue_history.get_one(left=self.agent,
+    #                                                     rtype=RType.ACTION,
+    #                                                     rtense=self.tense,
+    #                                                     right=self.action,
+    #                                                     excluded=found)
+    #                 if relation is None:
+    #                     return False
+    #                 else:
+    #                     found.append(relation)
+    #
+    #             except RelationNotFoundError:
+    #                 return False
+    #
+    #         else:
+    #             # if agent didn't do the action, then it is either missing
+    #             # from the dialogue history, or it is explicitly has
+    #             # the negation True
+    #             # however, it doesn't make sense to mention someone hasn't been done twice
+    #             # so this just returns based on one
+    #             return not dialogue_history.contains(Relation(left=self.agent,
+    #                                                           rtype=RType.ACTION,
+    #                                                           rtense=self.tense,
+    #                                                           right=self.action))
+    #     return len(found) == max_count
 
     def colorless_repr(self):
         return f"{self.agent} {Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]} {self.action.colorless_repr()}{super().get_times_str()}"

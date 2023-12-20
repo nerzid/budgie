@@ -65,7 +65,8 @@ class RelationStorage:
 
     # checks for the exact relation based on the reference of relation
     def __contains__(self, item):
-        return item in self.relations
+        # return item in self.relations
+        return self.contains(item)
 
     # checks for the exact relation based on the values of the relation
     def contains(self, relation: Relation):
@@ -101,8 +102,8 @@ class RelationStorage:
 
         found = False
         for relation in self.relations:
-            print('relation right ' + str(relation.right))
-            print('right ' + str(right))
+            # print('relation right ' + str(relation.right))
+            # print('right ' + str(right))
             if isinstance(left, AnyObject):
                 if relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
                     found = True
@@ -113,17 +114,14 @@ class RelationStorage:
                 if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
                     found = True
             if found:
-                print('YES!')
-                print(excluded)
+                # print('YES!')
+                # print(excluded)
                 if excluded is None or len(excluded) == 0:
-                    print(';ASDASDASD')
                     return relation
                 else:
                     if relation in excluded:
                         found = False
                         continue
-        print('left: ' + str(left))
-        print('right: ' + str(right))
         if not found:
             return None
 

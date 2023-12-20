@@ -1,8 +1,5 @@
-from typing import List, Optional, Dict
+from typing import List, Dict
 
-import questionary
-
-from socialds.managers.event_manager import EventManager
 from socialds.managers.planner import Planner
 from socialds.object import Object
 from socialds.relationstorage import RelationStorage, RSType
@@ -13,7 +10,8 @@ from socialds.socialpractice.context.role import Role
 
 
 class Agent(Object, RSHolder):
-    def __init__(self, name: str, actor: Actor, roles: List[Role], relation_storages: Dict[RSType, RelationStorage] = None, auto: bool = False):
+    def __init__(self, name: str, actor: Actor, roles: List[Role],
+                 relation_storages: Dict[RSType, RelationStorage] = None, auto: bool = False):
         Object.__init__(self, name=name)
         RSHolder.__init__(self, rsholder_name=name,
                           rsholder_type=RSHolderType.AGENT,
@@ -27,6 +25,19 @@ class Agent(Object, RSHolder):
         self.update_competences_from_roles()
         # adds the knowledgebase into the agent's knowledgebase
         merge_relation_storages(self.relation_storages[RSType.KNOWLEDGEBASE], actor.knowledgebase)
+
+    def __eq__(self, other):
+        from socialds.other.dst_pronouns import DSTPronoun
+        from socialds.other.dst_pronouns import pronouns
+        if isinstance(other, DSTPronoun):
+            return self == pronouns[other]
+        elif isinstance(other, Agent):
+            return (self.name == other.name
+                    and self.actor == other.actor
+                    and self.roles == other.roles
+                    and self.relation_storages == other.relation_storages
+                    and self.auto == other.auto)
+        return False
 
     def __repr__(self):
         return f'{self.name}'
@@ -54,4 +65,7 @@ class Agent(Object, RSHolder):
         # pretty_info += str(self.competences) + '\n'
         # pretty_info += str(self.resources) + '\n'
         pretty_info += str(self.relation_storages[RSType.PLACES])
+        pretty_info += str(self.relation_storages[RSType.EXPECTED_ACTIONS])
+        pretty_info += str(self.relation_storages[RSType.EXPECTED_EFFECTS])
+        pretty_info += str(self.relation_storages[RSType.VALUES])
         return pretty_info

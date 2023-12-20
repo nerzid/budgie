@@ -3,6 +3,7 @@ from socialds.relationstorage import RelationStorage
 
 # keeps the dialogue history including the actions that were taken and said utterances
 dialogue_history = RelationStorage(name='Dialogue History', is_private=False)
+actions_history = []
 
 # relations that can be used to deduce another relation from
 deducibles = RelationStorage(name='Deducibles', is_private=False)
@@ -11,3 +12,7 @@ utterances = []
 
 # sessions of the social practice. E.g., opening, history-taking, closing, examination, etc.
 sessions = []
+
+expectations = []
+
+last_turn_actions = []

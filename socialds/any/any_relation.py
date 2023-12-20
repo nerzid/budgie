@@ -10,3 +10,8 @@ class AnyRelation(Relation, AnyObject):
 
     def __repr__(self):
         return 'any-relation'
+
+    def __eq__(self, other):
+        if isinstance(other, Relation):
+            return True
+        return False

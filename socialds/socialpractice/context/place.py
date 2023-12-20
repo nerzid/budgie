@@ -9,5 +9,12 @@ class Place:
             self.resources = resources
         self.name = name
 
+    def __eq__(self, other):
+        from socialds.any.any_place import AnyPlace
+        if isinstance(other, AnyPlace):
+            return True
+        else:
+            return self.name == other.name and self.resources == other.resources
+
     def __repr__(self):
         return self.name

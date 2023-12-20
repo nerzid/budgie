@@ -1,6 +1,6 @@
 from copy import copy
 from typing import List
-
+import logging
 from socialds.action.effects.effect import Effect
 from socialds.action.effects.functional.add_expected_action import AddExpectedAction
 from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
@@ -13,7 +13,9 @@ from socialds.conditions.agent_at_place import AgentAtPlace
 from socialds.conditions.agent_does import AgentDoes
 from socialds.conditions.agent_knows import AgentKnows
 from socialds.conditions.condition_solution import ConditionSolution
+from socialds.conditions.expectation_status_is import ExpectationStatusIs
 from socialds.conditions.object_at_place import ObjectAtPlace
+from socialds.expectation import ExpectationStatus
 from socialds.managers.session_manager import SessionManager
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.other.variables import utterances
@@ -82,6 +84,8 @@ class Planner:
                 break
         condition_solutions = []
         for condition in all_conditions:
+            if condition.check():
+                continue
             if isinstance(condition, AgentDoes):
                 condition_solutions.append(
                     ConditionSolution(condition=condition,
@@ -126,7 +130,7 @@ class Planner:
                                           AddExpectedEffect(GainKnowledge(knowledge=condition.knows,
                                                                           affected=condition.agent),
                                                             negation=condition.negation,
-                                                            affected=condition.agent)
+                                                            affected=DSTPronoun.YOU)
                                       ])
                 )
             elif isinstance(condition, AgentAtPlace):
@@ -143,20 +147,29 @@ class Planner:
                 pass
             elif isinstance(condition, ActionOnPropertyHappens):
                 pass
+            elif isinstance(condition, ExpectationStatusIs):
+                expectation = condition.expectation
+                desired_status = condition.expectation_status
+                if expectation.status == ExpectationStatus.NOT_STARTED or ExpectationStatus.ONGOING:
+                    if desired_status == ExpectationStatus.COMPLETED:
+                        condition_solutions.append(
+                            ConditionSolution(condition=condition,
+                                              desc='by performing the actions in the sequence',
+                                              steps=[
+                                                  condition.expectation.get_next_not_executed_action()
+                                              ]))
 
         # print('Removing the impossible solutions')
-        solutions = self.remove_impossible_solutions(condition_solutions)
+        solutions = self.filter_out_the_solutions_without_competences(condition_solutions)
         return solutions
 
-    def remove_impossible_solutions(self, solutions: List[ConditionSolution]):
-        possible_actions = []
-        possible_effects = []
-        # get all the actions the agent can execute
-        competences = self.agent.relation_storages[RSType.COMPETENCES].relations
-        for competence in competences:
-            possible_actions.append(competence.action)
-            possible_effects.extend(competence.action.base_effects)
-            possible_effects.extend(competence.action.extra_effects)
+    def filter_out_the_solutions_without_competences(self, solutions: List[ConditionSolution]):
+        """
+        Removes the solutions that cannot be executed by the agent if the agent doesn't have the competence for it
+        @param solutions:
+        @return:
+        """
+        possible_actions, possible_effects = self.get_possible_actions_and_effects()
 
         # exclude the actions based on something, probably sessions? or preconditions?
         # write the that code here
@@ -166,9 +179,10 @@ class Planner:
         # if the agent can perform the actions needed in the solution, the solution stays
         # otherwise the solution is excluded from the solutions list
         # this means that we only keep the solutions that can be performed by the agent
-        exclude_solution = False
+
         excluded_solutions = []
         for solution in solutions:
+            exclude_solution = False
             for step in solution.steps:
                 from socialds.action.action import Action
                 from socialds.action.effects.effect import Effect
@@ -180,109 +194,85 @@ class Planner:
                     if step not in possible_effects:
                         exclude_solution = True
                         break
-
             if exclude_solution:
                 excluded_solutions.append(solution)
-                exclude_solution = False
-
         for excluded_solution in excluded_solutions:
             solutions.remove(excluded_solution)
 
         return solutions
 
-    # def get_possible_actions(self, solutions: List[ConditionSolution]):
-    #     """
-    #     Returns list of actions that are possible to use for pursuing activate plans
-    #     """
-    #
-    #     return possible_actions
-    def get_possible_utterances(self, solutions: List[ConditionSolution]) -> List[Utterance]:
-        possible_utterances = []
+    def get_possible_actions_and_effects(self):
+        """
+        Returns list of actions that are possible to use for pursuing activate plans
+        """
+        possible_actions = []
+        possible_effects = []
+        competences = self.agent.relation_storages[RSType.COMPETENCES].relations
+        for competence in competences:
+            possible_actions.append(competence.action)
+            possible_effects.extend(competence.action.base_effects)
+            possible_effects.extend(competence.action.extra_effects)
+        return possible_actions, possible_effects
+
+    def get_possible_utterances_with_solutions(self, solutions: List[ConditionSolution]):
+        possible_utterances_with_solutions = []
+        possible_actions, possible_effects = self.get_possible_actions_and_effects()
+        logging.debug(f'Possible actions: {possible_actions}')
+        logging.debug(f'Possible effects: {possible_effects}')
+
         from socialds.action.action import Action
+
+        # checks if there are any utterance that contains all the solution steps in it
+        # in other words, it looks for a single utterance that the goal of the agent can be reached
         for solution in solutions:
             for utterance in utterances:
+                agent_can_do_all_actions_in_utterance = True
                 actions = []
                 effects = []
+                # checks if the agent can do all the actions in the utterance
+                # if not, then the agent cannot choose that utterance
                 for action in utterance.actions:
                     if isinstance(action, Action):
+                        # if the agent cannot perform an action inside the utterance
+                        # then check if there are effects that can be performed instead
                         actions.append(action)
                         effects.extend(action.base_effects)
                         effects.extend(action.extra_effects)
+                        if action not in possible_actions:
+                            for effect in effects:
+                                if effect not in possible_effects:
+                                    agent_can_do_all_actions_in_utterance = False
+                                    break
+                if not agent_can_do_all_actions_in_utterance:
+                    continue
 
-                utterance_ok = False
-
+                utterance_has_all_steps = True
+                # the conditions here basically checks if there is an utterance
+                # that contains all the steps in it.
                 for step in solution.steps:
                     if isinstance(step, Action) and step not in actions:
-                        utterance_ok = False
+                        utterance_has_all_steps = False
                         break
                     if isinstance(step, Effect) and step not in effects:
-                        utterance_ok = False
+                        utterance_has_all_steps = False
                         break
-                if utterance_ok:
-                    possible_utterances.append(utterance)
+                if utterance_has_all_steps:
+                    possible_utterances_with_solutions.append((utterance, solution))
+                    continue
 
-        # if the above code couldn't find any matching utterance we choose an utterance
-        # that contains the first solution step
-        for solution in solutions:
-            for utterance in utterances:
-                actions = []
-                effects = []
-                for action in utterance.actions:
-                    if isinstance(action, Action):
-                        actions.append(action)
-                        effects.extend(action.base_effects)
-                        effects.extend(action.extra_effects)
+                # checks if there are any matching utterances that contains the first solution step
                 for step in solution.steps:
                     if isinstance(step, Action) and step in actions:
-                        possible_utterances.append(utterance)
+                        possible_utterances_with_solutions.append((utterance, solution))
                     if isinstance(step, Effect) and step in effects:
-                        possible_utterances.append(utterance)
-        if len(possible_utterances) == 0:
-            print(solutions)
+                        possible_utterances_with_solutions.append((utterance, solution))
+        if len(possible_utterances_with_solutions) == 0:
+            logging.debug(solutions)
             raise NoMatchingUtteranceFound
         else:
-            return possible_utterances
+            return possible_utterances_with_solutions
 
-    def get_the_best_matching_utterance(self, solutions: List[ConditionSolution]):
-        # this code works only if all the steps are in one utterance, which is great if that exists
-        from socialds.action.action import Action
-        for solution in solutions:
-            for utterance in utterances:
-                actions = []
-                effects = []
-                for action in utterance.actions:
-                    if isinstance(action, Action):
-                        actions.append(action)
-                        effects.extend(action.base_effects)
-                        effects.extend(action.extra_effects)
-
-                utterance_ok = False
-
-                for step in solution.steps:
-                    if isinstance(step, Action) and step not in actions:
-                        utterance_ok = False
-                        break
-                    if isinstance(step, Effect) and step not in effects:
-                        utterance_ok = False
-                        break
-                if utterance_ok:
-                    return utterance, solution
-
-        # if the above code couldn't find any matching utterance we choose an utterance
-        # that contains the first solution step
-        for solution in solutions:
-            for utterance in utterances:
-                actions = []
-                effects = []
-                for action in utterance.actions:
-                    if isinstance(action, Action):
-                        actions.append(action)
-                        effects.extend(action.base_effects)
-                        effects.extend(action.extra_effects)
-                for step in solution.steps:
-                    if isinstance(step, Action) and step in actions:
-                        return utterance, solution
-                    if isinstance(step, Effect) and step in effects:
-                        return utterance, solution
-        print(solutions)
-        raise NoMatchingUtteranceFound
+    def get_the_best_matching_utterance_with_solution(self, solutions: List[ConditionSolution]):
+        utts_with_solutions = self.get_possible_utterances_with_solutions(solutions)
+        if len(utterances) > 0:
+            return utts_with_solutions[0]

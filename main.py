@@ -1,3 +1,4 @@
+from socialds.action.action_obj import ActionObjType
 from socialds.action.actionoperators.op_and import And
 from socialds.action.actionoperators.op_or import Or
 from socialds.action.actionoperators.then import Then
@@ -30,21 +31,29 @@ from socialds.action.actiontimes.before import Before
 from socialds.action.actiontimes.in_morning import InMorning
 from socialds.action.actiontimes.in_week import InWeek
 from socialds.action.actiontimes.num_of_times import NumOfTimes
+from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
+from socialds.action.effects.social.demote_value import DemoteValue
 from socialds.action.effects.social.permit import Permit
 from socialds.action.effects.social.promote_value import PromoteValue
+from socialds.action.simple_action import SimpleAction
 from socialds.agent import Agent
 from socialds.any.any_action import AnyAction
 from socialds.any.any_agent import AnyAgent
+from socialds.any.any_effect import AnyEffect
 from socialds.any.any_place import AnyPlace
 from socialds.any.any_property import AnyProperty
 from socialds.any.any_relation import AnyRelation
 from socialds.any.any_resource import AnyResource
 from socialds.conditions.action_on_property_happens import ActionOnPropertyHappens
 from socialds.conditions.agent_at_place import AgentAtPlace
+from socialds.conditions.agent_can_do import AgentCanDo
 from socialds.conditions.agent_does import AgentDoes
 from socialds.conditions.agent_knows import AgentKnows
+from socialds.conditions.expectation_status_is import ExpectationStatusIs
+from socialds.conditions.norm_status_is import NormStatusIs
 from socialds.dialogue_system import DialogueSystem
 from socialds.enums import Tense
+from socialds.expectation import ExpectationStatus
 from socialds.goal import Goal
 from socialds.managers.managers import session_manager
 from socialds.other.dst_pronouns import DSTPronoun
@@ -58,6 +67,7 @@ from socialds.states.property import Property
 from socialds.states.relation import Relation, RType
 from socialds.states.value import Value
 from socialds.utterance import Utterance
+import socialds.other.variables as vars
 
 # Global properties
 any_place = AnyPlace()
@@ -107,6 +117,8 @@ basic_competences = RelationStorage('Basic Competences')
 basic_competences.add_multi([
     Competence('Asking questions', Ask(asked=AnyRelation(), r_tense=Tense.ANY)),
     Competence('Moving like walking',
+               Move(done_by=DSTPronoun.I, moved=DSTPronoun.I, from_place=AnyPlace(), to_place=AnyPlace())),
+    Competence('Carrying a resource from a place to a place',
                Move(done_by=DSTPronoun.I, moved=AnyResource(), from_place=AnyPlace(), to_place=AnyPlace())),
     Competence('Requesting things', Request(done_by=DSTPronoun.I, requested=AnyAction())),
     Competence('Greeting', Greet()),
@@ -120,7 +132,12 @@ basic_competences.add_multi([
     Competence('Feel', Feel(done_by=DSTPronoun.I, felt=AnyProperty(), about=AnyRelation(), r_tense=Tense.ANY)),
     Competence('Thank', Thank()),
     Competence('Deduce', Deduce(done_by=DSTPronoun.I, deduced=AnyRelation())),
-    Competence('Check', Check(checked=AnyRelation(), r_tense=Tense.ANY, recipient=AnyAgent()))
+    Competence('Check', Check(checked=AnyRelation(), r_tense=Tense.ANY, recipient=AnyAgent())),
+    Competence('Add expected effect', SimpleAction(name='doesnt matter', done_by=DSTPronoun.I,
+                                                   act_type=ActionObjType.ANY, recipient=DSTPronoun.YOU,
+                                                   target_resource=AnyResource(),
+                                                   base_effects=[AddExpectedEffect(effect=AnyEffect(), negation=False,
+                                                                                   affected=AnyAgent())]))
 ])
 
 # AGENT 1's relations
@@ -147,10 +164,13 @@ agent1 = Agent(name='Joe(patient)', actor=actor1, roles=[], relation_storages={
     RSType.FORGOTTEN: agent1_forgotten,
     RSType.COMPETENCES: agent1_competences,
     RSType.PLACES: agent1_places,
-    RSType.RESOURCES: agent1_resources
+    RSType.RESOURCES: agent1_resources,
+    RSType.EXPECTED_ACTIONS: RelationStorage(actor1.name + ' Expected Actions'),
+    RSType.EXPECTED_EFFECTS: RelationStorage(actor1.name + ' Expected Effects'),
+    RSType.VALUES: RelationStorage(actor1.name + ' Values'),
 })
 agent1.relation_storages[RSType.PLACES].add_multi([
-    Relation(left=agent1, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=any_place),
+    # Relation(left=agent1, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=any_place),
     Relation(left=agent1, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=place_waiting_room)
 ])
 
@@ -161,25 +181,37 @@ agent2_forgotten = RelationStorage('Jane\'s Forgotten Knowledgebase')
 agent2_competences = RelationStorage('Jane\'s Competences')
 agent2_places = RelationStorage('Jane\'s Places')
 agent2_resources = RelationStorage('Jane\'s Resources')
-
+actor2 = Actor(name="Jane", knowledgebase=RelationStorage('Actor Jane\'s Knowledgebase '))
 # Agent 2's initialization
 agent2 = Agent(name='Jane(doctor)',
-               actor=Actor(name="Jane", knowledgebase=RelationStorage('Actor Jane\'s Knowledgebase ')),
+               actor=actor2,
                roles=[],
                relation_storages={
                    RSType.KNOWLEDGEBASE: agent2_kb,
                    RSType.FORGOTTEN: agent2_forgotten,
                    RSType.COMPETENCES: agent2_competences,
                    RSType.PLACES: agent2_places,
-                   RSType.RESOURCES: agent2_resources
+                   RSType.RESOURCES: agent2_resources,
+                   RSType.EXPECTED_ACTIONS: RelationStorage(actor2.name + ' Expected Actions'),
+                   RSType.EXPECTED_EFFECTS: RelationStorage(actor2.name + ' Expected Effects'),
+                   RSType.VALUES: RelationStorage(actor2.name + ' Values'),
                },
                auto=True
                )
 
+agent2_competences.add(Competence(name='doctor can let patients in his office',
+                                  action=Permit(done_by=DSTPronoun.I,
+                                                permitted=Move(done_by=agent1,
+                                                               moved=agent1,
+                                                               from_place=any_place,
+                                                               to_place=places_office),
+                                                permit_given_to=agent1,
+                                                r_tense=Tense.ANY,
+                                                negation=False)))
 merge_relation_storages(agent2_competences, basic_competences)
 
 agent2.relation_storages[RSType.PLACES].add_multi([
-    Relation(left=agent2, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=any_place),
+    # Relation(left=agent2, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=any_place),
     Relation(left=agent2, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=places_office)
 ])
 
@@ -209,7 +241,7 @@ utterances = [
     Utterance("So, what brings you here today?", [
         Ask(asked=Relation(left=p_patients_problem, rtype=RType.IS,
                            rtense=Tense.PRESENT, negation=False,
-                           right='?'),
+                           right=AnyProperty()),
             negation=False,
             r_tense=Tense.PRESENT)
     ]),
@@ -416,6 +448,16 @@ utterances = [
     ])
 ]
 
+greeting_norm = Norm(name='People greet each other', action_seq=[
+    Greet(), Greet()
+],
+                     skipping_conditions=[
+                         AgentCanDo(agent=DSTPronoun.I, action=Greet(), tense=Tense.ANY, negation=True)
+                     ],
+                     completion_effects=[PromoteValue(affected=DSTPronoun.EVERYONE, value=value_politeness)],
+                     violation_effects=[DemoteValue(affected=DSTPronoun.I, value=value_politeness)])
+vars.expectations.append(greeting_norm)
+
 session_manager.add_multi_sessions(
     [
         Session(name='Greeting',
@@ -424,21 +466,20 @@ session_manager.add_multi_sessions(
                     AgentAtPlace(agent=agent2, tense=Tense.PRESENT, place=places_office)
                 ],
                 expectations=[
-                    Norm(name='People greet each other', action_seq=[
-                        Greet(), Greet()
-                    ], base_effects=[PromoteValue(affected=DSTPronoun.EVERYONE, value=value_politeness)])
+                    greeting_norm
                 ],
                 end_goals=[
                     Goal(name='Patient is ready',
                          desc='Patient and doctor greeted each other and patient is ready to talk',
                          conditions=[
-                             AgentDoes(agent=any_agent, tense=Tense.PAST, action=Greet(), times=[NumOfTimes(2)]),
+                             ExpectationStatusIs(expectation=greeting_norm,
+                                                 expectation_status=ExpectationStatus.COMPLETED),
                              AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=places_office)
                          ])
                 ]),
         Session(name='Problem Presentation',
                 start_conditions=[
-                    AgentDoes(agent=any_agent, tense=Tense.PAST, action=Greet(), times=[NumOfTimes(2)]),
+                    ExpectationStatusIs(expectation=greeting_norm, expectation_status=ExpectationStatus.COMPLETED),
                     AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=places_office)
                 ],
                 end_goals=[
@@ -468,6 +509,8 @@ session_manager.add_multi_sessions(
                 ])
     ]
 )
+import logging
+logging.basicConfig(level=logging.INFO)
 
 # Dialogue System initialization
 ds = DialogueSystem(agents=[agent1, agent2], utterances=utterances)

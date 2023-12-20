@@ -1,3 +1,4 @@
+from copy import copy
 from enum import Enum
 
 from termcolor import colored
@@ -30,92 +31,112 @@ class Relation(State):
             True: {
                 Tense.PAST: 'was',
                 Tense.PRESENT: 'is',
-                Tense.FUTURE: 'will'
+                Tense.FUTURE: 'will',
+                Tense.ANY: 'is'
             },
             False: {
                 Tense.PAST: 'wasn\'t',
                 Tense.PRESENT: 'isn\'t',
-                Tense.FUTURE: 'won\'t'
+                Tense.FUTURE: 'won\'t',
+                Tense.ANY: 'isn\'t'
             }
         },
         RType.HAS: {
             True: {
                 Tense.PAST: 'had',
                 Tense.PRESENT: 'has',
-                Tense.FUTURE: 'will have'
+                Tense.FUTURE: 'will have',
+                Tense.ANY: 'has'
             },
             False: {
                 Tense.PAST: 'hadn\'t',
                 Tense.PRESENT: 'hasn\'t',
-                Tense.FUTURE: 'won\'t have'
+                Tense.FUTURE: 'won\'t have',
+                Tense.ANY: 'hasn\'t'
             }
         },
         RType.CAN: {
             True: {
                 Tense.PAST: 'could',
                 Tense.PRESENT: 'can',
-                Tense.FUTURE: 'will be able to'
+                Tense.FUTURE: 'will be able to',
+                Tense.ANY: 'can'
             },
             False: {
                 Tense.PAST: 'couldn\'t',
                 Tense.PRESENT: 'can\'t',
-                Tense.FUTURE: 'won\'t be able to'
+                Tense.FUTURE: 'won\'t be able to',
+                Tense.ANY: 'can\'t'
             }
         },
         RType.ACTION: {
             True: {
                 Tense.PAST: 'did',
                 Tense.PRESENT: 'does',
-                Tense.FUTURE: 'will do'
+                Tense.FUTURE: 'will do',
+                Tense.ANY: 'does'
             },
             False: {
                 Tense.PAST: 'didn\'t',
                 Tense.PRESENT: 'doesn\'t',
-                Tense.FUTURE: 'won\'t do'
+                Tense.FUTURE: 'won\'t do',
+                Tense.ANY: 'doesn\'t'
             }
         },
         RType.IS_PERMITTED_TO: {
             True: {
                 Tense.PAST: 'was permitted to',
                 Tense.PRESENT: 'is permitted to',
-                Tense.FUTURE: 'will be permitted to'
+                Tense.FUTURE: 'will be permitted to',
+                Tense.ANY: 'is permitted to'
             },
             False: {
                 Tense.PAST: 'wasn\'t permitted to',
                 Tense.PRESENT: 'isn\'t permitted to',
-                Tense.FUTURE: 'won\'t be permitted to'
+                Tense.FUTURE: 'won\'t be permitted to',
+                Tense.ANY: 'isn\'t permitted to'
             }
         },
         RType.IS_AT: {
             True: {
                 Tense.PAST: 'was at',
                 Tense.PRESENT: 'is at',
-                Tense.FUTURE: 'will be at'
+                Tense.FUTURE: 'will be at',
+                Tense.ANY: 'is at'
             },
             False: {
                 Tense.PAST: 'wasn\'t at',
                 Tense.PRESENT: 'isn\'t at',
-                Tense.FUTURE: 'won\'t be at'
+                Tense.FUTURE: 'won\'t be at',
+                Tense.ANY: 'isn\'t at'
             }
         },
         RType.EFFECT: {
             True: {
                 Tense.PAST: 'did the effect',
                 Tense.PRESENT: 'does the effect',
-                Tense.FUTURE: 'will do the effect'
+                Tense.FUTURE: 'will do the effect',
+                Tense.ANY: 'does the effect'
             },
             False: {
                 Tense.PAST: 'didn\'t do the effect',
                 Tense.PRESENT: 'don\'t do the effect',
-                Tense.FUTURE: 'won\'t do the effect'
+                Tense.FUTURE: 'won\'t do the effect',
+                Tense.ANY: 'don\'t do the effect'
             }
         },
         RType.ANY: {
             True: {
-                Tense.ANY: ''
+                Tense.PAST: 'was',
+                Tense.PRESENT: 'is',
+                Tense.FUTURE: 'will',
+                Tense.ANY: 'is'
             },
             False: {
-                Tense.ANY: ''
+                Tense.PAST: 'wasn\'t',
+                Tense.PRESENT: 'isn\'t',
+                Tense.FUTURE: 'won\'t',
+                Tense.ANY: 'isn\'t'
             }
         }
     }
@@ -129,6 +150,19 @@ class Relation(State):
         self.right = right
         self.negation = negation
         self.times = times
+
+    # def __eq__(self, other):
+    #     if isinstance(other, Relation):
+    #         copied_self = copy(self)
+    #         copied_other = copy(other)
+    #         copied_self.insert_pronouns()
+    #         copied_other.insert_pronouns()
+    #         return (copied_self.left == )
+    #
+    #     return False
+
+    def __str__(self):
+        return self.colorless_repr()
 
     def colorless_repr(self):
         if (isinstance(self.right, a.Action) or isinstance(self.right, Relation)) and \
@@ -153,7 +187,7 @@ class Relation(State):
                f'{colored("->", TermColor.LIGHT_YELLOW.value)} ' \
                f'{colored(self.right, right_color)}{self.get_times_str()}'
 
-    def insert_pronouns(self, ):
+    def insert_pronouns(self):
         if isinstance(self.left, Relation):
             self.left.insert_pronouns()
         elif isinstance(self.left, DSTPronoun):

@@ -26,3 +26,10 @@ class GainKnowledge(Effect):
                          ],
                          affected=affected,
                          op_seq=op_seq)
+
+    def __repr__(self):
+        return f'{self.affected} gain knowledge {self.knowledge}'
+
+    def insert_pronouns(self):
+        super().insert_pronouns()
+        self.knowledge.insert_pronouns()

@@ -17,8 +17,16 @@ class AddExpectedEffect(Effect):
                 negation=negation
             ), rsholder=affected, rstype=RSType.EXPECTED_EFFECTS)
         ]
+        self.effect = effect
         super().__init__(name='add-expected-effect',
                          from_state=[],
                          to_state=[],
                          affected=affected,
                          op_seq=op_seq)
+
+    def __repr__(self):
+        return f'Adds the expected effect {self.effect} to {self.affected}'
+
+    def insert_pronouns(self):
+        super().insert_pronouns()
+        self.effect.insert_pronouns()

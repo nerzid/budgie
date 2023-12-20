@@ -8,3 +8,8 @@ from socialds.states.property import Property
 class AnyProperty(Property, AnyObject):
     def __init__(self):
         super().__init__('any-property')
+
+    def __eq__(self, other):
+        if isinstance(other, Property):
+            return True
+        return False

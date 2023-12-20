@@ -18,6 +18,16 @@ class ObjectAtPlace(Condition):
         self.rsholder = rsholder
         self.place = place
 
+    def __eq__(self, other):
+        if isinstance(other, ObjectAtPlace):
+            from socialds.any.any_place import AnyPlace
+            return (self.rsholder == other.rsholder
+                    and (self.place == other.place or isinstance(self.place, AnyPlace) or isinstance(other.place, AnyPlace))
+                    and self.tense == other.tense
+                    and self.times == other.times
+                    and self.negation == other.negation)
+        return False
+
     def check(self):
         if not self.negation:
             return self.rsholder.relation_storages[RSType.PLACES].contains(Relation(left=self.rsholder,

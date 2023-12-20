@@ -22,8 +22,5 @@ class Before(ActionTime):
             return f"{self.num_of_times} before {self.before}"
 
     def insert_pronouns(self):
-        print('BEFOREEEEEEE')
-        print(self.before)
         self.before.insert_pronouns()
-        print(self.before)
         super().insert_pronouns()

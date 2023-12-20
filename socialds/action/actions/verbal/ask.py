@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
+from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
+from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.states.relation import Relation, RType
@@ -11,7 +13,11 @@ class Ask(Action):
     def __init__(self, asked: Relation, r_tense: Tense, negation: bool = False):
         self.relation = Relation(DSTPronoun.I, RType.ACTION, r_tense, asked, negation)
         self.asked = asked
-        super().__init__("ask", DSTPronoun.I, ActionObjType.VERBAL, [], recipient=DSTPronoun.YOU)
+        super().__init__("ask", DSTPronoun.I, ActionObjType.VERBAL, base_effects=[
+            AddExpectedEffect(effect=GainKnowledge(affected=DSTPronoun.I, knowledge=asked),
+                              affected=DSTPronoun.YOU,
+                              negation=False)
+        ], recipient=DSTPronoun.YOU)
 
     def colorless_repr(self):
         return f"{super().colorless_repr()}{self.done_by.name} ask what {self.asked.colorless_repr()}"

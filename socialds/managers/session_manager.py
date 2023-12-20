@@ -53,7 +53,7 @@ class SessionManager:
             is_start_conditions_true = Condition.check_conditions(session.start_conditions)
             is_end_conditions_true = True
             for goal in session.end_goals:
-                is_end_conditions_true = is_start_conditions_true and goal.is_reached()
+                is_end_conditions_true = is_end_conditions_true and goal.is_reached()
             if session.status == SessionStatus.NOT_STARTED:
                 if is_end_conditions_true:
                     session.status = SessionStatus.COMPLETED
@@ -145,7 +145,7 @@ class SessionManager:
             for expectation in session.expectations:
                 # info += ('Not Satisfied', 'Satisfied')[condition.check()]
                 # info += ' -> '
-                info += str(expectation) + '\n'
+                info += str(expectation)
 
             info += colored(text='End Goals\n', color=TermColor.LIGHT_MAGENTA.value)
             for goal in session.end_goals:
@@ -157,4 +157,5 @@ class SessionManager:
                     info += ('Not Satisfied', 'Satisfied')[condition.check()]
                     info += ' -> '
                     info += str(condition) + '\n'
+            info += '\n'
         return info

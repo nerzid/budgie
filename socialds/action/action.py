@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from copy import copy
+from copy import deepcopy
 from typing import List
 
 from socialds.action.action_obj import ActionObj, ActionObjType
@@ -15,10 +15,11 @@ from socialds.socialpractice.context.resource import Resource
 
 class Action(ActionObj):
     def __init__(self, name, done_by: Agent | DSTPronoun,
-                 act_type: ActionObjType, base_effects: List[Effect],
+                 act_type: ActionObjType,
+                 base_effects: List[Effect],
+                 extra_effects: List[Effect] = None,
                  recipient: Agent | DSTPronoun | AnyAgent = None,
                  target_resource: Resource | AnyResource = None,
-                 extra_effects: List[Effect] = None,
                  preconditions=None,
                  times: List[ActionTime] = None):
         self.done_by = done_by
@@ -36,15 +37,19 @@ class Action(ActionObj):
         super().__init__(name, act_type, base_effects, extra_effects)
 
     def __eq__(self, other: Action):
-        copied_action = copy(other)
-        copied_action.insert_pronouns()
-        return ((self.name == copied_action.name)
-                and (self.done_by == copied_action.done_by or isinstance(copied_action.done_by, AnyAgent) or isinstance(self.done_by, AnyAgent))
-                and (self.act_type == copied_action.act_type or copied_action.act_type == ActionObjType.ANY)
-                and (self.recipient == copied_action.recipient or isinstance(copied_action.recipient, AnyAgent))
-                and (self.target_resource == copied_action.target_resource or isinstance(self.target_resource, AnyResource))
-                and (self.base_effects == copied_action.base_effects)
-                and (self.extra_effects == copied_action.extra_effects))
+        # copied_self = deepcopy(self)
+        # copied_self.insert_pronouns()
+        # copied_action = deepcopy(other)
+        # copied_action.insert_pronouns()
+        copied_self = self
+        copied_action = other
+        return ((copied_self.name == copied_action.name)
+                and (copied_self.done_by == copied_action.done_by or isinstance(copied_action.done_by, AnyAgent) or isinstance(copied_self.done_by, AnyAgent))
+                and (copied_self.act_type == copied_action.act_type or copied_action.act_type == ActionObjType.ANY)
+                and (copied_self.recipient == copied_action.recipient or isinstance(copied_action.recipient, AnyAgent))
+                and (copied_self.target_resource == copied_action.target_resource or isinstance(copied_self.target_resource, AnyResource))
+                and (copied_self.base_effects == copied_action.base_effects)
+                and (copied_self.extra_effects == copied_action.extra_effects))
 
     def get_times_str(self):
         if self.times is None:
@@ -61,6 +66,10 @@ class Action(ActionObj):
             self.done_by = pronouns[self.done_by]
         if isinstance(self.recipient, DSTPronoun):
             self.recipient = pronouns[self.recipient]
+        for effect in self.base_effects:
+            effect.insert_pronouns()
+        for effect in self.extra_effects:
+            effect.insert_pronouns()
         for time in self.times:
             time.insert_pronouns()
 

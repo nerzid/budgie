@@ -24,7 +24,8 @@ class RSHolder:
                     RSType.RESOURCES: RelationStorage(rsholder_name + ' Resources'),
                     RSType.PLACES: RelationStorage(rsholder_name + ' Places'),
                     RSType.EXPECTED_ACTIONS: RelationStorage(rsholder_name + ' Expected Actions'),
-                    RSType.EXPECTED_EFFECTS: RelationStorage(rsholder_name + ' Expected Effects')
+                    RSType.EXPECTED_EFFECTS: RelationStorage(rsholder_name + ' Expected Effects'),
+                    RSType.VALUES: RelationStorage(rsholder_name + ' Values'),
                 }
             elif rsholder_type is RSHolderType.RESOURCE:
                 self.relation_storages = {

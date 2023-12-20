@@ -17,6 +17,11 @@ class AgentKnows(Condition):
         self.agent = agent
         self.knows = knows
 
+    def __eq__(self, other):
+        if isinstance(other, AgentKnows):
+            return self.agent == other.agent and self.knows == other.knows
+        return False
+
     def check(self):
         if not self.negation:
             return self.agent.relation_storages[RSType.KNOWLEDGEBASE].contains(self.knows)
