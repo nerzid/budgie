@@ -7,8 +7,5 @@ class Examine(SimpleAction):
     def __init__(self):
         super().__init__('examine', DSTPronoun.I, ActionObjType.PHYSICAL)
 
-    def colorless_repr(self):
-        return f'{self.name}'
-
     def __repr__(self):
-        return f'{self.name}'
+        return "%s" % self.name

@@ -1,8 +1,16 @@
+from typing import List
+
 from socialds.relationstorage import RelationStorage
+from socialds.rs_holder import RSHolder, RSHolderType
 
 
-class Place:
-    def __init__(self, name, resources: RelationStorage = None):
+class Place(RSHolder):
+    def __init__(self, name, resources: RelationStorage = None, places_inside=None):
+        RSHolder.__init__(self, rsholder_name=name,
+                          rsholder_type=RSHolderType.PLACE)
+        if places_inside is None:
+            places_inside = []
+        self.places_inside = places_inside
         if resources is None:
             self.resources = RelationStorage(f'Resources at {name}')
         else:

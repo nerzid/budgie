@@ -28,15 +28,15 @@ class AgentKnows(Condition):
         else:
             return not self.agent.relation_storages[RSType.PLACES].contains(self.knows)
 
-    def colorless_repr(self):
-        return f"{self.agent} {Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]} know {self.knows.colorless_repr()}{super().get_times_str()}"
+    def __str__(self):
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
+        return "%s %s know %s %s" % (self.agent, tense_str, self.knows, self.get_times_str())
 
     def __repr__(self):
-        return f"{self.agent} {Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]} know {self.knows}{super().get_times_str()}"
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
+        return "%r %r know %r %s" % (self.agent, tense_str, self.knows, self.get_times_str())
 
     def insert_pronouns(self):
-        if isinstance(self.agent, DSTPronoun):
-            self.agent = pronouns[self.agent]
         self.knows.insert_pronouns()
         super().insert_pronouns()
 

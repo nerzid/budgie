@@ -40,7 +40,7 @@ class Agent(Object, RSHolder):
         return False
 
     def __repr__(self):
-        return f'{self.name}'
+        return "%s" % self.name
 
     def act(self):
         if self.auto:
@@ -69,3 +69,4 @@ class Agent(Object, RSHolder):
         pretty_info += str(self.relation_storages[RSType.EXPECTED_EFFECTS])
         pretty_info += str(self.relation_storages[RSType.VALUES])
         return pretty_info
+

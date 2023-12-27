@@ -5,15 +5,14 @@ from typing import List
 from socialds.action.action_time import ActionTime
 from socialds.conditions.condition import Condition
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
-from socialds.relationstorage import RSType
-from socialds.rs_holder import RSHolder
 from socialds.socialpractice.context.place import Place
 from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
+from socialds.states.relation import Relation as r
 
 
 class ObjectAtPlace(Condition):
-    def __init__(self, rsholder: RSHolder, place: Place, tense: Tense, times: List[ActionTime] = None, negation=False):
+    def __init__(self, rsholder, place: Place, tense: Tense, times: List[ActionTime] = None, negation=False):
         super().__init__(tense, times, negation)
         self.rsholder = rsholder
         self.place = place
@@ -22,13 +21,15 @@ class ObjectAtPlace(Condition):
         if isinstance(other, ObjectAtPlace):
             from socialds.any.any_place import AnyPlace
             return (self.rsholder == other.rsholder
-                    and (self.place == other.place or isinstance(self.place, AnyPlace) or isinstance(other.place, AnyPlace))
+                    and (self.place == other.place or isinstance(self.place, AnyPlace) or isinstance(other.place,
+                                                                                                     AnyPlace))
                     and self.tense == other.tense
                     and self.times == other.times
                     and self.negation == other.negation)
         return False
 
     def check(self):
+        from socialds.relationstorage import RSType
         if not self.negation:
             return self.rsholder.relation_storages[RSType.PLACES].contains(Relation(left=self.rsholder,
                                                                                     rtype=RType.IS_AT,
@@ -40,11 +41,13 @@ class ObjectAtPlace(Condition):
                                                                                         rtense=Tense.PRESENT,
                                                                                         right=self.place))
 
-    def colorless_repr(self):
-        return f"{self.rsholder} ({not self.negation})at({self.tense.value}) {self.place}{super().get_times_str()}"
+    def __str__(self):
+        return "%s %s %s %s" % (
+            self.rsholder, r.relation_types_with_tenses[self.tense][not self.negation], self.place, super().get_times_str())
 
     def __repr__(self):
-        return f"{self.rsholder} ({not self.negation})at({self.tense.value}) {self.place}{super().get_times_str()}"
+        return "%r %r %r %r" % (
+            self.rsholder, r.relation_types_with_tenses[self.tense][not self.negation], self.place, super().get_times_str())
 
     def insert_pronouns(self):
         if isinstance(self.rsholder, DSTPronoun):

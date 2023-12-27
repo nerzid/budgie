@@ -1,3 +1,6 @@
+from socialds.action.effects.functional.change_place import ChangePlace
+from socialds.conditions.has_permit import HasPermit
+from socialds.requirement import Requirement
 from socialds.action.action_obj import ActionObjType
 from socialds.action.actionoperators.op_and import And
 from socialds.action.actionoperators.op_or import Or
@@ -47,7 +50,7 @@ from socialds.any.any_resource import AnyResource
 from socialds.conditions.action_on_property_happens import ActionOnPropertyHappens
 from socialds.conditions.agent_at_place import AgentAtPlace
 from socialds.conditions.agent_can_do import AgentCanDo
-from socialds.conditions.agent_does import AgentDoes
+from socialds.conditions.agent_does_action import AgentDoesAction
 from socialds.conditions.agent_knows import AgentKnows
 from socialds.conditions.expectation_status_is import ExpectationStatusIs
 from socialds.conditions.norm_status_is import NormStatusIs
@@ -70,11 +73,22 @@ from socialds.utterance import Utterance
 import socialds.other.variables as vars
 
 # Global properties
+any_agent = AnyAgent()
 any_place = AnyPlace()
 places_office = Place('office')
 place_waiting_room = Place('waiting room')
 
-any_agent = AnyAgent()
+places_office.relation_storages[RSType.REQUIREMENTS].add(
+    Requirement(
+        required_for=ChangePlace(from_place=any_place,
+                                 to_place=places_office,
+                                 affected=DSTPronoun.I),
+        required=[HasPermit(agent=DSTPronoun.I,
+                            permit=ChangePlace(from_place=any_place,
+                                               to_place=places_office,
+                                               affected=DSTPronoun.I))])
+)
+
 # Agent 1: Joe - patient
 # Agent 1's Relation Storages
 agent1_kb = RelationStorage('Joe\'s Knowledgebase')
@@ -108,6 +122,23 @@ p_bacterial_conjunctivitis = Property('bacterial conjunctivitis')
 p_cold = Property('cold')
 p_antibiotics = Property('antibiotics')
 p_common = Property('common')
+p_symptom = Property('symptom')
+p_problem_description = Property('problem description')
+
+common_knowledge = RelationStorage(name='Common Knowledge Relation Storage', is_private=False)
+
+common_knowledge.add_multi([
+    Relation(left=p_patients_left_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_eye),
+    Relation(left=p_patients_right_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_eye),
+    Relation(left=Relation(left=p_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_teary), rtype=RType.IS,
+             rtense=Tense.PRESENT, right=p_symptom),
+    Relation(left=Relation(left=p_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_red), rtype=RType.IS,
+             rtense=Tense.PRESENT, right=p_symptom),
+    Relation(left=Relation(left=p_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_pain), rtype=RType.IS,
+             rtense=Tense.PRESENT, right=p_symptom),
+    Relation(left=Relation(left=p_eye, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_inflammation), rtype=RType.IS,
+             rtense=Tense.PRESENT, right=p_symptom),
+])
 
 # VALUES
 value_politeness = Value('politeness')
@@ -146,6 +177,7 @@ agent1_kb.add_multi([
     Relation(left=actor1, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_patients_left_eye),
     Relation(left=actor1, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_patients_right_eye),
     Relation(left=p_patients_left_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_teary),
+    Relation(left=p_patients_left_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_red),
     Relation(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_pain),
     Relation(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_vision),
     Relation(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
@@ -153,7 +185,8 @@ agent1_kb.add_multi([
     Relation(left=p_patients_right_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
              right=p_veins_in_right_eye),
     Relation(left=p_vision, rtype=RType.IS, rtense=Tense.PRESENT, right=p_blurry),
-    Relation(left=p_patients_right_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_healthy)
+    Relation(left=p_patients_right_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_healthy),
+    Relation(left=p_problem_description, rtype=RType.IS, rtense=Tense.PRESENT, right=AnyProperty())
 ])
 
 merge_relation_storages(agent1_competences, basic_competences)
@@ -164,15 +197,19 @@ agent1 = Agent(name='Joe(patient)', actor=actor1, roles=[], relation_storages={
     RSType.FORGOTTEN: agent1_forgotten,
     RSType.COMPETENCES: agent1_competences,
     RSType.PLACES: agent1_places,
+    RSType.PERMITS: RelationStorage(actor1.name + ' Permits'),
     RSType.RESOURCES: agent1_resources,
     RSType.EXPECTED_ACTIONS: RelationStorage(actor1.name + ' Expected Actions'),
     RSType.EXPECTED_EFFECTS: RelationStorage(actor1.name + ' Expected Effects'),
     RSType.VALUES: RelationStorage(actor1.name + ' Values'),
-})
+    RSType.REQUIREMENTS: RelationStorage(actor1.name + ' Requirements')
+}, auto=False)
 agent1.relation_storages[RSType.PLACES].add_multi([
     # Relation(left=agent1, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=any_place),
     Relation(left=agent1, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=place_waiting_room)
 ])
+
+merge_relation_storages(agent1.relation_storages[RSType.KNOWLEDGEBASE], common_knowledge)
 
 # Agent 2: Jane - doctor
 # Agent 2's Relation Storages
@@ -182,6 +219,8 @@ agent2_competences = RelationStorage('Jane\'s Competences')
 agent2_places = RelationStorage('Jane\'s Places')
 agent2_resources = RelationStorage('Jane\'s Resources')
 actor2 = Actor(name="Jane", knowledgebase=RelationStorage('Actor Jane\'s Knowledgebase '))
+agent2_permits = RelationStorage(actor2.name + ' Permits')
+
 # Agent 2's initialization
 agent2 = Agent(name='Jane(doctor)',
                actor=actor2,
@@ -191,24 +230,42 @@ agent2 = Agent(name='Jane(doctor)',
                    RSType.FORGOTTEN: agent2_forgotten,
                    RSType.COMPETENCES: agent2_competences,
                    RSType.PLACES: agent2_places,
+                   RSType.PERMITS: agent2_permits,
                    RSType.RESOURCES: agent2_resources,
                    RSType.EXPECTED_ACTIONS: RelationStorage(actor2.name + ' Expected Actions'),
                    RSType.EXPECTED_EFFECTS: RelationStorage(actor2.name + ' Expected Effects'),
                    RSType.VALUES: RelationStorage(actor2.name + ' Values'),
+                   RSType.REQUIREMENTS: RelationStorage(actor2.name + ' Requirements')
                },
                auto=True
                )
 
+# agent2_competences.add(Competence(name='doctor can let patients in his office',
+#                                   action=Permit(done_by=DSTPronoun.I,
+#                                                 permitted=Move(done_by=DSTPronoun.I,
+#                                                                moved=DSTPronoun.I,
+#                                                                from_place=any_place,
+#                                                                to_place=places_office),
+#                                                 permit_given_to=DSTPronoun.YOU,
+#                                                 r_tense=Tense.ANY,
+#                                                 negation=False)))
 agent2_competences.add(Competence(name='doctor can let patients in his office',
                                   action=Permit(done_by=DSTPronoun.I,
-                                                permitted=Move(done_by=agent1,
-                                                               moved=agent1,
-                                                               from_place=any_place,
-                                                               to_place=places_office),
-                                                permit_given_to=agent1,
+                                                permitted=ChangePlace(from_place=any_place,
+                                                                      to_place=places_office,
+                                                                      affected=DSTPronoun.YOU),
+                                                permit_given_to=DSTPronoun.YOU,
                                                 r_tense=Tense.ANY,
                                                 negation=False)))
 merge_relation_storages(agent2_competences, basic_competences)
+merge_relation_storages(agent2.relation_storages[RSType.KNOWLEDGEBASE], common_knowledge)
+
+agent2_permits.add(
+    Relation(left=agent2, rtype=RType.IS_PERMITTED_TO, rtense=Tense.ANY, negation=False,
+             right=ChangePlace(from_place=any_place,
+                               to_place=places_office,
+                               affected=DSTPronoun.I))
+)
 
 agent2.relation_storages[RSType.PLACES].add_multi([
     # Relation(left=agent2, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=any_place),
@@ -239,13 +296,17 @@ utterances = [
              to_place=places_office)
     ]),
     Utterance("So, what brings you here today?", [
-        Ask(asked=Relation(left=p_patients_problem, rtype=RType.IS,
+        Ask(asked=Relation(left=p_problem_description, rtype=RType.IS,
                            rtense=Tense.PRESENT, negation=False,
                            right=AnyProperty()),
             negation=False,
             r_tense=Tense.PRESENT)
     ]),
     Utterance("My left eye has been red since this morning.", [
+        Share(relation=Relation(
+            left=p_problem_description, rtype=RType.IS, rtense=Tense.PRESENT, right=AnyProperty()
+        )),
+        And(),
         Share(relation=Relation(
             left=p_patients_left_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_red
         )),
@@ -339,11 +400,11 @@ utterances = [
                                                               right=Examine()))
                            , done_by=DSTPronoun.I),
              conditions=[
-                 AgentDoes(agent=DSTPronoun.YOU, tense=Tense.PRESENT,
-                           action=Feel(done_by=DSTPronoun.YOU, felt=p_pain, r_tense=Tense.PRESENT,
-                                       about=Relation(left=DSTPronoun.I, rtype=RType.ACTION,
-                                                      rtense=Tense.PRESENT,
-                                                      right=Examine())))
+                 AgentDoesAction(agent=DSTPronoun.YOU, tense=Tense.PRESENT,
+                                 action=Feel(done_by=DSTPronoun.YOU, felt=p_pain, r_tense=Tense.PRESENT,
+                                             about=Relation(left=DSTPronoun.I, rtype=RType.ACTION,
+                                                            rtense=Tense.PRESENT,
+                                                            right=Examine())))
              ], )
     ]),
     Utterance("Okay doctor, thank you.", [
@@ -388,11 +449,11 @@ utterances = [
     ]),
     Utterance("So, how is it doctor?", [
         Ask(asked=Relation(left=p_patients_problem, rtype=RType.IS, rtense=Tense.PRESENT,
-                           right='?'),
+                           right=AnyProperty()),
             r_tense=Tense.PRESENT),
         Or(),
         Ask(asked=Relation(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
-                           right='?'),
+                           right=AnyProperty()),
             r_tense=Tense.PRESENT)
     ]),
     Utterance("Your left eye has bacterial conjunctivitis.", [
@@ -485,18 +546,18 @@ session_manager.add_multi_sessions(
                 end_goals=[
                     Goal(name='Patient explained the problem',
                          conditions=[
-                             AgentKnows(agent=agent2, tense=Tense.PRESENT, knows=Relation(left=p_patients_left_eye,
+                             AgentKnows(agent=agent2, tense=Tense.PRESENT, knows=Relation(left=p_problem_description,
                                                                                           rtype=RType.IS,
                                                                                           rtense=Tense.PRESENT,
-                                                                                          right=p_red))
+                                                                                          right=AnyProperty()))
                          ])
                 ]),
         Session(name='History Taking',
                 start_conditions=[
-                    AgentKnows(agent=agent2, tense=Tense.PRESENT, knows=Relation(left=p_patients_left_eye,
+                    AgentKnows(agent=agent2, tense=Tense.PRESENT, knows=Relation(left=p_problem_description,
                                                                                  rtype=RType.IS,
                                                                                  rtense=Tense.PRESENT,
-                                                                                 right=p_red))
+                                                                                 right=AnyProperty()))
                 ],
                 end_goals=[
                     Goal(name='Doctor asked all the necessary questions before physical examination',
@@ -510,6 +571,7 @@ session_manager.add_multi_sessions(
     ]
 )
 import logging
+
 logging.basicConfig(level=logging.INFO)
 
 # Dialogue System initialization

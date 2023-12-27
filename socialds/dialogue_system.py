@@ -79,12 +79,22 @@ class DialogueSystem:
         choose_to_do = f'{agent.name} chooses to do...'
         global_menu_options = ['Go back to main menu']
         mainmenu_options = ['Act', 'Display info']
-        act_options = global_menu_options + ['Utterance', 'Verbal Act', 'Physical Act', 'Functional Act', 'Mental Act']
+        act_options = global_menu_options + ['All Utterances', 'Planned Utterances', 'Verbal Act', 'Physical Act', 'Functional Act', 'Mental Act']
         display_info_options = global_menu_options + ['Sessions', 'Dialogue History', 'Agents']
         selected_option = questionary.select(choose_to_do, mainmenu_options).ask()
         if selected_option == 'Act':
             selected_option = questionary.select(choose_to_do, act_options).ask()
-            if selected_option == 'Utterance':
+            if selected_option == 'All Utterances':
+                utts_str = [] + global_menu_options
+                for utt in vars.utterances:
+                    utts_str.append(str(utt))
+
+                selected_option = questionary.select("Choose an utterance", utts_str).ask()
+                for utt in vars.utterances:
+                    if selected_option == str(utt):
+                        end_turn = questionary.select("End turn?", ["Yes", "No"]).ask()
+                        return utt, end_turn == "Yes"
+            if selected_option == 'Planned Utterances':
                 utts_str = [] + global_menu_options
                 possible_utterances_with_solutions = agent.planner.get_possible_utterances_with_solutions(agent.planner.plan())
                 for utt in possible_utterances_with_solutions:

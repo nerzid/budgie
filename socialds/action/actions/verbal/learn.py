@@ -31,11 +31,11 @@ class Learn(Action):
                          ], extra_effects=extra_effects
                          )
 
-    def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.done_by} learn {self.learned.colorless_repr()}"
+    def __str__(self):
+        return "%s learn %s" % (self.done_by, self.learned)
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.done_by} learn {self.learned}"
+        return "%r learn %r" % (self.done_by, self.learned)
 
     def insert_pronouns(self):
         self.learned.insert_pronouns()

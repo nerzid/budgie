@@ -1,17 +1,18 @@
 from enum import Enum
-from typing import List
+from typing import List, Dict
 from uu import Error
 
-from socialds.action.actiontimes.num_of_times import NumOfTimes
+from termcolor import colored
+
 from socialds.action.action_time import ActionTime
 from socialds.any.any_object import AnyObject
-from socialds.states.relation import Relation, RType
-from termcolor import colored
-from socialds.other.utility import colorize_relations_dict
 from socialds.enums import TermColor, Tense
+from socialds.states.relation import Relation, RType
 
 
 class RSType(Enum):
+    PERMITS = 'Permits'
+    REQUIREMENTS = 'Requirements'
     PROPERTIES = 'Properties'
     KNOWLEDGEBASE = 'Knowledgebase'
     PLACES = 'Places'
@@ -26,6 +27,23 @@ class RSType(Enum):
 
 class RelationNotFoundError(Exception):
     pass
+
+
+class RSIterator:
+    def __init__(self, rs):
+        self.rs = rs
+        self.idx = 0
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            relation = self.rs[self.idx]
+        except IndexError:
+            raise StopIteration()
+        self.idx += 1
+        return relation
 
 
 class RelationStorage:
@@ -68,6 +86,9 @@ class RelationStorage:
         # return item in self.relations
         return self.contains(item)
 
+    def __iter__(self):
+        return RSIterator(self.relations)
+
     # checks for the exact relation based on the values of the relation
     def contains(self, relation: Relation):
         try:
@@ -102,17 +123,20 @@ class RelationStorage:
 
         found = False
         for relation in self.relations:
-            # print('relation right ' + str(relation.right))
-            # print('right ' + str(right))
-            if isinstance(left, AnyObject):
-                if relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
-                    found = True
-            elif isinstance(right, AnyObject):
-                if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.negation == negation:
-                    found = True
-            else:
-                if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
-                    found = True
+
+            # if isinstance(left, AnyObject):
+            #     if relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
+            #         found = True
+            # elif isinstance(right, AnyObject):
+            #     if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.negation == negation:
+            #         found = True
+            # else:
+            #     if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
+            #         found = True
+            if relation.left == left and (relation.rtype == rtype or relation.rtype == RType.ANY or rtype == RType.ANY) \
+                    and (relation.rtense == rtense or relation.rtense == Tense.ANY or rtense == Tense.ANY) \
+                    and relation.right == right and relation.negation == negation:
+                found = True
             if found:
                 # print('YES!')
                 # print(excluded)
@@ -125,7 +149,6 @@ class RelationStorage:
         if not found:
             return None
 
-
     def get_many(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False, times: [ActionTime] = None):
         # if times is not None:
         #     for time in times:
@@ -133,15 +156,19 @@ class RelationStorage:
         #             time_num = time.num
         found = []
         for relation in self.relations:
-            if isinstance(left, AnyObject):
-                if relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
-                    found.append(relation)
-            elif isinstance(right, AnyObject):
-                if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.negation == negation:
-                    found.append(relation)
-            else:
-                if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
-                    found.append(relation)
+            #     if isinstance(left, AnyObject):
+            #         if relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
+            #             found.append(relation)
+            #     elif isinstance(right, AnyObject):
+            #         if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.negation == negation:
+            #             found.append(relation)
+            #     else:
+            #         if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
+            #             found.append(relation)
+            if relation.left == left and (relation.rtype == rtype or rtype == RType.ANY) and \
+                    (relation.rtense == rtense or rtense == Tense.ANY) and relation.right == right \
+                    and relation.negation == negation:
+                found.append(relation)
         # print('time num: ' + str(time_num))
         # print('found rel: ' + str(found_rel))
         if len(found) <= 0:

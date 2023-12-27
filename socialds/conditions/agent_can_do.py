@@ -31,11 +31,13 @@ class AgentCanDo(Condition):
         else:
             return rel in agent.relation_storages[RSType.COMPETENCES]
 
-    def colorless_repr(self):
-        return f"{self.agent} {Relation.relation_types_with_tenses[RType.CAN][not self.negation][self.tense]} {self.action.colorless_repr()}{super().get_times_str()}"
+    def __str__(self):
+        tense_str = Relation.relation_types_with_tenses[RType.CAN][not self.negation][self.tense]
+        return "%s %s %s %s" % (self.agent, tense_str, self.action, self.get_times_str())
 
     def __repr__(self):
-        return f"{self.agent} {Relation.relation_types_with_tenses[RType.CAN][not self.negation][self.tense]} {self.action}{super().get_times_str()}"
+        tense_str = Relation.relation_types_with_tenses[RType.CAN][not self.negation][self.tense]
+        return "%r %s %r %s" % (self.agent, tense_str, self.action, self.get_times_str())
 
     def insert_pronouns(self):
         if isinstance(self.agent, DSTPronoun):

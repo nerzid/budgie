@@ -23,19 +23,16 @@ class Deduce(Action):
             GainKnowledge(knowledge=deduced, affected=done_by)
         ])
 
-    def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.done_by.name} deduce that {self.deduced.colorless_repr()}"
+    def __str__(self):
+        return "%s deduce that %s" % (self.done_by.name, self.deduced)
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.done_by.name} deduce that {self.deduced}"
+        return "%r deduce that %r" % (self.done_by.name, self.deduced)
 
     def insert_pronouns(self):
-        if isinstance(self.done_by, DSTPronoun):
-            self.done_by = pronouns[self.done_by]
         self.deduced.insert_pronouns()
         super().insert_pronouns()
 
     def execute(self):
         self.insert_pronouns()
-        self.done_by.relation_storages[RSType.KNOWLEDGEBASE].add(self.deduced)
         super().execute()

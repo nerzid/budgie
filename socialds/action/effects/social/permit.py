@@ -1,7 +1,11 @@
 from __future__ import annotations
 
+from typing import List
+
 from socialds.action.action_obj import ActionObjType
+from socialds.action.effects.effect import Effect
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
+from socialds.action.effects.social.gain_permit import GainPermit
 from socialds.agent import Agent
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.action.action import Action
@@ -10,26 +14,29 @@ from socialds.enums import Tense
 
 
 class Permit(Action):
-    def __init__(self, done_by: Agent | DSTPronoun, permitted: Action, permit_given_to: Agent | DSTPronoun,
+    def __init__(self, done_by: Agent | DSTPronoun, permitted: Action | Effect, permit_given_to: Agent | DSTPronoun,
                  r_tense: Tense, negation: bool):
         # self.relation = Relation(permitter, RelationType.IS_PERMITTED_TO, r_tense, permitted, negation)
         self.permitted = permitted
         self.permit_given_to = permit_given_to
-        self.relation = Relation(done_by, RType.IS_PERMITTED_TO, r_tense, permitted, negation)
+        self.relation = Relation(permit_given_to, RType.IS_PERMITTED_TO, r_tense, permitted, negation)
         # super().__init__(name='permit', act_type=ActionObjType.FUNCTIONAL,
         #                  op_seq=[partial(add_relation, self.relation, rs)])
         super().__init__(name='permit',
                          done_by=done_by,
                          act_type=ActionObjType.VERBAL,
                          base_effects=[
-                             GainKnowledge(knowledge=self.relation, affected=self.permit_given_to)
+                             GainPermit(permit=self.relation, affected=self.permit_given_to)
                          ])
 
-    def colorless_repr(self):
-        return f"{super().__repr__()}{str(self.done_by.name)} permit {self.permitted.colorless_repr()}"
+    def __str__(self):
+        return f"{self.done_by} give permit {self.permitted}"
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.done_by} permit {self.permitted}"
+        return f"{str(self.done_by.name)} give permit {self.permitted}"
+
+    def get_requirement_holders(self) -> List:
+        return [self.done_by, self.permit_given_to]
 
     def insert_pronouns(self):
         if isinstance(self.done_by, DSTPronoun):

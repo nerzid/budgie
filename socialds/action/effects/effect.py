@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from copy import copy
 from typing import List
 
@@ -18,18 +19,31 @@ class Effect(SolutionStep):
 
     def __eq__(self, other):
         from socialds.any.any_agent import AnyAgent
+        from socialds.action.action import Action
         if isinstance(other, Effect):
-            # copied_self = copy(self)
-            # copied_self.insert_pronouns()
-            #
-            # copied_other = copy(other)
-            # copied_other.insert_pronouns()
             return (self.name == other.name
                     # and copied_self.op_seq == copied_other.op_seq
                     and (self.affected == other.affected or isinstance(self.affected, AnyAgent) or isinstance(other.affected, AnyAgent))
                     and self.from_state == other.from_state
                     and self.to_state == other.to_state)
+        elif isinstance(other, Action):
+            if not other.specific:
+                other_effects = other.base_effects + other.extra_effects
+                if len(other_effects) == 1:
+                    if self == other_effects[0]:
+                        return True
+
         return False
+
+    @abstractmethod
+    def get_requirement_holders(self) -> List:
+        """
+        Returns instances that can have requirements.
+        At the moment, it resources and places only.
+
+        All subclasses should implement this method
+        """
+        return []
 
     def execute(self):
         for op in self.op_seq:

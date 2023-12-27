@@ -1,3 +1,4 @@
+import textwrap
 from typing import List
 
 from termcolor import colored
@@ -137,25 +138,27 @@ class SessionManager:
             info += '\n'
             info += colored(text='Start Conditions\n', color=TermColor.LIGHT_MAGENTA.value)
             for condition in session.start_conditions:
-                info += ('Not Satisfied', 'Satisfied')[condition.check()]
-                info += ' -> '
-                info += str(condition) + '\n'
+                condition_str = ('Not Satisfied', 'Satisfied')[condition.check()]
+                condition_str += ' -> '
+                condition_str += str(condition) + '\n'
+                info += textwrap.indent(text=condition_str, prefix='  ')
 
             info += colored(text='Expectations\n', color=TermColor.LIGHT_MAGENTA.value)
             for expectation in session.expectations:
                 # info += ('Not Satisfied', 'Satisfied')[condition.check()]
                 # info += ' -> '
-                info += str(expectation)
+                info += textwrap.indent(text=str(expectation), prefix="  ")
 
             info += colored(text='End Goals\n', color=TermColor.LIGHT_MAGENTA.value)
             for goal in session.end_goals:
-                info += f'Goal: {goal.name}\n'
+                info += textwrap.indent(text="Goal: %s\n" % goal.name, prefix='  ')
                 if goal.desc is not '':
-                    info += f'Desc: {goal.desc}\n'
-                info += f'Conditions:\n'
+                    info += textwrap.indent(text="Desc: %s\n" % goal.desc, prefix='    ')
+                info += textwrap.indent(text='Conditions:\n', prefix='    ')
                 for condition in goal.conditions:
-                    info += ('Not Satisfied', 'Satisfied')[condition.check()]
-                    info += ' -> '
-                    info += str(condition) + '\n'
+                    condition_str = ('Not Satisfied', 'Satisfied')[condition.check()]
+                    condition_str += ' -> '
+                    condition_str += str(condition) + '\n'
+                    info += textwrap.indent(text=condition_str, prefix='      ')
             info += '\n'
         return info

@@ -21,15 +21,8 @@ class Prescribe(Action):
         self.times = times
         super().__init__('prescribe', done_by, ActionObjType.PHYSICAL, [], times=times, recipient=recipient)
 
-    def colorless_repr(self):
-        return f"{self.done_by} prescribe {self.prescribed} for {self.recipient}{super().get_times_str()}"
+    def __str__(self):
+        return "%s prescribe %s for %s %s" % (self.done_by, self.prescribed, self.recipient, self.get_times_str())
 
     def __repr__(self):
-        return f"{self.done_by} prescribe {self.prescribed} for {self.recipient}{super().get_times_str()}"
-
-    def insert_pronouns(self):
-        super().insert_pronouns()
-                
-    def execute(self):
-        self.insert_pronouns()
-        super().execute()
+        return "%r prescribe %r for %r %r" % (self.done_by, self.prescribed, self.recipient, self.get_times_str())

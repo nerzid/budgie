@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List
+
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.change_place import ChangePlace
@@ -23,28 +25,28 @@ class Move(Action):
         ]
         super().__init__('move', done_by, ActionObjType.PHYSICAL, base_effects=effects)
 
+    def get_requirement_holders(self) -> List:
+        return [self.moved, self.from_place, self.to_place]
+
     def insert_pronouns(self):
         super().insert_pronouns()
         if isinstance(self.moved, DSTPronoun):
             self.moved = pronouns[self.moved]
 
-    def colorless_repr(self):
+    def __str__(self):
         if self.done_by == self.moved:
-            return super().colorless_repr() + '' + str(self.done_by.name) + ' move from ' + self.from_place.name + ' to ' + self.to_place.name + ''
+            return "%s move from %s to %s" % (self.done_by, self.from_place.name, self.to_place.name)
         else:
-            return super().colorless_repr() + '' + str(self.done_by.name) + ' move ' + str(
-                self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ''
+            return "%s move %s from %s to %s" % (
+                self.done_by, self.moved.name, self.from_place.name, self.to_place.name)
 
     def __repr__(self):
         if self.done_by == self.moved:
-            return super().__repr__() + '' + str(self.done_by.name) + ' move from ' + self.from_place.name + ' to ' + self.to_place.name + ''
+            return "%r move from %r to %r" % (self.done_by, self.from_place.name, self.to_place.name)
         else:
-            return super().__repr__() + '' + str(self.done_by.name) + ' move ' + str(
-                self.moved.name) + ' from ' + self.from_place.name + ' to ' + self.to_place.name + ''
+            return "%r move %r from %r to %r" % (
+                self.done_by, self.moved.name, self.from_place.name, self.to_place.name)
 
-    def execute(self):
-        self.insert_pronouns()
-        super().execute()
     # def execute(self):
     #     self.relation = find_relation_by_place(self.moved, Tense.PRESENT, self.from_place)
     #     modify_relation_tense(self.relation, Tense.PAST)

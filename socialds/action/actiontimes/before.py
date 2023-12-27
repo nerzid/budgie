@@ -9,18 +9,14 @@ class Before(ActionTime):
         self.before = before
         super().__init__()
 
-    def colorless_repr(self):
+    def __str__(self):
         if self.num_of_times is None:
-            return f"before {self.before.colorless_repr()}"
+            return "before %s" % self.before
         else:
-            return f"{self.num_of_times} before {self.before.colorless_repr()}"
+            return "%s before %s" % (self.num_of_times, self.before)
 
     def __repr__(self):
         if self.num_of_times is None:
-            return f"before {self.before}"
+            return "before %r" % self.before
         else:
-            return f"{self.num_of_times} before {self.before}"
-
-    def insert_pronouns(self):
-        self.before.insert_pronouns()
-        super().insert_pronouns()
+            return "%s before %r" % (self.num_of_times, self.before)

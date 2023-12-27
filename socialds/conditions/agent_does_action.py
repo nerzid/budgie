@@ -13,7 +13,7 @@ from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
 import socialds.other.variables as vars
 
-class AgentDoes(Condition):
+class AgentDoesAction(Condition):
     def __init__(self, agent: a.Agent | DSTPronoun, action, tense: Tense, times: List[ActionTime] = None,
                  negation=False):
         super().__init__(tense, times, negation)
@@ -61,11 +61,13 @@ class AgentDoes(Condition):
     #                                                           right=self.action))
     #     return len(found) == max_count
 
-    def colorless_repr(self):
-        return f"{self.agent} {Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]} {self.action.colorless_repr()}{super().get_times_str()}"
+    def __str__(self):
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
+        return "%s %s %s %s" % (self.agent, tense_str, self.action, self.get_times_str())
 
     def __repr__(self):
-        return f"{self.agent} {Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]} {self.action}{super().get_times_str()}"
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
+        return "%r %r %r %r" % (self.agent, tense_str, self.action, self.get_times_str())
 
     def insert_pronouns(self):
         if isinstance(self.agent, DSTPronoun):

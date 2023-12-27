@@ -27,8 +27,6 @@ class ActionOnPropertyHappens(Condition):
                                                           rtense=self.tense,
                                                           right=self.action))
 
-    def colorless_repr(self):
-        return f"{self.action} ({not self.negation})happens{self.tense.value} on {self.property}{super().get_times_str()}"
-
     def __repr__(self):
-        return f"{self.action} ({not self.negation})happens{self.tense.value} on {self.property}{super().get_times_str()}"
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
+        return "%s %s happens on %s %s" % (self.action, tense_str, self.property, self.get_times_str())

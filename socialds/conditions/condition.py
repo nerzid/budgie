@@ -34,12 +34,6 @@ class Condition:
     def check(self):
         pass
 
-    def colorless_repr(self):
-        return ""
-
-    def __repr__(self):
-        return ""
-
     def insert_pronouns(self):
         for time in self.times:
             time.insert_pronouns()

@@ -4,9 +4,7 @@ from enum import Enum
 from termcolor import colored
 
 from socialds.action.action_time import ActionTime
-import socialds.action.action as a
 from socialds.enums import TermColor, Tense
-from socialds.object import Object
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.states.state import State
 
@@ -14,13 +12,13 @@ from socialds.states.state import State
 class RType(Enum):
     IS = 'is'
     HAS = 'has'
+    HAS_REQUIREMENTS = 'has_requirements'
     CAN = 'can'
     IS_PERMITTED_TO = 'has_permit'
     ACTION = 'action'
     EFFECT = 'effect'
     IS_AT = 'is_at'
     ANY = 'any'
-
 
 # e.g., Eren likes apples -> left: Eren, name: likes, right: apples
 
@@ -53,6 +51,20 @@ class Relation(State):
                 Tense.PRESENT: 'hasn\'t',
                 Tense.FUTURE: 'won\'t have',
                 Tense.ANY: 'hasn\'t'
+            }
+        },
+        RType.HAS_REQUIREMENTS: {
+            True: {
+                Tense.PAST: 'had requirements',
+                Tense.PRESENT: 'has requirements',
+                Tense.FUTURE: 'will have requirements',
+                Tense.ANY: 'has requirements'
+            },
+            False: {
+                Tense.PAST: 'didn\'t have requirements',
+                Tense.PRESENT: 'doesn\'t have requirements',
+                Tense.FUTURE: 'won\'t have requirements',
+                Tense.ANY: 'doesn\'t requirements'
             }
         },
         RType.CAN: {
@@ -161,21 +173,16 @@ class Relation(State):
     #
     #     return False
 
+    def __eq__(self, other):
+        if isinstance(other, Relation):
+            return (self.left == other.left and
+                    (self.rtype == other.rtype or self.rtype == RType.ANY or other.rtype == RType.ANY) and
+                    (self.rtense == other.rtense or self.rtense == Tense.ANY or other.rtense == Tense.ANY) and
+                    self.negation == other.negation and
+                    self.times == other.times)
+        return False
+
     def __str__(self):
-        return self.colorless_repr()
-
-    def colorless_repr(self):
-        if (isinstance(self.right, a.Action) or isinstance(self.right, Relation)) and \
-                (isinstance(self.left, a.Action) or isinstance(self.right, Relation)):
-            return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right.colorless_repr()}{self.get_times_str()}'
-        elif isinstance(self.right, a.Action) or isinstance(self.right, Relation):
-            return f'{self.left}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right.colorless_repr()}{self.get_times_str()}'
-        elif isinstance(self.left, a.Action) or isinstance(self.left, Relation):
-            return f'{self.left.colorless_repr()}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right}{self.get_times_str()}'
-        else:
-            return f'{self.left}-{self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]}->{self.right}{self.get_times_str()}'
-
-    def __repr__(self):
         left_color = TermColor.LIGHT_BLUE.value
         r_type_color = TermColor.LIGHT_RED.value
         r_tense_color = TermColor.LIGHT_CYAN.value
@@ -186,6 +193,21 @@ class Relation(State):
                f'{colored(self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense], r_type_color)}' \
                f'{colored("->", TermColor.LIGHT_YELLOW.value)} ' \
                f'{colored(self.right, right_color)}{self.get_times_str()}'
+
+    def __repr__(self):
+        from socialds.action.action import Action
+        tense_str = self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]
+        return "%r-%r->%r%r" % (self.left, tense_str, self.right, self.get_times_str())
+
+        # if (isinstance(self.right, Action) or isinstance(self.right, Relation)) and \
+        #         (isinstance(self.left, Action) or isinstance(self.right, Relation)):
+        #     return f'{self.left}-{tense_str}->{self.right}{self.get_times_str()}'
+        # elif isinstance(self.right, Action) or isinstance(self.right, Relation):
+        #     return f'{self.left}-{tense_str}->{self.right}{self.get_times_str()}'
+        # elif isinstance(self.left, Action) or isinstance(self.left, Relation):
+        #     return f'{self.left}-{tense_str}->{self.right}{self.get_times_str()}'
+        # else:
+        #     return f'{self.left}-{tense_str}->{self.right}{self.get_times_str()}'
 
     def insert_pronouns(self):
         if isinstance(self.left, Relation):

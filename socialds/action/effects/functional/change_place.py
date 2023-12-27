@@ -1,5 +1,8 @@
+from abc import abstractmethod
+from typing import List
+
 from socialds.action.effects.effect import Effect
-from socialds.conditions.object_at_place import ObjectAtPlace
+import socialds.conditions.object_at_place as oap
 from socialds.enums import Tense
 from socialds.operations.add_relation_to_rsholder import AddRelationToRSHolder
 from socialds.operations.find_one_relation_in_rsholder import FindOneRelationInRSHolder
@@ -34,14 +37,14 @@ class ChangePlace(Effect):
         ]
         super().__init__(name='change-location',
                          from_state=[
-                             ObjectAtPlace(rsholder=affected,
+                             oap.ObjectAtPlace(rsholder=affected,
                                            place=from_place,
                                            tense=Tense.PRESENT,
                                            times=[],
                                            negation=False)
                          ],
                          to_state=[
-                             ObjectAtPlace(rsholder=affected,
+                             oap.ObjectAtPlace(rsholder=affected,
                                            place=from_place,
                                            tense=Tense.PRESENT,
                                            times=[],
@@ -52,3 +55,7 @@ class ChangePlace(Effect):
 
     def __repr__(self):
         return f'Change the place of {self.affected} from {self.from_place} to {self.to_place}'
+
+    @abstractmethod
+    def get_requirement_holders(self) -> List:
+        return [self.from_place, self.to_place, self.affected]

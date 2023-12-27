@@ -29,21 +29,3 @@ class ActionObj(SolutionStep):
     def execute(self):
         for op in self.base_effects:
             op.execute()
-
-    # def colorless_repr(self):
-    #     return f'{self.act_type}:{self.name}'
-    #
-    # def __repr__(self):
-    #     return f'{self.act_type}:{self.name}'
-
-    # def colorless_repr(self):
-    #     return f'{self.name}'
-    #
-    # def __repr__(self):
-    #     return f'{self.name}'
-
-    def colorless_repr(self):
-        return f''
-
-    def __repr__(self):
-        return f''

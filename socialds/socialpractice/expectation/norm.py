@@ -1,3 +1,4 @@
+import textwrap
 from enum import Enum
 from typing import List
 
@@ -51,20 +52,20 @@ class Norm(Expectation):
         text += 'Actions:\n'
         i = 1
         for action in self.action_seq:
-            text += f'{str(i)}-) {action}\n'
+            text += textwrap.indent(text="%i-) %s\n" % (i, action), prefix='  ')
             i += 1
 
         text += 'Skipping Conditions \n'
         for condition in self.skipping_conditions:
-            text += f'{condition}\n'
+            text += textwrap.indent(text="%s\n" % condition, prefix='  ')
 
         text += 'Completion Effects \n'
         for effect in self.completion_effects:
-            text += f'{effect}\n'
+            text += textwrap.indent(text="%s\n" % effect, prefix='  ')
 
         text += 'Violation Effects \n'
         for effect in self.violation_effects:
-            text += f'{effect}\n'
+            text += textwrap.indent(text="%s\n" % effect, prefix='  ')
         return text
 
     def update_status(self):

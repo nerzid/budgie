@@ -16,8 +16,5 @@ class ExpectationStatusIs(Condition):
     def check(self):
         return self.expectation.status == self.expectation_status
 
-    def colorless_repr(self):
-        return f"Expectation status for the expectation {self.expectation.name} is {self.expectation_status.value}"
-
     def __repr__(self):
-        return f"Expectation status for the expectation {self.expectation.name} is {self.expectation_status.value}"
+        return "Expectation status for the expectation %s is %s" % (self.expectation.name, self.expectation_status.value)

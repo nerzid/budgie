@@ -18,13 +18,13 @@ class Take(Action):
         self.times = times
         super().__init__('take', done_by, ActionObjType.PHYSICAL, [], times=times)
 
-    def colorless_repr(self):
-        from_str = (f' from {self.giver})', f'')[self.giver is None]
-        return f"{super().__repr__()}{self.done_by.name} take {self.taken}{from_str}{super().get_times_str()}"
+    def __str__(self):
+        from_str = ("from %s" % self.giver, '')[self.giver is None]
+        return "%s take %s %s %s" % (self.done_by.name, self.taken, from_str, self.get_times_str())
 
     def __repr__(self):
-        from_str = (f' from {self.giver})', f'')[self.giver is None]
-        return f"{super().__repr__()}{self.done_by.name} take {self.taken}{from_str}{super().get_times_str()}"
+        from_str = ("from %r" % self.giver, '')[self.giver is None]
+        return "%r take %r %r %r" % (self.done_by.name, self.taken, from_str, self.get_times_str())
 
     def insert_pronouns(self):
         if isinstance(self.giver, DSTPronoun):

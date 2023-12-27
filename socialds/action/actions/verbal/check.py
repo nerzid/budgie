@@ -16,11 +16,11 @@ class Check(Action):
         self.checked = checked
         self.relation = Relation(self.done_by, RType.ACTION, r_tense, checked, negation)
 
-    def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.done_by} check if {self.checked.colorless_repr()}"
+    def __str__(self):
+        return "%s check if %r" % (self.done_by, self.checked)
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.done_by} check if {self.checked}"
+        return "%r check if %r" % (self.done_by, self.checked)
 
     def insert_pronouns(self):
         self.relation.insert_pronouns()

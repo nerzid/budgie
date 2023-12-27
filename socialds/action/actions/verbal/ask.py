@@ -19,11 +19,11 @@ class Ask(Action):
                               negation=False)
         ], recipient=DSTPronoun.YOU)
 
-    def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.done_by.name} ask what {self.asked.colorless_repr()}"
+    def __str__(self):
+        return "%s ask what %s" % (self.done_by.name, self.asked)
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.done_by.name} ask what {self.asked}"
+        return "%r ask what %r" % (self.done_by.name, self.asked)
 
     def insert_pronouns(self):
         self.relation.insert_pronouns()

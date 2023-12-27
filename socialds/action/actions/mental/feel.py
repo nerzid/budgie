@@ -19,16 +19,9 @@ class Feel(Action):
         self.negation = negation
         super().__init__('feel', done_by, ActionObjType.MENTAL, [])
 
-    def colorless_repr(self):
-        return f"{super().__repr__()}{self.done_by.name} feel {self.felt} about {self.about.colorless_repr()}"
+    def __str__(self):
+        return "%s feel %s about %r" % (self.done_by.name, self.felt, self.about)
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.done_by.name} feel {self.felt} about {self.about}"
+        return "%r feel %r about %r" % (self.done_by.name, self.felt, self.about)
 
-    def insert_pronouns(self):
-        self.about.insert_pronouns()
-        super().insert_pronouns()
-        
-    def execute(self):
-        self.insert_pronouns()
-        super().execute()

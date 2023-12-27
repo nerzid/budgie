@@ -12,18 +12,18 @@ class Heal(Action):
         self.negation = negation
         super().__init__('heal', done_by, ActionObjType.PHYSICAL, [], times=times)
 
-    def colorless_repr(self):
+    def __str__(self):
         if self.done_by is None:
             negation_str = (f"is healed", f"isn't healed")[self.negation]
-            return f"{self.healed} {negation_str}{super().get_times_str()}"
+            return "%s %s %s" % (self.healed, negation_str, self.get_times_str())
         else:
             negation_str = (f"heals", f"doesn't heal")[self.negation]
-            return f"{self.done_by} {negation_str} {self.healed}{super().get_times_str()}"
+            return "%s %s %s %s" % (self.done_by, negation_str, self.healed, self.get_times_str())
 
     def __repr__(self):
         if self.done_by is None:
             negation_str = (f"is healed", f"isn't healed")[self.negation]
-            return f"{self.healed} {negation_str}{super().get_times_str()}"
+            return "%r %r %r" % (self.healed, negation_str, self.get_times_str())
         else:
             negation_str = (f"heals", f"doesn't heal")[self.negation]
-            return f"{self.done_by} {negation_str} {self.healed}{super().get_times_str()}"
+            return "%r %r %r %r" % (self.done_by, negation_str, self.healed, self.get_times_str())

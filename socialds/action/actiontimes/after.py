@@ -9,14 +9,14 @@ class After(ActionTime):
         self.num_of_times = num_of_times
         super().__init__()
 
-    def colorless_repr(self):
+    def __str__(self):
         if self.num_of_times is None:
-            return f"after {self.after.colorless_repr()}"
+            return "after %r" % self.after
         else:
-            return f"{self.num_of_times} after {self.after.colorless_repr()}"
+            return "%s after %r" % (self.num_of_times, self.after)
 
     def __repr__(self):
         if self.num_of_times is None:
-            return f"after {self.after}"
+            return "after %r" % self.after
         else:
-            return f"{self.num_of_times} after {self.after}"
+            return "%r after %r" % (self.num_of_times, self.after)

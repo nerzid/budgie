@@ -13,11 +13,11 @@ class Have(Action):
         self.target = target
         super().__init__('has', done_by, ActionObjType.PHYSICAL, [], times=times)
 
-    def colorless_repr(self):
-        return f"{self.done_by} has {self.target}{super().get_times_str()}"
+    def __str__(self):
+        return "%s has %s %s" % (self.done_by, self.target, self.get_times_str())
 
     def __repr__(self):
-        return f"{self.done_by} has {self.target}{super().get_times_str()}"
+        return "%r has %r %r" % (self.done_by, self.target, self.get_times_str())
     
     def insert_pronouns(self):
         super().insert_pronouns()

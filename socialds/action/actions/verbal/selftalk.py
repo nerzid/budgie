@@ -7,15 +7,8 @@ class SelfTalk(SimpleAction):
     def __init__(self):
         super().__init__('self-talk', DSTPronoun.I, ActionObjType.VERBAL)
 
-    def colorless_repr(self):
-        return f'{self.done_by} {self.name}'
+    def __str__(self):
+        return "%s %s" % (self.done_by, self.name)
 
     def __repr__(self):
-        return f'{self.done_by} {self.name}'
-    
-    def insert_pronouns(self):
-        super().insert_pronouns()
-    
-    def execute(self):
-        self.insert_pronouns()
-        super().execute()
+        return "%r %r" % (self.done_by, self.name)

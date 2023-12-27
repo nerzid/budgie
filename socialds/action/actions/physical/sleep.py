@@ -13,15 +13,8 @@ class Sleep(Action):
     def __init__(self, done_by: Agent | DSTPronoun, times: List[ActionTime] = None):
         super().__init__('sleep', done_by, ActionObjType.PHYSICAL, [], times=times)
 
-    def colorless_repr(self):
-        return f"{self.done_by} sleeps{super().get_times_str()}"
+    def __str__(self):
+        return "%s sleep %s" % (self.done_by, self.get_times_str())
 
     def __repr__(self):
-        return f"{self.done_by} sleeps{super().get_times_str()}"
-    
-    def insert_pronouns(self):
-        super().insert_pronouns()
-        
-    def execute(self):
-        self.insert_pronouns()
-        super().execute()
+        return "%r sleep %r" % (self.done_by, self.get_times_str())

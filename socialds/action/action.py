@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from copy import deepcopy
 from typing import List
 
 from socialds.action.action_obj import ActionObj, ActionObjType
 from socialds.action.action_time import ActionTime
 from socialds.action.effects.effect import Effect
-from socialds.agent import Agent
+import socialds.agent as a
 from socialds.any.any_agent import AnyAgent
 from socialds.any.any_resource import AnyResource
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
@@ -14,17 +15,19 @@ from socialds.socialpractice.context.resource import Resource
 
 
 class Action(ActionObj):
-    def __init__(self, name, done_by: Agent | DSTPronoun,
+    def __init__(self, name, done_by: a.Agent | DSTPronoun,
                  act_type: ActionObjType,
                  base_effects: List[Effect],
                  extra_effects: List[Effect] = None,
-                 recipient: Agent | DSTPronoun | AnyAgent = None,
+                 recipient: a.Agent | DSTPronoun | AnyAgent = None,
                  target_resource: Resource | AnyResource = None,
                  preconditions=None,
-                 times: List[ActionTime] = None):
+                 times: List[ActionTime] = None,
+                 specific=False):
         self.done_by = done_by
         self.recipient = recipient
         self.target_resource = target_resource
+        self.specific = specific
         if times is None:
             times = []
         if extra_effects is None:
@@ -36,20 +39,29 @@ class Action(ActionObj):
         self.preconditions = preconditions
         super().__init__(name, act_type, base_effects, extra_effects)
 
-    def __eq__(self, other: Action):
-        # copied_self = deepcopy(self)
-        # copied_self.insert_pronouns()
-        # copied_action = deepcopy(other)
-        # copied_action.insert_pronouns()
-        copied_self = self
-        copied_action = other
-        return ((copied_self.name == copied_action.name)
-                and (copied_self.done_by == copied_action.done_by or isinstance(copied_action.done_by, AnyAgent) or isinstance(copied_self.done_by, AnyAgent))
-                and (copied_self.act_type == copied_action.act_type or copied_action.act_type == ActionObjType.ANY)
-                and (copied_self.recipient == copied_action.recipient or isinstance(copied_action.recipient, AnyAgent))
-                and (copied_self.target_resource == copied_action.target_resource or isinstance(copied_self.target_resource, AnyResource))
-                and (copied_self.base_effects == copied_action.base_effects)
-                and (copied_self.extra_effects == copied_action.extra_effects))
+    def __eq__(self, other):
+        if isinstance(other, Action):
+            return ((self.name == other.name)
+                    and (self.done_by == other.done_by or isinstance(other.done_by, AnyAgent) or isinstance(self.done_by, AnyAgent))
+                    and (self.act_type == other.act_type or other.act_type == ActionObjType.ANY)
+                    and (self.recipient == other.recipient or isinstance(other.recipient, AnyAgent))
+                    and (self.target_resource == other.target_resource or isinstance(self.target_resource, AnyResource))
+                    and (self.base_effects == other.base_effects)
+                    and (self.extra_effects == other.extra_effects))
+        elif isinstance(other, Effect):
+            # this uses the __eq__ in Effect class. This code exist to cop&paste the same code in the Effect class
+            return other == self
+        return False
+
+    @abstractmethod
+    def get_requirement_holders(self) -> List:
+        """
+        Returns instances that can have requirements.
+        At the moment, it resources and places only.
+
+        All subclasses should implement this method
+        """
+        return []
 
     def get_times_str(self):
         if self.times is None:
@@ -81,10 +93,10 @@ class Action(ActionObj):
     #     self.semantic_roles[key] = value
     #     return self
 
-    def change_done_by(self, agent: Agent | DSTPronoun):
+    def change_done_by(self, agent: a.Agent | DSTPronoun):
         self.done_by = agent
 
-    def change_recipient(self, agent: Agent | DSTPronoun):
+    def change_recipient(self, agent: a.Agent | DSTPronoun):
         self.recipient = agent
 
     def switch_done_by_with_recipient(self):

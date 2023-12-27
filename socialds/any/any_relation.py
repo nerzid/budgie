@@ -6,7 +6,7 @@ from socialds.states.relation import Relation, RType
 
 class AnyRelation(Relation, AnyObject):
     def __init__(self):
-        super().__init__(AnyAgent(), RType.ANY, Tense.ANY, AnyObject())
+        super().__init__(AnyObject(), RType.ANY, Tense.ANY, AnyObject())
 
     def __repr__(self):
         return 'any-relation'

@@ -23,11 +23,11 @@ class Notify(Action):
                              GainKnowledge(knowledge=self.notification, affected=recipient)
                          ])
 
-    def colorless_repr(self):
-        return f"{super().__repr__()}({self.done_by.name} notify {self.recipient} about {self.notified_about.colorless_repr()})"
+    def __str__(self):
+        return "%s notify %s about %s" % (self.done_by.name, self.recipient, self.notified_about)
 
     def __repr__(self):
-        return f"{super().__repr__()}({self.done_by.name} notify {self.recipient} about {self.notified_about})"
+        return "%r notify %r about %r" % (self.done_by.name, self.recipient, self.notified_about)
 
     def insert_pronouns(self):
         self.notified_about.insert_pronouns()

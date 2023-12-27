@@ -14,19 +14,11 @@ class Request(Action):
             AddExpectedAction(requested, False, DSTPronoun.YOU)
         ])
 
-    def colorless_repr(self):
-        return f"{super().colorless_repr()}{str(self.done_by.name)} request {self.requested.colorless_repr()}"
+    def __str__(self):
+        return "%s request %s" % (self.done_by.name, self.requested)
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.done_by.name} request {self.requested}"
-
-    def insert_pronouns(self):
-        self.requested.insert_pronouns()
-        super().insert_pronouns()
-
-    def execute(self):
-        self.insert_pronouns()
-        super().execute()
+        return "%r request %r" % (self.done_by.name, self.requested)
 
 # Can Joe come into the office?
 # request to enter the place

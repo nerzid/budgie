@@ -22,11 +22,11 @@ class Share(Action):
                          recipient=self.recipient,
                          times=times)
 
-    def colorless_repr(self):
-        return f"{super().colorless_repr()}{self.done_by} share {self.relation.colorless_repr()} with {self.recipient.name}"
+    def __str__(self):
+        return "%s share %s with %s" % (self.done_by, self.relation, self.recipient)
 
     def __repr__(self):
-        return f"{super().__repr__()}{self.done_by} share {self.relation} with {self.recipient.name}"
+        return "%r share %r with %r" % (self.done_by, self.relation, self.recipient)
 
     def insert_pronouns(self):
         self.relation.insert_pronouns()

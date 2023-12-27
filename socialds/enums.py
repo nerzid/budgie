@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 class TermColor(Enum):
     LIGHT_BLUE = 'light_blue'
     LIGHT_YELLOW = 'light_yellow'
