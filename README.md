@@ -5,23 +5,23 @@ It aims to bring transparency to response selection by showing how and why the r
 
 
 ## Quick look
-Main menu  
+Main menu    
 ![menu1.png](docs/images/menu1.png)
-
-Utterance or act selection
+  
+Utterance or act selection  
 ![menu2.png](docs/images/menu2.png)
-
+  
 After selecting the utterance `Hi` which has the `I greet you` action in it. Notice text starting with Condition which is the explanation for the selected text.
 You can also see the response from the doctor in red colored text `Hi, come in` which has the actions `greet` and `permit for move`.
-You can see the reason for selecting the `Hi, come in` utterance in green text.
+You can see the reason for selecting the `Hi, come in` utterance in green text.  
 ![menu3.png](docs/images/menu3.png)
-
-An overview of sessions for the Doctor's Visit social practice
+  
+An overview of sessions for the Doctor's Visit social practice    
 ![menu4.png](docs/images/menu4.png)
-
-An overview of the agent Jane(doctor)'s relation storages
+  
+An overview of the agent Jane(doctor)'s relation storages  
 ![menu5.png](docs/images/menu5.png)
-
+  
 
 ## Requirements
 Python 3.10.6 or higher  
