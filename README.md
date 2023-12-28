@@ -1,4 +1,4 @@
-![budgie_256_with_text.png](docs/images/budgie_64_with_text.png)
+![budgie_256_with_text.png](docs/images/budgie_64_with_text_black.png)
 ## What is Budgie?
 Budge is a flexible socially-aware dialogue system that incorporates social practices for more socially accurate responses. 
 It aims to bring transparency to response selection by showing how and why the responses are selected.  
