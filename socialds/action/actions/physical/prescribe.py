@@ -4,7 +4,7 @@ from typing import List
 
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.agent import Agent
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.states.property import Property

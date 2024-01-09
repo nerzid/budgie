@@ -23,8 +23,8 @@ class SimpleAction(Action):
     def __str__(self):
         return "%s %s" % (self.done_by, self.name)
 
-    def __repr__(self):
-        return "%r %r" % (self.done_by, self.name)
+    # def __repr__(self):
+    #     return "%r %r" % (self.done_by, self.name)
 
     def get_requirement_holders(self) -> List:
         return [self.done_by, self.recipient, self.target_resource]

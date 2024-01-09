@@ -1,6 +1,6 @@
 from typing import List
 
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.enums import Tense
 from socialds.expectation import Expectation, ExpectationStatus
@@ -8,7 +8,7 @@ from socialds.socialpractice.expectation.norm import Norm, NormStatus
 
 
 class NormStatusIs(Condition):
-    def __init__(self, norm: Norm, norm_status: NormStatus, times: List[ActionTime] = None,
+    def __init__(self, norm: Norm, norm_status: NormStatus, times: List[ActionHappenedAtTime] = None,
                  negation=False):
         super().__init__(tense=Tense.PRESENT, times=times, negation=negation)
         self.norm = norm

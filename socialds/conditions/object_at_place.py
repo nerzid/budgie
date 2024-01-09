@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.socialpractice.context.place import Place
@@ -12,7 +12,7 @@ from socialds.states.relation import Relation as r
 
 
 class ObjectAtPlace(Condition):
-    def __init__(self, rsholder, place: Place, tense: Tense, times: List[ActionTime] = None, negation=False):
+    def __init__(self, rsholder, place: Place, tense: Tense, times: List[ActionHappenedAtTime] = None, negation=False):
         super().__init__(tense, times, negation)
         self.rsholder = rsholder
         self.place = place

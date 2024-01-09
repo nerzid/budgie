@@ -1,7 +1,7 @@
 from typing import List
 
 from socialds.other.variables import dialogue_history
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.enums import Tense
 from socialds.states.property import Property
@@ -9,7 +9,7 @@ from socialds.states.relation import Relation, RType
 
 
 class ActionOnPropertyHappens(Condition):
-    def __init__(self, property: Property, action, tense: Tense, times: List[ActionTime] = None,
+    def __init__(self, property: Property, action, tense: Tense, times: List[ActionHappenedAtTime] = None,
                  negation=False):
         super().__init__(tense, times, negation)
         self.property = property

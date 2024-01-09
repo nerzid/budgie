@@ -16,7 +16,6 @@ class Agent(Object, RSHolder):
         RSHolder.__init__(self, rsholder_name=name,
                           rsholder_type=RSHolderType.AGENT,
                           relation_storages=relation_storages)
-
         self.actor = actor
         self.roles = roles
         self.planner = Planner(self)
@@ -24,7 +23,7 @@ class Agent(Object, RSHolder):
 
         self.update_competences_from_roles()
         # adds the knowledgebase into the agent's knowledgebase
-        merge_relation_storages(self.relation_storages[RSType.KNOWLEDGEBASE], actor.knowledgebase)
+        self.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(actor.knowledgebase)
 
     def __eq__(self, other):
         from socialds.other.dst_pronouns import DSTPronoun

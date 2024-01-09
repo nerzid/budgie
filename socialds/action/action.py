@@ -1,17 +1,44 @@
 from __future__ import annotations
 
+import eventlet
+
+
 from abc import abstractmethod
-from copy import deepcopy
+from enum import Enum
 from typing import List
+# import asyncio
+
 
 from socialds.action.action_obj import ActionObj, ActionObjType
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.action.effects.effect import Effect
 import socialds.agent as a
 from socialds.any.any_agent import AnyAgent
 from socialds.any.any_resource import AnyResource
+from socialds.enums import DSActionByType, DSAction
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.socialpractice.context.resource import Resource
+from socialds.managers.managers import action_manager, message_streamer
+
+
+# not_started, ongoing, completed, skipped
+# default is not started
+# when action is activated, it becomes ongoing
+# when the action is finished after duration, it is completed. Effects will play
+# when it is finished before duration, it is skipped. Effects may not play. If effect of action already happened,
+# then the effect won't be executed
+
+class ExecutionTimeStatus(Enum):
+    NOT_STARTED = 'not-started'
+    ONGOING = 'ongoing'
+    COMPLETED = 'completed'
+    SKIPPED = 'skipped'
+
+
+class ExecutionTime:
+    def __init__(self, duration=2, status=ExecutionTimeStatus.NOT_STARTED):
+        self.duration = duration
+        self.status = status
 
 
 class Action(ActionObj):
@@ -22,12 +49,14 @@ class Action(ActionObj):
                  recipient: a.Agent | DSTPronoun | AnyAgent = None,
                  target_resource: Resource | AnyResource = None,
                  preconditions=None,
-                 times: List[ActionTime] = None,
+                 execution_time=ExecutionTime(),
+                 times: List[ActionHappenedAtTime] = None,
                  specific=False):
         self.done_by = done_by
         self.recipient = recipient
         self.target_resource = target_resource
         self.specific = specific
+        self.execution_time = execution_time
         if times is None:
             times = []
         if extra_effects is None:
@@ -42,7 +71,8 @@ class Action(ActionObj):
     def __eq__(self, other):
         if isinstance(other, Action):
             return ((self.name == other.name)
-                    and (self.done_by == other.done_by or isinstance(other.done_by, AnyAgent) or isinstance(self.done_by, AnyAgent))
+                    and (self.done_by == other.done_by or isinstance(other.done_by, AnyAgent) or isinstance(
+                        self.done_by, AnyAgent))
                     and (self.act_type == other.act_type or other.act_type == ActionObjType.ANY)
                     and (self.recipient == other.recipient or isinstance(other.recipient, AnyAgent))
                     and (self.target_resource == other.target_resource or isinstance(self.target_resource, AnyResource))
@@ -86,8 +116,46 @@ class Action(ActionObj):
             time.insert_pronouns()
 
     def execute(self):
+        print('Executing {} for {} seconds'.format(self.name, self.execution_time.duration))
         self.insert_pronouns()
+        message_streamer.add(ds_action=DSAction.LOG_ACTION_START.value,
+                             ds_action_by=self.done_by.name,
+                             ds_action_by_type=DSActionByType.AGENT.value,
+                             message='Executing {} for {} seconds'.format(self.name, self.execution_time.duration),
+                             duration=self.execution_time.duration)
+        # try:
+        action_manager.ongoing_actions.append(self)
+        eventlet.sleep(self.execution_time.duration)
+        message_streamer.add(ds_action=DSAction.LOG_ACTION_COMPLETED.value,
+                             ds_action_by=self.done_by.name,
+                             ds_action_by_type=DSActionByType.AGENT.value,
+                             message='Execution of {} is completed'.format(self.name),
+                             duration=self.execution_time.duration)
+        # eventlet.sleep(2)
+        # print('Execution of {} is finished. Effects will be executed.'.format(self.name))
         super().execute()
+        # except asyncio.CancelledError:
+        #     print('Execution of {} is cancelled. Effects WON\'T be executed.'.format(self.name))
+        # except asyncio.TimeoutError:
+        #     print(print('Execution of {} is stopped due to timeout. Effects WON\'T be executed.'.format(self.name)))
+        # finally:
+        action_manager.ongoing_actions.remove(self)
+        # task = asyncio.get_event_loop().create_task(self._execute_coroutine())
+        # await task
+        # # asyncio.run(self._execute_coroutine())
+
+    # async def _execute_coroutine(self):
+    #     try:
+    #         action_manager.ongoing_actions.append(self)
+    #         await asyncio.sleep(self.execution_time.duration)
+    #         print('Execution of {} is finished. Effects will be executed.'.format(self.name))
+    #         super().execute()
+    #     except asyncio.CancelledError:
+    #         print('Execution of {} is cancelled. Effects WON\'T be executed.'.format(self.name))
+    #     except asyncio.TimeoutError:
+    #         print(print('Execution of {} is stopped due to timeout. Effects WON\'T be executed.'.format(self.name)))
+    #     finally:
+    #         action_manager.ongoing_actions.remove(self)
 
     # def update(self, key: SemanticEvent, value: any):
     #     self.semantic_roles[key] = value

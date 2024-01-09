@@ -4,7 +4,7 @@ from uu import Error
 
 from termcolor import colored
 
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.any.any_object import AnyObject
 from socialds.enums import TermColor, Tense
 from socialds.states.relation import Relation, RType
@@ -19,6 +19,7 @@ class RSType(Enum):
     RESOURCES = 'Resources'
     COMPETENCES = 'Competences'
     FORGOTTEN = 'Forgotten'
+    ACTIVE_ACTIONS = 'Active Actions'
     EXPECTED_ACTIONS = 'Expected Actions'
     EXPECTED_EFFECTS = 'Expected Effects'
     VALUES = 'Values'
@@ -111,11 +112,14 @@ class RelationStorage:
         for rel in relations:
             self.add(rel)
 
+    def add_from_rs(self, rs):
+        self.relations += rs.relations
+
     def remove(self, relation: Relation):
         self.relations.remove(relation)
 
     def get_one(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False,
-                times: List[ActionTime] = None, excluded: List[Relation] = None):
+                times: List[ActionHappenedAtTime] = None, excluded: List[Relation] = None):
         # if times is not None:
         #     for time in times:
         #         if isinstance(time, NumOfTimes):
@@ -149,7 +153,7 @@ class RelationStorage:
         if not found:
             return None
 
-    def get_many(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False, times: [ActionTime] = None):
+    def get_many(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False, times: [ActionHappenedAtTime] = None):
         # if times is not None:
         #     for time in times:
         #         if isinstance(time, NumOfTimes):
@@ -177,7 +181,13 @@ class RelationStorage:
             return found
 
 
+@DeprecationWarning
 def merge_relation_storages(s1: RelationStorage, s2: RelationStorage):
+    """
+    Instead use self.add_from_rs()
+    @param s1:
+    @param s2:
+    """
     # s1.relations.update(s2.relations)
     # s1.relations.union(s2.relations)
     s1.relations += s2.relations

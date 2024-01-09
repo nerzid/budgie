@@ -1,8 +1,8 @@
 from socialds.action.actiontimes.num_of_times import NumOfTimes
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 
 
-class InMorning(ActionTime):
+class InMorning(ActionHappenedAtTime):
     def __init__(self, num_of_times: NumOfTimes = None):
         self.num_of_times = num_of_times
         super().__init__()

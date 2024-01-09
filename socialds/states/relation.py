@@ -3,7 +3,7 @@ from enum import Enum
 
 from termcolor import colored
 
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.enums import TermColor, Tense
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.states.state import State
@@ -154,7 +154,7 @@ class Relation(State):
     }
 
     def __init__(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False,
-                 times: [ActionTime] = None):
+                 times: [ActionHappenedAtTime] = None):
         super().__init__()
         self.left = left
         self.rtype = rtype
@@ -195,19 +195,8 @@ class Relation(State):
                f'{colored(self.right, right_color)}{self.get_times_str()}'
 
     def __repr__(self):
-        from socialds.action.action import Action
         tense_str = self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]
         return "%r-%r->%r%r" % (self.left, tense_str, self.right, self.get_times_str())
-
-        # if (isinstance(self.right, Action) or isinstance(self.right, Relation)) and \
-        #         (isinstance(self.left, Action) or isinstance(self.right, Relation)):
-        #     return f'{self.left}-{tense_str}->{self.right}{self.get_times_str()}'
-        # elif isinstance(self.right, Action) or isinstance(self.right, Relation):
-        #     return f'{self.left}-{tense_str}->{self.right}{self.get_times_str()}'
-        # elif isinstance(self.left, Action) or isinstance(self.left, Relation):
-        #     return f'{self.left}-{tense_str}->{self.right}{self.get_times_str()}'
-        # else:
-        #     return f'{self.left}-{tense_str}->{self.right}{self.get_times_str()}'
 
     def insert_pronouns(self):
         if isinstance(self.left, Relation):

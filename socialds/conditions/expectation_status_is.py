@@ -1,13 +1,13 @@
 from typing import List
 
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.enums import Tense
 from socialds.expectation import Expectation, ExpectationStatus
 
 
 class ExpectationStatusIs(Condition):
-    def __init__(self, expectation: Expectation, expectation_status: ExpectationStatus, times: List[ActionTime] = None,
+    def __init__(self, expectation: Expectation, expectation_status: ExpectationStatus, times: List[ActionHappenedAtTime] = None,
                  negation=False):
         super().__init__(tense=Tense.PRESENT, times=times, negation=negation)
         self.expectation = expectation

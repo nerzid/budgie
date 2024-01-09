@@ -1,9 +1,9 @@
 from socialds.action.action import Action
 from socialds.action.actiontimes.num_of_times import NumOfTimes
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 
 
-class After(ActionTime):
+class After(ActionHappenedAtTime):
     def __init__(self, after: Action, num_of_times: NumOfTimes = None):
         self.after = after
         self.num_of_times = num_of_times

@@ -4,7 +4,7 @@ from typing import List
 
 import socialds.agent as a
 import socialds.other.variables as vars
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
@@ -12,7 +12,7 @@ from socialds.states.relation import Relation, RType
 
 
 class AgentDoesEffect(Condition):
-    def __init__(self, agent: a.Agent | DSTPronoun, effect, tense: Tense, times: List[ActionTime] = None,
+    def __init__(self, agent: a.Agent | DSTPronoun, effect, tense: Tense, times: List[ActionHappenedAtTime] = None,
                  negation=False):
         super().__init__(tense, times, negation)
         self.agent = agent

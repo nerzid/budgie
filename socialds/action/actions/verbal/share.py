@@ -4,7 +4,7 @@ from typing import List
 
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.relationstorage import RSType
@@ -12,7 +12,7 @@ from socialds.states.relation import Relation
 
 
 class Share(Action):
-    def __init__(self, relation: Relation, times: List[ActionTime] = None):
+    def __init__(self, relation: Relation, times: List[ActionHappenedAtTime] = None):
         self.recipient = DSTPronoun.YOU
         self.relation = relation
         super().__init__(name="share", done_by=DSTPronoun.I, act_type=ActionObjType.VERBAL,

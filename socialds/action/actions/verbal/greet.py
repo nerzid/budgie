@@ -10,5 +10,5 @@ class Greet(SimpleAction):
     def __str__(self):
         return "%s %s %s" % (self.done_by, self.name, self.recipient)
 
-    def __repr__(self):
-        return "%r %r %r" % (self.done_by, self.name, self.recipient)
+    # def __repr__(self):
+    #     return "%r %s %r" % (self.done_by, self.name, self.recipient)

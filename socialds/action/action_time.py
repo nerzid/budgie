@@ -1,4 +1,4 @@
-class ActionTime:
+class ActionHappenedAtTime:
     def __init__(self):
         pass
 

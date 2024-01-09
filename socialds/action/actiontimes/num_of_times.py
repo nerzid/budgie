@@ -1,7 +1,7 @@
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 
 
-class NumOfTimes(ActionTime):
+class NumOfTimes(ActionHappenedAtTime):
     def __init__(self, num: int):
         self.num = num
         super().__init__()

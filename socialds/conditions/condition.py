@@ -2,7 +2,7 @@ from enum import Enum
 from typing import List
 
 from socialds.enums import Tense
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 
 
 # class ConditionType(Enum):
@@ -13,7 +13,7 @@ from socialds.action.action_time import ActionTime
 
 
 class Condition:
-    def __init__(self, tense: Tense, times: List[ActionTime] = None, negation=False):
+    def __init__(self, tense: Tense, times: List[ActionHappenedAtTime] = None, negation=False):
         if times is None:
             self.times = []
         else:

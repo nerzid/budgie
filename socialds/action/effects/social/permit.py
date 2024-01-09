@@ -39,8 +39,6 @@ class Permit(Action):
         return [self.done_by, self.permit_given_to]
 
     def insert_pronouns(self):
-        if isinstance(self.done_by, DSTPronoun):
-            self.done_by = pronouns[self.done_by]
         if isinstance(self.permit_given_to, DSTPronoun):
             self.permit_given_to = pronouns[self.permit_given_to]
         self.permitted.insert_pronouns()

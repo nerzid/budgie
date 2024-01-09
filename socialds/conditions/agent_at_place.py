@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List
 
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 import socialds.agent as a
 from socialds.conditions.condition import Condition
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
@@ -13,7 +13,7 @@ from socialds.enums import Tense
 
 
 class AgentAtPlace(Condition):
-    def __init__(self, agent: a.Agent | DSTPronoun, place: Place, tense: Tense, times: List[ActionTime] = None,
+    def __init__(self, agent: a.Agent | DSTPronoun, place: Place, tense: Tense, times: List[ActionHappenedAtTime] = None,
                  negation=False):
         super().__init__(tense, times, negation)
         self.agent = agent

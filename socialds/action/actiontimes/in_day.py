@@ -1,7 +1,7 @@
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 
 
-class InDay(ActionTime):
+class InDay(ActionHappenedAtTime):
     def __init__(self, num):
         self.num = num
         super().__init__()

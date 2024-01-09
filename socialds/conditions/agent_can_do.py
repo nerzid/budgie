@@ -7,7 +7,7 @@ from socialds.any.any_agent import AnyAgent
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
 from socialds.other.variables import dialogue_history
 import socialds.agent as a
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.relationstorage import RelationNotFoundError, RSType
 from socialds.states.relation import Relation, RType
@@ -15,7 +15,7 @@ from socialds.enums import Tense
 
 
 class AgentCanDo(Condition):
-    def __init__(self, agent: a.Agent | DSTPronoun, action, tense: Tense, times: List[ActionTime] = None,
+    def __init__(self, agent: a.Agent | DSTPronoun, action, tense: Tense, times: List[ActionHappenedAtTime] = None,
                  negation=False):
         super().__init__(tense, times, negation)
         self.agent = agent

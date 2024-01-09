@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import List
 
 from socialds.enums import Tense
-from socialds.action.action_time import ActionTime
+from socialds.action.action_time import ActionHappenedAtTime
 import socialds.agent as a
 from socialds.conditions.condition import Condition
 from socialds.other.dst_pronouns import DSTPronoun, pronouns
@@ -12,7 +12,7 @@ from socialds.states.relation import Relation, RType
 
 
 class AgentKnows(Condition):
-    def __init__(self, agent: a.Agent | DSTPronoun, knows: Relation, tense: Tense, times: List[ActionTime] = None, negation=False):
+    def __init__(self, agent: a.Agent | DSTPronoun, knows: Relation, tense: Tense, times: List[ActionHappenedAtTime] = None, negation=False):
         super().__init__(tense, times, negation)
         self.agent = agent
         self.knows = knows

@@ -11,10 +11,9 @@ class Utterance:
     # def get_actions_text(self):
     #
 
-
     def __repr__(self):
         action_str = ''
         for action in self.actions:
-            action_str += "%r " % action
-        action_str = action_str[:-1]
+            action_str += "%s " % action
+        action_str = action_str[:-1].replace("'", "")
         return "%s (%s)" % (self.text, action_str)
