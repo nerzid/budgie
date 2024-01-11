@@ -1,6 +1,6 @@
-from functools import partial
 from typing import List
 
+from socialds.DSTPronounHolder import DSTPronounHolder
 from socialds.action.effects.effect import Effect
 from socialds.conditions.SolutionStep import SolutionStep
 
@@ -16,8 +16,10 @@ class ActionObjType:
         return str(self.name).lower()
 
 
-class ActionObj(SolutionStep):
+class ActionObj(SolutionStep, DSTPronounHolder):
     def __init__(self, name: str, act_type: ActionObjType, base_effects: List[Effect], extra_effects: List[Effect]):
+        super(SolutionStep, self).__init__()
+        super(DSTPronounHolder, self).__init__()
         self.name = name
         self.base_effects = base_effects
         self.extra_effects = extra_effects
@@ -26,6 +28,8 @@ class ActionObj(SolutionStep):
     def insert_pronouns(self):
         pass
 
-    def execute(self):
+    def execute(self, pronouns):
+        self.pronouns = pronouns
         for op in self.base_effects:
-            op.execute()
+            op.pronouns = pronouns
+            op.execute(pronouns)

@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import eventlet
 
-
 from abc import abstractmethod
 from enum import Enum
 from typing import List
+
+from socialds.DSTPronounHolder import DSTPronounHolder
 # import asyncio
 
 
@@ -16,9 +17,13 @@ import socialds.agent as a
 from socialds.any.any_agent import AnyAgent
 from socialds.any.any_resource import AnyResource
 from socialds.enums import DSActionByType, DSAction
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.socialpractice.context.resource import Resource
 from socialds.managers.managers import action_manager, message_streamer
+
+
+class ActionFailed(Exception):
+    pass
 
 
 # not_started, ongoing, completed, skipped
@@ -105,61 +110,47 @@ class Action(ActionObj):
 
     def insert_pronouns(self):
         if isinstance(self.done_by, DSTPronoun):
-            self.done_by = pronouns[self.done_by]
+            self.done_by = self.pronouns[self.done_by]
         if isinstance(self.recipient, DSTPronoun):
-            self.recipient = pronouns[self.recipient]
+            self.recipient = self.pronouns[self.recipient]
         for effect in self.base_effects:
+            effect.pronouns = self.pronouns
             effect.insert_pronouns()
         for effect in self.extra_effects:
+            effect.pronouns = self.pronouns
             effect.insert_pronouns()
         for time in self.times:
-            time.insert_pronouns()
+            time.insert_pronouns(self.pronouns)
 
-    def execute(self):
-        print('Executing {} for {} seconds'.format(self.name, self.execution_time.duration))
+    def execute(self, pronouns):
+        self.pronouns = pronouns
         self.insert_pronouns()
+        print('Executing {} for {} seconds with pronouns {}'.format(self.name, self.execution_time.duration,
+                                                                    self.pronouns))
         message_streamer.add(ds_action=DSAction.LOG_ACTION_START.value,
                              ds_action_by=self.done_by.name,
                              ds_action_by_type=DSActionByType.AGENT.value,
                              message='Executing {} for {} seconds'.format(self.name, self.execution_time.duration),
                              duration=self.execution_time.duration)
-        # try:
         action_manager.ongoing_actions.append(self)
+
         eventlet.sleep(self.execution_time.duration)
-        message_streamer.add(ds_action=DSAction.LOG_ACTION_COMPLETED.value,
-                             ds_action_by=self.done_by.name,
-                             ds_action_by_type=DSActionByType.AGENT.value,
-                             message='Execution of {} is completed'.format(self.name),
-                             duration=self.execution_time.duration)
-        # eventlet.sleep(2)
-        # print('Execution of {} is finished. Effects will be executed.'.format(self.name))
-        super().execute()
-        # except asyncio.CancelledError:
-        #     print('Execution of {} is cancelled. Effects WON\'T be executed.'.format(self.name))
-        # except asyncio.TimeoutError:
-        #     print(print('Execution of {} is stopped due to timeout. Effects WON\'T be executed.'.format(self.name)))
-        # finally:
-        action_manager.ongoing_actions.remove(self)
-        # task = asyncio.get_event_loop().create_task(self._execute_coroutine())
-        # await task
-        # # asyncio.run(self._execute_coroutine())
+        try:
+            super().execute(pronouns)
 
-    # async def _execute_coroutine(self):
-    #     try:
-    #         action_manager.ongoing_actions.append(self)
-    #         await asyncio.sleep(self.execution_time.duration)
-    #         print('Execution of {} is finished. Effects will be executed.'.format(self.name))
-    #         super().execute()
-    #     except asyncio.CancelledError:
-    #         print('Execution of {} is cancelled. Effects WON\'T be executed.'.format(self.name))
-    #     except asyncio.TimeoutError:
-    #         print(print('Execution of {} is stopped due to timeout. Effects WON\'T be executed.'.format(self.name)))
-    #     finally:
-    #         action_manager.ongoing_actions.remove(self)
-
-    # def update(self, key: SemanticEvent, value: any):
-    #     self.semantic_roles[key] = value
-    #     return self
+            message_streamer.add(ds_action=DSAction.LOG_ACTION_COMPLETED.value,
+                                 ds_action_by=self.done_by.name,
+                                 ds_action_by_type=DSActionByType.AGENT.value,
+                                 message='Execution of {} is completed'.format(self.name),
+                                 duration=self.execution_time.duration)
+        except Exception as e:
+            message_streamer.add(ds_action=DSAction.LOG_ACTION_FAILED.value,
+                                 ds_action_by=self.done_by.name,
+                                 ds_action_by_type=DSActionByType.AGENT.value,
+                                 message='Execution of {} is failed'.format(self.name),
+                                 reason='Reason: {}'.format(repr(e)))
+        finally:
+            action_manager.ongoing_actions.remove(self)
 
     def change_done_by(self, agent: a.Agent | DSTPronoun):
         self.done_by = agent

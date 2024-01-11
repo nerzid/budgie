@@ -1,13 +1,11 @@
 from __future__ import annotations
 
+from typing import List
+
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
-from socialds.enums import Tense
-from socialds.operations.move_relation import MoveRelation
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
-from socialds.relationstorage import RSType
-from socialds.states.relation import RType
+from socialds.other.dst_pronouns import DSTPronoun
 
 
 class Give(Action):
@@ -26,12 +24,19 @@ class Give(Action):
 
     def insert_pronouns(self):
         if isinstance(self.recipient, DSTPronoun):
-            self.recipient = pronouns[self.recipient]
+            self.recipient = self.pronouns[self.recipient]
         super().insert_pronouns()
 
-    def execute(self):
+    def execute(self, pronouns):
+        self.pronouns = pronouns
         self.insert_pronouns()
-        super().execute()
+        super().execute(pronouns)
+
+    def get_requirement_holders(self) -> List:
+        if self.target_resource:
+            return [self.target_resource]
+        else:
+            return []
 
 # Joe gives an apple to Jane
 # Joe -has-> an apple is removed and Jane -has-> an apple is added

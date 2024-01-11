@@ -45,13 +45,13 @@ class SessionManager:
             return ongoing_sessions
 
     @staticmethod
-    def update_session_statuses():
+    def update_session_statuses(agent):
         for session in vars.sessions:
             # No need to update the status of session if it is already completed or failed
             if session.status == SessionStatus.COMPLETED or session.status == SessionStatus.FAILED:
                 continue
 
-            is_start_conditions_true = Condition.check_conditions(session.start_conditions)
+            is_start_conditions_true = Condition.check_conditions(session.start_conditions, agent)
             is_end_conditions_true = True
             for goal in session.end_goals:
                 is_end_conditions_true = is_end_conditions_true and goal.is_reached()

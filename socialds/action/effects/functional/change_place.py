@@ -38,17 +38,17 @@ class ChangePlace(Effect):
         super().__init__(name='change-location',
                          from_state=[
                              oap.ObjectAtPlace(rsholder=affected,
-                                           place=from_place,
-                                           tense=Tense.PRESENT,
-                                           times=[],
-                                           negation=False)
+                                               place=from_place,
+                                               tense=Tense.PRESENT,
+                                               times=[],
+                                               negation=False)
                          ],
                          to_state=[
                              oap.ObjectAtPlace(rsholder=affected,
-                                           place=from_place,
-                                           tense=Tense.PRESENT,
-                                           times=[],
-                                           negation=True)
+                                               place=from_place,
+                                               tense=Tense.PRESENT,
+                                               times=[],
+                                               negation=True)
                          ],
                          affected=affected,
                          op_seq=op_seq)

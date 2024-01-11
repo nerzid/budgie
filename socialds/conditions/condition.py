@@ -31,16 +31,17 @@ class Condition:
             times_str = ' ' + times_str[:-5]
         return times_str
 
-    def check(self):
+    def check(self, checker=None):
         pass
 
-    def insert_pronouns(self):
+    def insert_pronouns(self, pronouns):
         for time in self.times:
-            time.insert_pronouns()
+            time.insert_pronouns(pronouns)
 
     @staticmethod
-    def check_conditions(conditions):
+    def check_conditions(conditions, checker):
         for condition in conditions:
-            if condition.check() is False:
+            # print(condition)
+            if condition.check(checker=checker) is False:
                 return False
         return True

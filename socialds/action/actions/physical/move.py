@@ -6,7 +6,7 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.change_place import ChangePlace
 from socialds.agent import Agent
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.socialpractice.context.place import Place
 
 
@@ -31,7 +31,7 @@ class Move(Action):
     def insert_pronouns(self):
         super().insert_pronouns()
         if isinstance(self.moved, DSTPronoun):
-            self.moved = pronouns[self.moved]
+            self.moved = self.pronouns[self.moved]
 
     def __str__(self):
         if self.done_by == self.moved:

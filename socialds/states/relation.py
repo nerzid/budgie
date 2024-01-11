@@ -3,9 +3,10 @@ from enum import Enum
 
 from termcolor import colored
 
+from socialds.DSTPronounHolder import DSTPronounHolder
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.enums import TermColor, Tense
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.state import State
 
 
@@ -23,7 +24,7 @@ class RType(Enum):
 # e.g., Eren likes apples -> left: Eren, name: likes, right: apples
 
 
-class Relation(State):
+class Relation(State, DSTPronounHolder):
     relation_types_with_tenses = {
         RType.IS: {
             True: {
@@ -200,13 +201,15 @@ class Relation(State):
 
     def insert_pronouns(self):
         if isinstance(self.left, Relation):
+            self.left.pronouns = self.pronouns
             self.left.insert_pronouns()
         elif isinstance(self.left, DSTPronoun):
-            self.left = pronouns[self.left]
+            self.left = self.pronouns[self.left]
         elif isinstance(self.right, Relation):
+            self.right.pronouns = self.pronouns
             self.right.insert_pronouns()
         elif isinstance(self.right, DSTPronoun):
-            self.right = pronouns[self.right]
+            self.right = self.pronouns[self.right]
 
     def get_times_str(self):
         if self.times is None:

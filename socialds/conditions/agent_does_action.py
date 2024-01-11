@@ -2,13 +2,10 @@ from __future__ import annotations
 
 from typing import List
 
-from socialds.action.actiontimes.num_of_times import NumOfTimes
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
-from socialds.other.variables import dialogue_history
+from socialds.other.dst_pronouns import DSTPronoun
 import socialds.agent as a
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
-from socialds.relationstorage import RelationNotFoundError
 from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
 import socialds.other.variables as vars
@@ -20,7 +17,7 @@ class AgentDoesAction(Condition):
         self.agent = agent
         self.action = action
 
-    def check(self):
+    def check(self, checker=None):
         if self.negation:
             return self.action not in vars.actions_history
         else:
@@ -69,11 +66,12 @@ class AgentDoesAction(Condition):
         tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
         return "%r %r %r %r" % (self.agent, tense_str, self.action, self.get_times_str())
 
-    def insert_pronouns(self):
+    def insert_pronouns(self, pronouns):
         if isinstance(self.agent, DSTPronoun):
             self.agent = pronouns[self.agent]
+        self.action.pronouns = pronouns
         self.action.insert_pronouns()
-        super().insert_pronouns()
+        super().insert_pronouns(pronouns)
 
 # to satisfy the condition agent does, there are few options
 # first option is, if the agent can do it, he does it.

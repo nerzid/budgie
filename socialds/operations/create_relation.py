@@ -23,11 +23,13 @@ class CreateRelation(StateOperation):
         self.negation = negation
         self.rs = rs
 
-    def execute(self) -> Relation:
+    def execute(self, pronouns, *args, **kwargs) -> Relation:
+        super().execute(pronouns, *args, **kwargs)
         relation = Relation(left=self.left,
                             rtype=self.rtype,
                             rtense=self.rtense,
                             right=self.right,
                             negation=self.negation)
+        relation.pronouns = self.pronouns
         relation.insert_pronouns()
         return self.rs.add(relation)

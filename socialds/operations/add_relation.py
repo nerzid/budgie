@@ -11,11 +11,13 @@ class AddRelation(StateOperation):
 
     def execute_param_state_operations(self):
         if isinstance(self.relation, StateOperation):
-            self.relation = self.relation.execute()
+            self.relation = self.relation.execute(self.pronouns)
         elif isinstance(self.rs, StateOperation):
-            self.rs = self.rs.execute()
+            self.rs = self.rs.execute(self.pronouns)
 
-    def execute(self):
-        self.execute_param_state_operations()
+    def execute(self, pronouns, *args, **kwargs):
+        super().execute(pronouns, *args, **kwargs)
+        self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
+        self.execute_param_state_operations()
         self.rs.add(self.relation)

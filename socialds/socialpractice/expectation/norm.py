@@ -4,12 +4,8 @@ from typing import List
 
 from socialds.action.action_obj import ActionObj
 from socialds.action.effects.effect import Effect
-from socialds.any.any_agent import AnyAgent
 from socialds.conditions.condition import Condition
-from socialds.enums import Tense
 from socialds.expectation import Expectation, ExpectationType, ExpectationStatus
-import socialds.other.variables as vars
-from socialds.states.relation import Relation, RType
 
 
 class NormStatus(Enum):
@@ -68,7 +64,7 @@ class Norm(Expectation):
             text += textwrap.indent(text="%s\n" % effect, prefix='  ')
         return text
 
-    def update_status(self):
+    def update_status(self, agent):
 
         """
         The expectation status of a norm can be not_started, ongoing, completed or failed.
@@ -99,13 +95,13 @@ class Norm(Expectation):
         if the actions in the act
 
         """
-        super().update_status()
+        super().update_status(agent)
         if self.status == ExpectationStatus.COMPLETED or self.status == ExpectationStatus.FAILED:
             return
 
-        self.update_norm_status()
+        self.update_norm_status(agent)
 
-    def update_norm_status(self):
+    def update_norm_status(self, agent):
         """
         Updates the norm status alongside its expectation status. The norm status can be as followed:
 
@@ -120,7 +116,8 @@ class Norm(Expectation):
 
         a_condition_is_true = False
         for condition in self.skipping_conditions:
-            if condition.check() is False:
+            print(condition)
+            if condition.check(agent) is False:
                 a_condition_is_true = True
                 break
         if a_condition_is_true:
@@ -131,7 +128,7 @@ class Norm(Expectation):
 
         a_condition_is_true = False
         for condition in self.violation_conditions:
-            if condition.check() is False:
+            if condition.check(agent) is False:
                 a_condition_is_true = True
                 break
         if a_condition_is_true:

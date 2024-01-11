@@ -6,7 +6,7 @@ from socialds.enums import Tense
 from socialds.action.action_time import ActionHappenedAtTime
 import socialds.agent as a
 from socialds.conditions.condition import Condition
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
 from socialds.states.relation import Relation, RType
 
@@ -22,9 +22,13 @@ class AgentKnows(Condition):
             return self.agent == other.agent and self.knows == other.knows
         return False
 
-    def check(self):
+    def check(self, checker=None):
+        if isinstance(self.agent, DSTPronoun):
+            agent = checker.pronouns[self.agent]
+        else:
+            agent = self.agent
         if not self.negation:
-            return self.agent.relation_storages[RSType.KNOWLEDGEBASE].contains(self.knows)
+            return agent.relation_storages[RSType.KNOWLEDGEBASE].contains(self.knows)
         else:
             return not self.agent.relation_storages[RSType.PLACES].contains(self.knows)
 
@@ -36,9 +40,12 @@ class AgentKnows(Condition):
         tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
         return "%r %r know %r %s" % (self.agent, tense_str, self.knows, self.get_times_str())
 
-    def insert_pronouns(self):
+    def insert_pronouns(self, pronouns):
+        if isinstance(self.agent ,DSTPronoun):
+            self.agent = pronouns[self.agent]
+        self.knows.pronouns = pronouns
         self.knows.insert_pronouns()
-        super().insert_pronouns()
+        super().insert_pronouns(pronouns)
 
 # to satisfy the condition of agent knows, there are a few options
 # the first choice is observing the knowledgebase of the places that the agent is at.

@@ -13,7 +13,7 @@ class ExpectationStatusIs(Condition):
         self.expectation = expectation
         self.expectation_status = expectation_status
 
-    def check(self):
+    def check(self, checker=None):
         return self.expectation.status == self.expectation_status
 
     def __repr__(self):

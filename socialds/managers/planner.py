@@ -1,4 +1,4 @@
-from copy import copy
+from copy import copy, deepcopy
 from typing import List
 import logging
 from socialds.action.effects.effect import Effect
@@ -17,11 +17,11 @@ from socialds.conditions.agent_knows import AgentKnows
 from socialds.conditions.condition_solution import ConditionSolution
 from socialds.conditions.expectation_status_is import ExpectationStatusIs
 from socialds.conditions.object_at_place import ObjectAtPlace
-from socialds.enums import Tense
+from socialds.enums import Tense, DSAction, DSActionByType
 from socialds.expectation import ExpectationStatus
 from socialds.goal import Goal
 from socialds.managers.session_manager import SessionManager
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.other.variables import utterances
 from socialds.plan import Plan
 from socialds.relationstorage import RSType
@@ -37,6 +37,7 @@ class NoMatchingUtteranceFound(Exception):
 class Planner:
     def __init__(self, agent):
         self.agent = agent
+        self.name = "{}'s Planner".format(self.agent)
         self.solutions = None
         self.active_plans: List[Plan] = []
 
@@ -208,7 +209,7 @@ class Planner:
         expected_actions = self.agent.relation_storages[RSType.EXPECTED_ACTIONS]
         for action in expected_actions:
             condition = AgentDoesAction(agent=action.done_by, action=action, tense=Tense.ANY, negation=False)
-            goals.append(Goal(name='goal for the expected action %s' % action, conditions=[condition]))
+            goals.append(Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=[condition]))
         return goals
 
     def create_goals_from_expected_effects(self):
@@ -217,7 +218,7 @@ class Planner:
         expected_effects = self.agent.relation_storages[RSType.EXPECTED_EFFECTS]
         for effect in expected_effects:
             condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect, tense=Tense.ANY, negation=False)
-            goals.append(Goal(name='goal for the expected action %s' % effect, conditions=[condition]))
+            goals.append(Goal(owner=self.agent, name='goal for the expected action %s' % effect, conditions=[condition]))
         for action in expected_actions:
             if not action.specific:
                 effects = action.base_effects + action.extra_effects
@@ -225,7 +226,7 @@ class Planner:
                 for effect in effects:
                     condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect, tense=Tense.ANY, negation=False)
                     conditions.append(condition)
-                goals.append(Goal(name='goal for the expected action %s' % action, conditions=conditions))
+                goals.append(Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=conditions))
         return goals
 
     def filter_solutions(self, solutions: List[ConditionSolution]):
@@ -234,6 +235,7 @@ class Planner:
         @param solutions:
         @return:
         """
+        print("{} ALL SOLUTIONS -> {}".format(self.agent, solutions))
         from socialds.action.action import Action
         from socialds.action.effects.effect import Effect
         possible_actions, possible_effects = self.get_possible_actions_and_effects()
@@ -254,14 +256,19 @@ class Planner:
             for step in solution.steps:
                 if isinstance(step, Action):
                     if step not in possible_actions:
+                        print("{} step {} not in possible actions {}".format(self.agent, step, possible_actions))
                         exclude_solution = True
                         break
                 elif isinstance(step, Effect):
+                    step.pronouns = self.agent.pronouns
+                    print(step.pronouns)
                     if step not in possible_effects:
+                        print("{} step {} not in possible effects {}".format(self.agent, step, possible_effects))
                         exclude_solution = True
                         break
             if exclude_solution:
                 excluded_solutions.append(solution)
+        print("{} SOLUTIONS to remove for competence filter-> {}".format(self.agent, excluded_solutions))
 
         # By requirements
         # if the object has the requirement of certain conditions
@@ -275,15 +282,18 @@ class Planner:
                         if requirement_holder is None:
                             continue
                         if isinstance(requirement_holder, DSTPronoun):
-                            requirement_holder = pronouns[requirement_holder]
+                            print("{} REQUIREMENT HOLDER ===========> {}".format(self.agent, requirement_holder))
+                            print("{} Pronouns ===========> {}".format(self.agent, self.agent.pronouns))
+                            requirement_holder = self.agent.pronouns[requirement_holder]
+                            print("{} REQUIREMENT HOLDER(after) ===========> {}".format(self.agent, requirement_holder))
                         for requirement in requirement_holder.relation_storages[RSType.REQUIREMENTS]:
-                            if not requirement.check() and solution not in excluded_solutions:
+                            if not requirement.check(self.agent) and solution not in excluded_solutions:
                                 excluded_solutions.append(solution)
                                 break
 
         for excluded_solution in excluded_solutions:
             solutions.remove(excluded_solution)
-
+        print("SOLUTIONS after requirement filter-> {}".format(solutions))
         return solutions
 
     def get_possible_actions_and_effects(self):
@@ -306,6 +316,11 @@ class Planner:
                 possible_actions.append(permitted)
             elif isinstance(permitted, Effect):
                 possible_effects.append(permitted)
+
+        for action in possible_actions:
+            action.pronouns = self.agent.pronouns
+        for effect in possible_effects:
+            effect.pronouns = self.agent.pronouns
 
         return possible_actions, possible_effects
 
@@ -330,24 +345,32 @@ class Planner:
                     if isinstance(action, Action):
                         # if the agent cannot perform an action inside the utterance
                         # then check if there are effects that can be performed instead
-                        actions.append(action)
-                        effects.extend(action.base_effects)
-                        effects.extend(action.extra_effects)
-                        if action not in possible_actions:
+                        copied_action = deepcopy(action)
+                        copied_action.pronouns = self.agent.pronouns
+                        actions.append(copied_action)
+                        effects.extend(copied_action.base_effects)
+                        effects.extend(copied_action.extra_effects)
+                        if copied_action not in possible_actions:
                             for effect in effects:
                                 if effect not in possible_effects:
                                     agent_can_do_all_actions_in_utterance = False
                                     break
                 if not agent_can_do_all_actions_in_utterance:
                     continue
+                for effect in effects:
+                    effect.pronouns = self.agent.pronouns
 
                 utterance_has_all_steps = True
                 # the conditions here basically checks if there is an utterance
                 # that contains all the steps in it.
                 for step in solution.steps:
+                    step.pronouns = self.agent.pronouns
                     if isinstance(step, Action) and step not in actions:
                         utterance_has_all_steps = False
                         break
+                    if isinstance(step, GainPermit):
+                        print(step)
+                        print(step.pronouns)
                     if isinstance(step, Effect) and step not in effects:
                         utterance_has_all_steps = False
                         break
@@ -363,6 +386,11 @@ class Planner:
                         possible_utterances_with_solutions.append((utterance, solution))
         if len(possible_utterances_with_solutions) == 0:
             logging.debug(solutions)
+            from socialds.managers.managers import session_manager
+            from socialds.managers.managers import message_streamer
+            message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value, ds_action_by=self.name,
+                                 ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                 message=session_manager.get_sessions_info())
             raise NoMatchingUtteranceFound
         else:
             return possible_utterances_with_solutions

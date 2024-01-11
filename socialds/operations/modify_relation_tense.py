@@ -14,6 +14,9 @@ class ModifyRelationTense(ModifyRelation):
         self.relation = relation
         self.rtense = rtense
 
+    def __str__(self):
+        return "relation: {}, rtense: {}".format(self.relation, self.rtense)
+
     # def __eq__(self, other):
     #     if isinstance(other, ModifyRelationTense):
     #         copied_self = copy(self)
@@ -30,13 +33,14 @@ class ModifyRelationTense(ModifyRelation):
 
     def execute_param_state_operations(self):
         if isinstance(self.relation, StateOperation):
-            self.relation = self.relation.execute()
+            self.relation = self.relation.execute(self.pronouns)
         elif isinstance(self.rtense, StateOperation):
-            self.rtense = self.rtense.execute()
+            self.rtense = self.rtense.execute(self.pronouns)
 
-    def execute(self) -> Relation:
-        super().execute()
+    def execute(self, pronouns, *args, **kwargs) -> Relation:
+        super().execute(pronouns, *args, **kwargs)
         self.execute_param_state_operations()
+        self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
         self.relation.rtense = self.rtense
         return self.relation

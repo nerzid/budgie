@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from socialds.enums import Tense
 from socialds.operations.stateoperation import StateOperation
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RelationStorage
 from socialds.states.relation import Relation, RType
 
@@ -30,26 +30,26 @@ class FindManyRelations(StateOperation):
 
     def execute_param_state_operations(self):
         if isinstance(self.rs, StateOperation):
-            self.rs = self.rs.execute()
+            self.rs = self.rs.execute(self.pronouns)
         elif isinstance(self.left, StateOperation):
-            self.left = self.left.execute()
+            self.left = self.left.execute(self.pronouns)
         elif isinstance(self.rtype, StateOperation):
-            self.rtype = self.rtype.execute()
+            self.rtype = self.rtype.execute(self.pronouns)
         elif isinstance(self.rtense, StateOperation):
-            self.rtense = self.rtense.execute()
+            self.rtense = self.rtense.execute(self.pronouns)
         elif isinstance(self.right, StateOperation):
-            self.right = self.right.execute()
+            self.right = self.right.execute(self.pronouns)
         elif isinstance(self.negation, StateOperation):
-            self.negation = self.negation.execute()
+            self.negation = self.negation.execute(self.pronouns)
 
     def insert_pronouns(self):
         if isinstance(self.left, DSTPronoun):
-            self.left = pronouns[self.left]
+            self.left = self.pronouns[self.left]
         elif isinstance(self.right, DSTPronoun):
-            self.right = pronouns[self.right]
+            self.right = self.pronouns[self.right]
 
-    def execute(self) -> Relation:
-        super().execute()
+    def execute(self, pronouns, *args, **kwargs) -> Relation:
+        super().execute(pronouns, *args, **kwargs)
         self.execute_param_state_operations()
         self.insert_pronouns()
         return self.rs.get_many(left=self.left,

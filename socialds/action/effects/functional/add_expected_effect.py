@@ -29,4 +29,5 @@ class AddExpectedEffect(Effect):
 
     def insert_pronouns(self):
         super().insert_pronouns()
+        self.effect.pronouns = self.pronouns
         self.effect.insert_pronouns()

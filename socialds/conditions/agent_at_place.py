@@ -5,7 +5,7 @@ from typing import List
 from socialds.action.action_time import ActionHappenedAtTime
 import socialds.agent as a
 from socialds.conditions.condition import Condition
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
 from socialds.socialpractice.context.place import Place
 from socialds.states.relation import Relation, RType
@@ -13,23 +13,28 @@ from socialds.enums import Tense
 
 
 class AgentAtPlace(Condition):
-    def __init__(self, agent: a.Agent | DSTPronoun, place: Place, tense: Tense, times: List[ActionHappenedAtTime] = None,
+    def __init__(self, agent: a.Agent | DSTPronoun, place: Place, tense: Tense,
+                 times: List[ActionHappenedAtTime] = None,
                  negation=False):
         super().__init__(tense, times, negation)
         self.agent = agent
         self.place = place
 
-    def check(self):
-        if not self.negation:
-            return self.agent.relation_storages[RSType.PLACES].contains(Relation(left=self.agent,
-                                                                                 rtype=RType.IS_AT,
-                                                                                 rtense=Tense.PRESENT,
-                                                                                 right=self.place))
+    def check(self, checker=None):
+        if isinstance(self.agent, DSTPronoun):
+            agent = checker.pronouns[self.agent]
         else:
-            return not self.agent.relation_storages[RSType.PLACES].contains(Relation(left=self.agent,
-                                                                                     rtype=RType.IS_AT,
-                                                                                     rtense=Tense.PRESENT,
-                                                                                     right=self.place))
+            agent = self.agent
+        if not self.negation:
+            return agent.relation_storages[RSType.PLACES].contains(Relation(left=agent,
+                                                                            rtype=RType.IS_AT,
+                                                                            rtense=Tense.PRESENT,
+                                                                            right=self.place))
+        else:
+            return not agent.relation_storages[RSType.PLACES].contains(Relation(left=agent,
+                                                                                rtype=RType.IS_AT,
+                                                                                rtense=Tense.PRESENT,
+                                                                                right=self.place))
 
     def __str__(self):
         tense_str = Relation.relation_types_with_tenses[RType.IS_AT][not self.negation][self.tense]
@@ -39,10 +44,10 @@ class AgentAtPlace(Condition):
         tense_str = Relation.relation_types_with_tenses[RType.IS_AT][not self.negation][self.tense]
         return "%r %r %r %r" % (self.agent, tense_str, self.place, self.get_times_str())
 
-    def insert_pronouns(self):
+    def insert_pronouns(self, pronouns):
         if isinstance(self.agent, DSTPronoun):
             self.agent = pronouns[self.agent]
-        super().insert_pronouns()
+        super().insert_pronouns(pronouns)
 # there are few options to satisfy the agent at place condition
 # first option is If I can do it, I move to the place
 # E.g., I move from this room to another room in the house

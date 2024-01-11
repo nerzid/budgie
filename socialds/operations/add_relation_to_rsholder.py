@@ -4,7 +4,6 @@ from socialds.operations.stateoperation import StateOperation
 from socialds.other.dst_pronouns import DSTPronoun
 import socialds.relationstorage as rs
 import socialds.states.relation as r
-from socialds.other.dst_pronouns import pronouns
 from socialds.rs_holder import RSHolder
 
 
@@ -18,13 +17,15 @@ class AddRelationToRSHolder(StateOperation):
 
     def execute_param_state_operations(self):
         if isinstance(self.relation, StateOperation):
-            self.relation = self.relation.execute()
+            self.relation = self.relation.execute(self.pronouns)
         elif isinstance(self.rsholder, StateOperation):
-            self.rsholder = self.rsholder.execute()
+            self.rsholder = self.rsholder.execute(self.pronouns)
         elif isinstance(self.rsholder, DSTPronoun):
-            self.rsholder = pronouns[self.rsholder]
+            self.rsholder = self.pronouns[self.rsholder]
 
-    def execute(self):
-        self.execute_param_state_operations()
+    def execute(self, pronouns, *args, **kwargs):
+        super().execute(pronouns, *args, **kwargs)
+        self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
+        self.execute_param_state_operations()
         self.rsholder.relation_storages[self.rstype].add(self.relation)

@@ -1,11 +1,9 @@
 from __future__ import annotations
 
-from socialds.agent import Agent
 from socialds.enums import Tense
-from socialds.operations.find_one_relation import FindOneRelation
 from socialds.operations.stateoperation import StateOperation
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
-from socialds.relationstorage import RSType, RelationStorage
+from socialds.other.dst_pronouns import DSTPronoun
+from socialds.relationstorage import RSType
 from socialds.socialpractice.context.resource import Resource
 from socialds.states.relation import RType, Relation
 
@@ -27,27 +25,28 @@ class FindOneRelationInResource(StateOperation):
 
     def execute_param_state_operations(self):
         if isinstance(self.resource, StateOperation):
-            self.resource = self.resource.execute()
+            self.resource = self.resource.execute(self.pronouns)
         if isinstance(self.left, StateOperation):
-            self.left = self.left.execute()
+            self.left = self.left.execute(self.pronouns)
         if isinstance(self.rtype, StateOperation):
-            self.rtype = self.rtype.execute()
+            self.rtype = self.rtype.execute(self.pronouns)
         if isinstance(self.rtense, StateOperation):
-            self.rtense = self.rtense.execute()
+            self.rtense = self.rtense.execute(self.pronouns)
         if isinstance(self.right, StateOperation):
-            self.right = self.right.execute()
+            self.right = self.right.execute(self.pronouns)
         if isinstance(self.negation, StateOperation):
-            self.negation = self.negation.execute()
+            self.negation = self.negation.execute(self.pronouns)
 
     def insert_pronouns(self):
         if isinstance(self.left, DSTPronoun):
-            self.left = pronouns[self.left]
+            self.left = self.pronouns[self.left]
         if isinstance(self.right, DSTPronoun):
-            self.right = pronouns[self.right]
+            self.right = self.pronouns[self.right]
         # if isinstance(self.agent, DSTPronoun):
         #     self.agent = pronouns[self.agent]
 
-    def execute(self) -> Relation:
+    def execute(self, pronouns, *args, **kwargs) -> Relation:
+        super().execute(pronouns, *args, **kwargs)
         self.execute_param_state_operations()
         self.insert_pronouns()
         return self.resource.relation_storages[self.rstype].get_one(left=self.left,

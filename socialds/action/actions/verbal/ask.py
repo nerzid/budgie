@@ -5,7 +5,7 @@ from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.enums import Tense
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.relation import Relation, RType
 
 
@@ -25,14 +25,17 @@ class Ask(Action):
     def __repr__(self):
         return "%r ask what %r" % (self.done_by.name, self.asked)
 
-    def insert_pronouns(self):
+    def insert_pronouns(self,):
+        self.relation.pronouns = self.pronouns
+        self.asked.pronouns = self.pronouns
         self.relation.insert_pronouns()
         self.asked.insert_pronouns()
         super().insert_pronouns()
 
-    def execute(self):
+    def execute(self, pronouns):
+        self.pronouns = pronouns
         self.insert_pronouns()
-        super().execute()
+        super().execute(pronouns)
 # joe asks color of jane's dress
 # Joe -do-> ask (Jane's dress's color -is-> X)
 

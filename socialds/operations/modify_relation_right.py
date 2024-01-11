@@ -13,13 +13,14 @@ class ModifyRelationRight(ModifyRelation):
 
     def execute_param_state_operations(self):
         if isinstance(self.relation, StateOperation):
-            self.relation = self.relation.execute()
+            self.relation = self.relation.execute(self.pronouns)
         elif isinstance(self.right, StateOperation):
-            self.right = self.right.execute()
+            self.right = self.right.execute(self.pronouns)
 
-    def execute(self) -> Relation:
-        super().execute()
+    def execute(self, pronouns, *args, **kwargs) -> Relation:
+        super().execute(pronouns, *args, **kwargs)
         self.execute_param_state_operations()
+        self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
         self.relation.right = self.right
         return self.relation

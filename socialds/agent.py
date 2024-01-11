@@ -20,16 +20,17 @@ class Agent(Object, RSHolder):
         self.roles = roles
         self.planner = Planner(self)
         self.auto = auto
-
+        from socialds.other.dst_pronouns import DSTPronoun
+        self.pronouns = {DSTPronoun.I: self,
+                         DSTPronoun.YOU: None}
         self.update_competences_from_roles()
         # adds the knowledgebase into the agent's knowledgebase
         self.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(actor.knowledgebase)
 
     def __eq__(self, other):
         from socialds.other.dst_pronouns import DSTPronoun
-        from socialds.other.dst_pronouns import pronouns
         if isinstance(other, DSTPronoun):
-            return self == pronouns[other]
+            return self == self.pronouns[other]
         elif isinstance(other, Agent):
             return (self.name == other.name
                     and self.actor == other.actor

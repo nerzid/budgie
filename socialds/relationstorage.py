@@ -73,7 +73,7 @@ class RelationStorage:
         else:
             relations_str += colored(text='Empty', color=TermColor.BLACK.value,
                                      on_color=TermColor.ON_WHITE.value) + '\n'
-        return rs_info + relations_str
+        return (rs_info + relations_str)[:-1]
 
         # def __contains__(self, relation: Relation):
 
@@ -81,6 +81,16 @@ class RelationStorage:
     #         return relation.right in self.relations[relation.left][relation.r_type][relation.negation][relation.r_tense]
     #     except KeyError:
     #         return False
+
+    def __eq__(self, other):
+        if isinstance(other, RelationStorage):
+            if len(self.relations) != len(other.relations) or self.name != other.name:
+                return False
+            for i in range(len(self.relations)):
+                if self.relations[i] != other.relations[i]:
+                    return False
+            return True
+        return False
 
     # checks for the exact relation based on the reference of relation
     def __contains__(self, item):
@@ -124,7 +134,7 @@ class RelationStorage:
         #     for time in times:
         #         if isinstance(time, NumOfTimes):
         #             time_num = time.num
-
+        # print(self.relations)
         found = False
         for relation in self.relations:
 
@@ -142,14 +152,15 @@ class RelationStorage:
                     and relation.right == right and relation.negation == negation:
                 found = True
             if found:
-                # print('YES!')
-                # print(excluded)
                 if excluded is None or len(excluded) == 0:
                     return relation
                 else:
                     if relation in excluded:
                         found = False
                         continue
+            # print("{} {} {} {} {}".format(relation.left == left, (relation.rtype == rtype or relation.rtype == RType.ANY or rtype == RType.ANY) \
+            #         , (relation.rtense == rtense or relation.rtense == Tense.ANY or rtense == Tense.ANY) \
+            #         , relation.right == right , relation.negation == negation))
         if not found:
             return None
 

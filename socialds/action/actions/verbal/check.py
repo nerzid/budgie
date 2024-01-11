@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+from typing import List
+
 from socialds.enums import Tense
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
-from socialds.relationstorage import RelationStorage
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.relation import Relation, RType
 
 
@@ -23,13 +24,19 @@ class Check(Action):
         return "%r check if %r" % (self.done_by, self.checked)
 
     def insert_pronouns(self):
+        self.relation.pronouns = self.pronouns
+        self.checked.pronouns = self.pronouns
         self.relation.insert_pronouns()
         self.checked.insert_pronouns()
         super().insert_pronouns()
 
-    def execute(self):
+    def execute(self, pronouns):
+        self.pronouns = pronouns
         self.insert_pronouns()
-        super().execute()
+        super().execute(pronouns)
+
+    def get_requirement_holders(self) -> List:
+        pass
 
 # joe asks color of jane's dress
 # Joe -do-> ask (Jane's dress's color -is-> X)

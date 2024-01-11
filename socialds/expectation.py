@@ -38,7 +38,7 @@ class Expectation:
         self.actions_left = copy(action_seq)
         self.actions_done = []
 
-    def update_status(self):
+    def update_status(self, agent):
         actions_to_removed = []
         for action in self.actions_left:
             from socialds.action.action import Action

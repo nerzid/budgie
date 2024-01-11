@@ -15,8 +15,8 @@ class Requirement(Relation):
         self.required_for = required_for
         self.required = required
 
-    def check(self):
+    def check(self, checker):
         all_true = True
         for condition in self.required:
-            all_true = all_true and condition.check()
+            all_true = all_true and condition.check(checker)
         return all_true

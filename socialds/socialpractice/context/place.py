@@ -19,6 +19,7 @@ class Place(RSHolder):
 
     def __eq__(self, other):
         from socialds.any.any_place import AnyPlace
+        # print('this: {}, other: {}'.format(self, other))
         if isinstance(other, AnyPlace):
             return True
         else:

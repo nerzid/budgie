@@ -2,10 +2,11 @@ from socialds.conditions.condition import Condition
 
 
 class Goal:
-    def __init__(self, name: str, conditions: [Condition], desc: str = ''):
+    def __init__(self, owner, name: str, conditions: [Condition], desc: str = ''):
         self.name = name
         self.desc = desc
         self.conditions = conditions
+        self.owner = owner
 
     def is_reached(self):
         """
@@ -14,6 +15,7 @@ class Goal:
         """
         reached = True
         for condition in self.conditions:
+            # print(condition)
             reached = reached and condition.check()
         return reached
 

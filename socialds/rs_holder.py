@@ -19,26 +19,26 @@ class RSHolder:
         if self.relation_storages is None:
             if rsholder_type is RSHolderType.AGENT:
                 self.relation_storages = {
-                    rs.RSType.KNOWLEDGEBASE: rs.RelationStorage(rsholder_name + ' Knowledgebase'),
-                    rs.RSType.FORGOTTEN: rs.RelationStorage(rsholder_name + ' Forgotten'),
-                    rs.RSType.COMPETENCES: rs.RelationStorage(rsholder_name + ' Competences'),
-                    rs.RSType.PERMITS: rs.RelationStorage(rsholder_name + ' Permits'),
-                    rs.RSType.RESOURCES: rs.RelationStorage(rsholder_name + ' Resources'),
-                    rs.RSType.PLACES: rs.RelationStorage(rsholder_name + ' Places'),
-                    rs.RSType.EXPECTED_ACTIONS: rs.RelationStorage(rsholder_name + ' Expected Actions'),
-                    rs.RSType.EXPECTED_EFFECTS: rs.RelationStorage(rsholder_name + ' Expected Effects'),
-                    rs.RSType.VALUES: rs.RelationStorage(rsholder_name + ' Values'),
-                    rs.RSType.REQUIREMENTS: rs.RelationStorage(rsholder_name + ' Requirements')
+                    rs.RSType.KNOWLEDGEBASE: rs.RelationStorage(rsholder_name + '\'s Knowledgebase'),
+                    rs.RSType.FORGOTTEN: rs.RelationStorage(rsholder_name + '\'s Forgotten'),
+                    rs.RSType.COMPETENCES: rs.RelationStorage(rsholder_name + '\'s Competences'),
+                    rs.RSType.PERMITS: rs.RelationStorage(rsholder_name + '\'s Permits'),
+                    rs.RSType.RESOURCES: rs.RelationStorage(rsholder_name + '\'s Resources'),
+                    rs.RSType.PLACES: rs.RelationStorage(rsholder_name + '\'s Places'),
+                    rs.RSType.EXPECTED_ACTIONS: rs.RelationStorage(rsholder_name + '\'s Expected Actions'),
+                    rs.RSType.EXPECTED_EFFECTS: rs.RelationStorage(rsholder_name + '\'s Expected Effects'),
+                    rs.RSType.VALUES: rs.RelationStorage(rsholder_name + '\'s Values'),
+                    rs.RSType.REQUIREMENTS: rs.RelationStorage(rsholder_name + '\'s Requirements')
                 }
             elif rsholder_type is RSHolderType.RESOURCE:
                 self.relation_storages = {
-                    rs.RSType.PROPERTIES: rs.RelationStorage(rsholder_name + ' Properties'),
-                    rs.RSType.PLACES: rs.RelationStorage(rsholder_name + ' Places'),
-                    rs.RSType.REQUIREMENTS: rs.RelationStorage(rsholder_name + ' Requirements')
+                    rs.RSType.PROPERTIES: rs.RelationStorage(rsholder_name + '\'s Properties'),
+                    rs.RSType.PLACES: rs.RelationStorage(rsholder_name + '\'s Places'),
+                    rs.RSType.REQUIREMENTS: rs.RelationStorage(rsholder_name + '\'s Requirements')
                 }
             elif rsholder_type is RSHolderType.PLACE:
                 self.relation_storages = {
-                    rs.RSType.PROPERTIES: rs.RelationStorage(rsholder_name + ' Properties'),
-                    rs.RSType.PLACES: rs.RelationStorage(rsholder_name + ' Places'),
-                    rs.RSType.REQUIREMENTS: rs.RelationStorage(rsholder_name + ' Requirements')
+                    rs.RSType.PROPERTIES: rs.RelationStorage(rsholder_name + '\'s Properties'),
+                    rs.RSType.PLACES: rs.RelationStorage(rsholder_name + '\'s Places'),
+                    rs.RSType.REQUIREMENTS: rs.RelationStorage(rsholder_name + '\'s Requirements')
                 }

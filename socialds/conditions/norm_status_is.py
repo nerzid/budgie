@@ -14,5 +14,5 @@ class NormStatusIs(Condition):
         self.norm = norm
         self.norm_status = norm_status
 
-    def check(self):
+    def check(self, checker=None):
         return self.norm.norm_status == self.norm_status

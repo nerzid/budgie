@@ -1,4 +1,4 @@
-from operations.operation import Operation
+from socialds.operations.operation import Operation
 
 
 # this operation for the acts that cannot (or not yet) be lowered down to State Operations.

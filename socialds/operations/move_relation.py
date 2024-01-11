@@ -23,15 +23,16 @@ class MoveRelation(StateOperation):
     def execute_param_state_operations(self):
         super().execute_param_state_operations()
         if isinstance(self.relation, StateOperation):
-            self.relation.execute()
+            self.relation.execute(self.pronouns)
         elif isinstance(self.from_rs, StateOperation):
-            self.from_rs.execute()
+            self.from_rs.execute(self.pronouns)
         elif isinstance(self.to_rs, StateOperation):
-            self.to_rs.execute()
+            self.to_rs.execute(self.pronouns)
 
-    def execute(self):
-        super().execute()
+    def execute(self, pronouns, *args, **kwargs):
+        super().execute(pronouns, *args, **kwargs)
         self.execute_param_state_operations()
+        self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
         self.from_rs.remove(self.relation)
         self.to_rs.add(self.relation)

@@ -235,6 +235,8 @@ def sp_main():
 
     # Utterances
     utterances = [
+        Utterance("---Do nothing---", []),
+
         Utterance("Hi!", [
             Greet()
         ]),
@@ -492,7 +494,8 @@ def sp_main():
                         greeting_norm
                     ],
                     end_goals=[
-                        Goal(name='Patient is ready',
+                        Goal(owner=any_agent,
+                             name='Patient is ready',
                              desc='Patient and doctor greeted each other and patient is ready to talk',
                              conditions=[
                                  ExpectationStatusIs(expectation=greeting_norm,
@@ -506,7 +509,8 @@ def sp_main():
                         AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=places_office)
                     ],
                     end_goals=[
-                        Goal(name='Patient explained the problem',
+                        Goal(owner=any_agent,
+                             name='Patient explained the problem',
                              conditions=[
                                  AgentKnows(agent=agent2, tense=Tense.PRESENT,
                                             knows=Relation(left=p_problem_description,
@@ -523,7 +527,8 @@ def sp_main():
                                                                                      right=AnyProperty()))
                     ],
                     end_goals=[
-                        Goal(name='Doctor asked all the necessary questions before physical examination',
+                        Goal(owner=any_agent,
+                             name='Doctor asked all the necessary questions before physical examination',
                              conditions=[
                                  AgentKnows(agent=agent2, tense=Tense.PRESENT, knows=Relation(left=p_veins_in_left_eye,
                                                                                               rtype=RType.IS,
@@ -539,6 +544,5 @@ def sp_main():
     # Dialogue System initialization
     ds = DialogueSystem(agents=[agent1, agent2], utterances=utterances)
     return ds
-
 
 # asyncio.run(main())

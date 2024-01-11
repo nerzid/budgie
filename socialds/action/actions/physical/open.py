@@ -3,7 +3,7 @@ from __future__ import annotations
 from socialds.agent import Agent
 from socialds.action.action_obj import ActionObjType
 from socialds.action.simple_action import SimpleAction
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 
 
 class Open(SimpleAction):

@@ -32,4 +32,5 @@ class GainKnowledge(Effect):
 
     def insert_pronouns(self):
         super().insert_pronouns()
+        self.knowledge.pronouns = self.pronouns
         self.knowledge.insert_pronouns()

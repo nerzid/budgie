@@ -6,7 +6,7 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.agent import Agent
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.property import Property
 from socialds.states.relation import Relation
 
@@ -26,3 +26,7 @@ class Prescribe(Action):
 
     def __repr__(self):
         return "%r prescribe %r for %r %r" % (self.done_by, self.prescribed, self.recipient, self.get_times_str())
+
+    def get_requirement_holders(self) -> List:
+        return self.prescribed
+

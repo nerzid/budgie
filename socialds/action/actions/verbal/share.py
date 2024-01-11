@@ -6,8 +6,7 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
-from socialds.relationstorage import RSType
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.relation import Relation
 
 
@@ -29,9 +28,11 @@ class Share(Action):
         return "%r share %r with %r" % (self.done_by, self.relation, self.recipient)
 
     def insert_pronouns(self):
+        self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
         super().insert_pronouns()
 
-    def execute(self):
+    def execute(self, pronouns):
+        self.pronouns = pronouns
         self.insert_pronouns()
-        super().execute()
+        super().execute(pronouns)

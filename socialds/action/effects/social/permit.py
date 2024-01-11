@@ -4,10 +4,9 @@ from typing import List
 
 from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.effect import Effect
-from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.action.effects.social.gain_permit import GainPermit
 from socialds.agent import Agent
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.action.action import Action
 from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
@@ -40,11 +39,14 @@ class Permit(Action):
 
     def insert_pronouns(self):
         if isinstance(self.permit_given_to, DSTPronoun):
-            self.permit_given_to = pronouns[self.permit_given_to]
+            self.permit_given_to = self.pronouns[self.permit_given_to]
+        self.permitted.pronouns = self.pronouns
+        self.relation.pronouns = self.pronouns
         self.permitted.insert_pronouns()
         self.relation.insert_pronouns()
         super().insert_pronouns()
 
-    def execute(self):
+    def execute(self, pronouns):
+        self.pronouns = pronouns
         self.insert_pronouns()
-        super().execute()
+        super().execute(pronouns)

@@ -4,8 +4,7 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.agent import Agent
-from socialds.other.dst_pronouns import DSTPronoun, pronouns
-from socialds.relationstorage import RSType
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.relation import Relation
 
 
@@ -30,9 +29,11 @@ class Deduce(Action):
         return "%r deduce that %r" % (self.done_by.name, self.deduced)
 
     def insert_pronouns(self):
+        self.deduced.pronouns = self.pronouns
         self.deduced.insert_pronouns()
         super().insert_pronouns()
 
-    def execute(self):
+    def execute(self, pronouns):
+        self.pronouns = pronouns
         self.insert_pronouns()
-        super().execute()
+        super().execute(pronouns)
