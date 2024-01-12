@@ -1,16 +1,21 @@
 import eventlet
+
+from settings import SERVER_HOST, SERVER_PORT, SERVER_DEBUG_MODE, SECRET_KEY
+
 eventlet.monkey_patch()
 
 from flask import Flask, request
 from flask_cors import cross_origin, CORS
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO
 
-from doctors_visit_sp import sp_main
+from socialds.examples.doctors_visit_sp import sp_main
 from socialds.enums import DSAction
 from socialds.managers.managers import message_streamer
 
+
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SECRET_KEY'] = SECRET_KEY
 socketio = SocketIO(app, async_mode='eventlet', cors_allowed_origins="*")
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 ds = sp_main()
@@ -22,7 +27,6 @@ def send_message():
     message = request.json
     print(message)
     if message.get('ds_action') == DSAction.START_DIALOGUE.value:
-        print('DIALOGUE STARTS HERE!!!!!!!!!!!!')
         ds.get_menu_options()
     elif message.get('ds_action') == DSAction.USER_CHOSE_MENU_OPTION.value:
         menu_option = message.get('message')
@@ -55,5 +59,4 @@ def start_streaming_data():
 if __name__ == '__main__':
     message_streamer.on_message_added.subscribe(start_streaming_data)
     ds.run()
-    socketio.run(app, debug=True, port=[REDACTED_PORT])
-    # asyncio.get_event_loop().run_forever()
+    socketio.run(app, debug=SERVER_DEBUG_MODE, host=SERVER_HOST, port=SERVER_PORT)

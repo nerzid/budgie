@@ -1,9 +1,4 @@
-# convokit==2.5.3
-# parlai==1.7.1
-# spacy==3.5.2
-questionary==2.0.1
-pyyaml==6.0.1
-termcolor~=2.3.0
-requests~=2.31.0
-flask~=3.0.0
-eventlet~=0.34.2
+eventlet==0.34.3
+Flask==3.0.0
+Flask_Cors==4.0.0
+Flask_SocketIO==5.3.6

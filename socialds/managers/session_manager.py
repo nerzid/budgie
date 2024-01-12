@@ -152,7 +152,7 @@ class SessionManager:
             info += colored(text='End Goals\n', color=TermColor.LIGHT_MAGENTA.value)
             for goal in session.end_goals:
                 info += textwrap.indent(text="Goal: %s\n" % goal.name, prefix='  ')
-                if goal.desc is not '':
+                if goal.desc != '':
                     info += textwrap.indent(text="Desc: %s\n" % goal.desc, prefix='    ')
                 info += textwrap.indent(text='Conditions:\n', prefix='    ')
                 for condition in goal.conditions:
