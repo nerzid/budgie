@@ -18,8 +18,10 @@ from socialds.any.any_agent import AnyAgent
 from socialds.any.any_resource import AnyResource
 from socialds.enums import DSActionByType, DSAction
 from socialds.other.dst_pronouns import DSTPronoun
+from socialds.other.event_listener import EventListener
 from socialds.socialpractice.context.resource import Resource
 from socialds.managers.managers import action_manager, message_streamer
+from socialds.managers.managers import session_manager
 
 
 class ActionFailed(Exception):
@@ -62,6 +64,10 @@ class Action(ActionObj):
         self.target_resource = target_resource
         self.specific = specific
         self.execution_time = execution_time
+        self.on_action_finished_executing = EventListener()
+        self.on_action_finished_executing.subscribe(session_manager.update_expectations)
+        self.on_action_finished_executing.subscribe(session_manager.update_session_statuses)
+
         if times is None:
             times = []
         if extra_effects is None:
@@ -151,6 +157,7 @@ class Action(ActionObj):
                                  reason='Reason: {}'.format(repr(e)))
         finally:
             action_manager.ongoing_actions.remove(self)
+            self.on_action_finished_executing.invoke(self.done_by)
 
     def change_done_by(self, agent: a.Agent | DSTPronoun):
         self.done_by = agent

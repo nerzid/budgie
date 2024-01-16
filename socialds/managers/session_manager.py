@@ -45,6 +45,11 @@ class SessionManager:
             return ongoing_sessions
 
     @staticmethod
+    def update_expectations(agent):
+        for expectation in vars.expectations:
+            expectation.update_status(agent)
+
+    @staticmethod
     def update_session_statuses(agent):
         for session in vars.sessions:
             # No need to update the status of session if it is already completed or failed
@@ -121,11 +126,18 @@ class SessionManager:
             info += session.name + '\n'
             info += 'Start Conditions' + '\n'
             for condition in session.start_conditions:
-                info += str(condition) + '\n'
+                condition_str = ('Not Satisfied', 'Satisfied')[condition.check()]
+                condition_str += ' -> '
+                condition_str += str(condition) + '\n'
+                info += condition_str
 
             info += 'End Conditions' + '\n'
-            for condition in session.end_goals:
-                info += str(condition) + '\n'
+            for goal in session.end_goals:
+                for condition in goal.conditions:
+                    condition_str = ('Not Satisfied', 'Satisfied')[condition.check()]
+                    condition_str += ' -> '
+                    condition_str += str(condition) + '\n'
+                    info += condition_str
         return info
 
     @staticmethod

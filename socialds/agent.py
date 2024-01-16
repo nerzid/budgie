@@ -29,9 +29,7 @@ class Agent(Object, RSHolder):
 
     def __eq__(self, other):
         from socialds.other.dst_pronouns import DSTPronoun
-        if isinstance(other, DSTPronoun):
-            return self == self.pronouns[other]
-        elif isinstance(other, Agent):
+        if isinstance(other, Agent):
             return (self.name == other.name
                     and self.actor == other.actor
                     and self.roles == other.roles

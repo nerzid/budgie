@@ -388,7 +388,8 @@ class Planner:
             logging.debug(solutions)
             from socialds.managers.managers import session_manager
             from socialds.managers.managers import message_streamer
-            message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value, ds_action_by=self.name,
+            message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value,
+                                 ds_action_by=self.name,
                                  ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
                                  message=session_manager.get_sessions_info())
             raise NoMatchingUtteranceFound

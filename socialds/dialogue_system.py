@@ -126,6 +126,8 @@ class DialogueSystem:
                                                    right=action))
                 vars.last_turn_actions.append(action)
 
+        # self.update_expectations(agent)
+        # self.session_manager.update_session_statuses(agent)
 
         if not self.allow_duplicate_utterances:
             self.remove_utterance(utterance)
@@ -135,12 +137,6 @@ class DialogueSystem:
         else:
             self.on_auto_executed_all_actions_from_utterance.invoke()
 
-        self.update_expectations(agent)
-        self.session_manager.update_session_statuses(agent)
-
-    def update_expectations(self, agent):
-        for expectation in vars.expectations:
-            expectation.update_status(agent)
 
     def get_menu_options(self):
         message_streamer.add(ds_action=DSAction.REQUEST_USER_CHOOSE_MENU_OPTION.value,
