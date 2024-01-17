@@ -29,12 +29,14 @@ class AgentAtPlace(Condition):
             return agent.relation_storages[RSType.PLACES].contains(Relation(left=agent,
                                                                             rtype=RType.IS_AT,
                                                                             rtense=Tense.PRESENT,
-                                                                            right=self.place))
+                                                                            right=self.place),
+                                                                   pronouns=checker.pronouns)
         else:
             return not agent.relation_storages[RSType.PLACES].contains(Relation(left=agent,
                                                                                 rtype=RType.IS_AT,
                                                                                 rtense=Tense.PRESENT,
-                                                                                right=self.place))
+                                                                                right=self.place),
+                                                                       pronouns=checker.pronouns)
 
     def __str__(self):
         tense_str = Relation.relation_types_with_tenses[RType.IS_AT][not self.negation][self.tense]

@@ -28,6 +28,13 @@ class Agent(Object, RSHolder):
         self.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(actor.knowledgebase)
 
     def __eq__(self, other):
+        """
+        Do not use this method! Therefore, don't use agent in some_agent_list either.
+        In order for the pronouns to be inserted correctly, it needs to receiver pronouns
+        from outside. Specifically, it should use the pronouns who executes the action/effect
+        @param other:
+        @return:
+        """
         from socialds.other.dst_pronouns import DSTPronoun
         if isinstance(other, Agent):
             return (self.name == other.name
@@ -35,6 +42,26 @@ class Agent(Object, RSHolder):
                     and self.roles == other.roles
                     and self.relation_storages == other.relation_storages
                     and self.auto == other.auto)
+        return False
+
+    def equals_with_pronouns(self, other, pronouns):
+        from socialds.other.dst_pronouns import DSTPronoun
+        if isinstance(self, DSTPronoun):
+            _self = pronouns[self]
+        else:
+            _self = self
+
+        if isinstance(other, DSTPronoun):
+            _other = pronouns[other]
+        else:
+            _other = other
+
+        if isinstance(other, Agent):
+            return (_self.name == _other.name
+                    and _self.actor == _other.actor
+                    and _self.roles == _other.roles
+                    and _self.relation_storages == _other.relation_storages
+                    and _self.auto == _other.auto)
         return False
 
     def __repr__(self):

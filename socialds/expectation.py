@@ -4,7 +4,7 @@ from typing import List
 
 import socialds.other.variables as vars
 from socialds.action.action_obj import ActionObj
-from socialds.enums import Tense
+from socialds.enums import Tense, DSAction, DSActionByType
 from socialds.states.relation import Relation, RType
 
 
@@ -39,11 +39,13 @@ class Expectation:
         self.actions_done = []
 
     def update_status(self, agent):
+        from socialds.managers.managers import message_streamer
         actions_to_removed = []
         for action in self.actions_left:
             from socialds.action.action import Action
             if isinstance(action, Action):
-                if action in vars.last_turn_actions and action not in actions_to_removed:
+                if action.is_action_in_list(vars.last_turn_actions, agent.pronouns) \
+                        and not action.is_action_in_list(actions_to_removed, agent.pronouns):
                     actions_to_removed.append(action)
                     self.status = ExpectationStatus.ONGOING
                     continue
@@ -53,18 +55,27 @@ class Expectation:
         if len(self.actions_left) == 0:
             if self.status is not ExpectationStatus.COMPLETED:
                 self.status = ExpectationStatus.COMPLETED
-                print('EXPECTATION: ' + self.name + ' COMPLETED!')
+                message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                     ds_action_by='Dialogue System',
+                                     message='Expectation {} is completed!'.format(self.name),
+                                     ds_action=DSAction.DISPLAY_LOG.value)
             elif self.status is ExpectationStatus.COMPLETED:
                 pass
             else:
                 self.status = ExpectationStatus.FAILED
-                print('EXPECTATION: ' + self.name + ' FAILED!')
+                message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                     ds_action_by='Dialogue System',
+                                     message='Expectation {} is failed!'.format(self.name),
+                                     ds_action=DSAction.DISPLAY_LOG.value)
 
     def get_next_not_executed_action(self):
         if len(self.actions_left) == 0:
             if self.status is not ExpectationStatus.FAILED:
                 self.status = ExpectationStatus.COMPLETED
-                print('EXPECTATION: ' + self.name + ' COMPLETED!')
+                message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                     ds_action_by='Dialogue System',
+                                     message='Expectation {} is completed!'.format(self.name),
+                                     ds_action=DSAction.DISPLAY_LOG.value)
             return None
         else:
             return self.actions_left[0]

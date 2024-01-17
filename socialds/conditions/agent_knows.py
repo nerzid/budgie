@@ -28,9 +28,9 @@ class AgentKnows(Condition):
         else:
             agent = self.agent
         if not self.negation:
-            return agent.relation_storages[RSType.KNOWLEDGEBASE].contains(self.knows)
+            return agent.relation_storages[RSType.KNOWLEDGEBASE].contains(self.knows, pronouns=checker.pronouns)
         else:
-            return not self.agent.relation_storages[RSType.PLACES].contains(self.knows)
+            return not self.agent.relation_storages[RSType.PLACES].contains(self.knows, pronouns=checker.pronouns)
 
     def __str__(self):
         tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
@@ -41,7 +41,7 @@ class AgentKnows(Condition):
         return "%r %r know %r %s" % (self.agent, tense_str, self.knows, self.get_times_str())
 
     def insert_pronouns(self, pronouns):
-        if isinstance(self.agent ,DSTPronoun):
+        if isinstance(self.agent, DSTPronoun):
             self.agent = pronouns[self.agent]
         self.knows.pronouns = pronouns
         self.knows.insert_pronouns()

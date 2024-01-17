@@ -35,9 +35,9 @@ class AgentCanDo(Condition):
         rel = Relation(left=copied_action.done_by, rtype=RType.ACTION, rtense=Tense.PAST, right=copied_action)
 
         if self.negation:
-            return rel not in agent.relation_storages[RSType.COMPETENCES]
+            return not agent.relation_storages[RSType.COMPETENCES].contains(rel, checker.pronouns)
         else:
-            return rel in agent.relation_storages[RSType.COMPETENCES]
+            return agent.relation_storages[RSType.COMPETENCES].contains(rel, checker.pronouns)
 
     def __str__(self):
         tense_str = Relation.relation_types_with_tenses[RType.CAN][not self.negation][self.tense]

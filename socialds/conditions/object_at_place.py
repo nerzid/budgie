@@ -38,12 +38,14 @@ class ObjectAtPlace(Condition):
             return rsholder.relation_storages[RSType.PLACES].contains(Relation(left=rsholder,
                                                                                rtype=RType.IS_AT,
                                                                                rtense=Tense.PRESENT,
-                                                                               right=self.place))
+                                                                               right=self.place),
+                                                                      pronouns=checker.pronouns)
         else:
             return not rsholder.relation_storages[RSType.PLACES].contains(Relation(left=self.rsholder,
                                                                                    rtype=RType.IS_AT,
                                                                                    rtense=Tense.PRESENT,
-                                                                                   right=self.place))
+                                                                                   right=self.place),
+                                                                          pronouns=checker.pronouns)
 
     def __str__(self):
         return "%s %s %s %s" % (

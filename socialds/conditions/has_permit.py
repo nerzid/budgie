@@ -32,16 +32,16 @@ class HasPermit(Condition):
         if isinstance(copied_permit, DSTPronounHolder):
             copied_permit.pronouns = checker.pronouns
         copied_permit.insert_pronouns()
+
+        rel_result = agent.relation_storages[RSType.PERMITS].contains(Relation(left=agent, rtype=RType.IS_PERMITTED_TO, rtense=Tense.PRESENT, right=copied_permit,
+                            negation=self.negation), pronouns=checker.pronouns)
         print("CHECKER -> {}".format(checker))
         print("PERMIT -> {}".format(copied_permit))
-        print("HAS PERMIT? -> {}".format(Relation(left=agent, rtype=RType.IS_PERMITTED_TO, rtense=Tense.PRESENT, right=copied_permit,
-                            negation=self.negation) in agent.relation_storages[RSType.PERMITS]))
+        print("HAS PERMIT? -> {}".format(rel_result))
         if not self.negation:
-            return Relation(left=agent, rtype=RType.IS_PERMITTED_TO, rtense=Tense.PRESENT, right=copied_permit,
-                            negation=self.negation) in agent.relation_storages[RSType.PERMITS]
+            return rel_result
         else:
-            return Relation(left=agent, rtype=RType.IS_PERMITTED_TO, rtense=Tense.PRESENT, right=copied_permit,
-                            negation=self.negation) not in agent.relation_storages[RSType.PERMITS]
+            return not rel_result
 
     def insert_pronouns(self, pronouns):
         if isinstance(self.agent, DSTPronoun):

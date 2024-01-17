@@ -7,8 +7,9 @@ class Goal:
         self.desc = desc
         self.conditions = conditions
         self.owner = owner
+        self.is_reached_first_time = False
 
-    def is_reached(self):
+    def is_reached(self, checker):
         """
         Checks if the goal is reached
         :return: True if all the conditions yield true
@@ -16,7 +17,16 @@ class Goal:
         reached = True
         for condition in self.conditions:
             # print(condition)
-            reached = reached and condition.check()
+            reached = reached and condition.check(checker)
+        if not self.is_reached_first_time and reached:
+            self.is_reached_first_time = True
+            from socialds.managers.managers import message_streamer
+            from socialds.enums import DSAction
+            from socialds.enums import DSActionByType
+            message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value,
+                                 ds_action_by='Dialogue System',
+                                 ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                 message='Goal {} is reached!'.format(self.name))
         return reached
 
     def __str__(self):

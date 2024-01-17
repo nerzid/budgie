@@ -17,7 +17,7 @@ import socialds.agent as a
 from socialds.any.any_agent import AnyAgent
 from socialds.any.any_resource import AnyResource
 from socialds.enums import DSActionByType, DSAction
-from socialds.other.dst_pronouns import DSTPronoun
+from socialds.other.dst_pronouns import DSTPronoun, get_agent
 from socialds.other.event_listener import EventListener
 from socialds.socialpractice.context.resource import Resource
 from socialds.managers.managers import action_manager, message_streamer
@@ -94,6 +94,51 @@ class Action(ActionObj):
             return other == self
         return False
 
+    def equals_with_pronouns(self, other, pronouns):
+        if isinstance(other, Action):
+            self_done_by = get_agent(self.done_by, pronouns)
+            other_done_by = get_agent(other.done_by, pronouns)
+            self_recipient = get_agent(self.recipient, pronouns)
+            other_recipient = get_agent(other.recipient, pronouns)
+
+            recipient_equality = True
+            if self_recipient is not None:
+                recipient_equality = (self_recipient.equals_with_pronouns(other_recipient, pronouns)
+                                      or isinstance(other.recipient, AnyAgent) or isinstance(self_recipient, AnyAgent))
+            for e1 in self.base_effects:
+                found = False
+                for e2 in other.base_effects:
+                    if e1.equals_with_pronouns(e2, pronouns):
+                        found = True
+                if not found:
+                    return False
+
+            for e1 in self.extra_effects:
+                found = False
+                for e2 in other.extra_effects:
+                    if e1.equals_with_pronouns(e2, pronouns):
+                        found = True
+                if not found:
+                    return False
+
+            return ((self.name == other.name)
+                    and (self_done_by.equals_with_pronouns(other_done_by, pronouns)
+                         or isinstance(other_done_by, AnyAgent) or isinstance(self_done_by, AnyAgent))
+                    and (self.act_type == other.act_type or other.act_type == ActionObjType.ANY)
+                    and recipient_equality
+                    and (self.target_resource == other.target_resource or isinstance(self.target_resource, AnyResource)))
+        elif isinstance(other, Effect):
+            # this uses the __eq__ in Effect class. This code exist to cop&paste the same code in the Effect class
+            if len(self.base_effects + self.extra_effects) == 1:
+                return (self.base_effects + self.extra_effects)[0].equals_with_pronouns(other, pronouns)
+        return False
+
+    def is_action_in_list(self, actions, pronouns):
+        for act in actions:
+            if self.equals_with_pronouns(act, pronouns):
+                return True
+        return False
+
     @abstractmethod
     def get_requirement_holders(self) -> List:
         """
@@ -156,7 +201,7 @@ class Action(ActionObj):
                                  message='Execution of {} is failed'.format(self.name),
                                  reason='Reason: {}'.format(repr(e)))
         finally:
-            action_manager.ongoing_actions.remove(self)
+            action_manager.remove_action(self, pronouns)
             self.on_action_finished_executing.invoke(self.done_by)
 
     def change_done_by(self, agent: a.Agent | DSTPronoun):

@@ -14,9 +14,13 @@ class DSTPronoun(Enum):
         return "%s" % self.value
 
 
-pronouns = {
-    DSTPronoun.I: None,
-    DSTPronoun.YOU: None,
-    DSTPronoun.ANY: None,
-    DSTPronoun.EVERYONE: None
-}
+def get_agent(agent, pronouns):
+    if isinstance(agent, DSTPronoun):
+        return pronouns[agent]
+    return agent
+
+
+def pronounify(thing, pronouns):
+    if isinstance(thing, DSTPronoun):
+        return pronouns[thing]
+    return thing

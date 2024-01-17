@@ -83,7 +83,7 @@ class Planner:
         # After the goal is reached, it moves to next goal and plans accordingly
         # all_goals = all_goals + self.create_goals_from_expected_actions() + self.create_goals_from_expected_effects()
         for goal in all_goals:
-            if goal.is_reached():
+            if goal.is_reached(self.agent):
                 continue
             else:
                 # all_conditions.extend(goal.conditions)
@@ -100,7 +100,7 @@ class Planner:
 
         condition_solutions = []
         for condition in all_conditions:
-            if condition.check():
+            if condition.check(self.agent):
                 continue
             if isinstance(condition, AgentDoesAction):
                 condition_solutions.append(
@@ -121,7 +121,7 @@ class Planner:
                                       ])
                 )
             elif isinstance(condition, AgentKnows):
-                if condition.agent == DSTPronoun.I:
+                if self.agent.equals_with_pronouns(condition.agent, self.agent.pronouns):
                     condition_solutions.append(
                         ConditionSolution(condition=condition,
                                           desc='by learning it',
@@ -255,14 +255,13 @@ class Planner:
             exclude_solution = False
             for step in solution.steps:
                 if isinstance(step, Action):
-                    if step not in possible_actions:
+                    if not step.is_action_in_list(possible_actions, self.agent.pronouns):
                         print("{} step {} not in possible actions {}".format(self.agent, step, possible_actions))
                         exclude_solution = True
                         break
                 elif isinstance(step, Effect):
-                    step.pronouns = self.agent.pronouns
                     print(step.pronouns)
-                    if step not in possible_effects:
+                    if not step.is_effect_in_list(possible_effects, self.agent.pronouns):
                         print("{} step {} not in possible effects {}".format(self.agent, step, possible_effects))
                         exclude_solution = True
                         break
@@ -317,11 +316,6 @@ class Planner:
             elif isinstance(permitted, Effect):
                 possible_effects.append(permitted)
 
-        for action in possible_actions:
-            action.pronouns = self.agent.pronouns
-        for effect in possible_effects:
-            effect.pronouns = self.agent.pronouns
-
         return possible_actions, possible_effects
 
     def get_possible_utterances_with_solutions(self, solutions: List[ConditionSolution]):
@@ -346,32 +340,25 @@ class Planner:
                         # if the agent cannot perform an action inside the utterance
                         # then check if there are effects that can be performed instead
                         copied_action = deepcopy(action)
-                        copied_action.pronouns = self.agent.pronouns
                         actions.append(copied_action)
                         effects.extend(copied_action.base_effects)
                         effects.extend(copied_action.extra_effects)
-                        if copied_action not in possible_actions:
+                        if not copied_action.is_action_in_list(possible_actions, self.agent.pronouns):
                             for effect in effects:
-                                if effect not in possible_effects:
+                                if not effect.is_effect_in_list(possible_effects, self.agent.pronouns):
                                     agent_can_do_all_actions_in_utterance = False
                                     break
                 if not agent_can_do_all_actions_in_utterance:
                     continue
-                for effect in effects:
-                    effect.pronouns = self.agent.pronouns
 
                 utterance_has_all_steps = True
                 # the conditions here basically checks if there is an utterance
                 # that contains all the steps in it.
                 for step in solution.steps:
-                    step.pronouns = self.agent.pronouns
-                    if isinstance(step, Action) and step not in actions:
+                    if isinstance(step, Action) and not step.is_action_in_list(actions, self.agent.pronouns):
                         utterance_has_all_steps = False
                         break
-                    if isinstance(step, GainPermit):
-                        print(step)
-                        print(step.pronouns)
-                    if isinstance(step, Effect) and step not in effects:
+                    if isinstance(step, Effect) and not step.is_effect_in_list(effects, self.agent.pronouns):
                         utterance_has_all_steps = False
                         break
                 if utterance_has_all_steps:
@@ -380,9 +367,9 @@ class Planner:
 
                 # checks if there are any matching utterances that contains the first solution step
                 for step in solution.steps:
-                    if isinstance(step, Action) and step in actions:
+                    if isinstance(step, Action) and step.is_action_in_list(actions, self.agent.pronouns):
                         possible_utterances_with_solutions.append((utterance, solution))
-                    if isinstance(step, Effect) and step in effects:
+                    if isinstance(step, Effect) and step.is_effect_in_list(effects, self.agent.pronouns):
                         possible_utterances_with_solutions.append((utterance, solution))
         if len(possible_utterances_with_solutions) == 0:
             logging.debug(solutions)
@@ -391,7 +378,7 @@ class Planner:
             message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value,
                                  ds_action_by=self.name,
                                  ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                 message=session_manager.get_sessions_info())
+                                 message=session_manager.get_sessions_info(self.agent))
             raise NoMatchingUtteranceFound
         else:
             return possible_utterances_with_solutions

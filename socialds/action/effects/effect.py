@@ -21,6 +21,11 @@ class Effect(SolutionStep, DSTPronounHolder):
         self.affected = affected
 
     def __eq__(self, other):
+        """
+        Use equals_with_pronouns instead
+        @param other:
+        @return:
+        """
         from socialds.any.any_agent import AnyAgent
         from socialds.action.action import Action
 
@@ -37,7 +42,8 @@ class Effect(SolutionStep, DSTPronounHolder):
                 other_affected = other.affected
             return (self.name == other.name
                     # and copied_self.op_seq == copied_other.op_seq
-                    and (affected == other_affected or isinstance(affected, AnyAgent) or isinstance(other_affected, AnyAgent))
+                    and (affected == other_affected or isinstance(affected, AnyAgent) or isinstance(other_affected,
+                                                                                                    AnyAgent))
                     # and self.from_state == other.from_state
                     # and self.to_state == other.to_state
                     )
@@ -47,7 +53,31 @@ class Effect(SolutionStep, DSTPronounHolder):
                 if len(other_effects) == 1:
                     if self == other_effects[0]:
                         return True
+        return False
 
+    def equals_with_pronouns(self, other, pronouns):
+        if isinstance(self.affected, DSTPronoun):
+            affected = pronouns[self.affected]
+        else:
+            affected = self.affected
+
+        if isinstance(other.affected, DSTPronoun):
+            other_affected = pronouns[other.affected]
+        else:
+            other_affected = other.affected
+
+        if isinstance(other, Effect):
+            from socialds.any.any_agent import AnyAgent
+            return (self.name == other.name and
+                    (affected.equals_with_pronouns(other_affected, pronouns)) or
+                    isinstance(affected, AnyAgent) or isinstance(other_affected, AnyAgent)
+                    )
+        return False
+
+    def is_effect_in_list(self, effects, pronouns):
+        for e in effects:
+            if self.equals_with_pronouns(e, pronouns):
+                return True
         return False
 
     @abstractmethod

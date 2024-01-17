@@ -15,17 +15,19 @@ class ActionOnPropertyHappens(Condition):
         self.property = property
         self.action = action
 
-    def check(self):
+    def check(self, checker=None):
         if not self.negation:
             return dialogue_history.contains(Relation(left=self.property,
                                                       rtype=RType.ACTION,
                                                       rtense=self.tense,
-                                                      right=self.action))
+                                                      right=self.action),
+                                             pronouns=checker.pronouns)
         else:
             return not dialogue_history.contains(Relation(left=self.property,
                                                           rtype=RType.ACTION,
                                                           rtense=self.tense,
-                                                          right=self.action))
+                                                          right=self.action),
+                                                 pronouns=checker.pronouns)
 
     def __repr__(self):
         tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]

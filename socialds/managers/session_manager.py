@@ -4,7 +4,7 @@ from typing import List
 from termcolor import colored
 
 from socialds.conditions.condition import Condition
-from socialds.enums import TermColor
+from socialds.enums import TermColor, DSAction, DSActionByType
 from socialds.exceptions.no_ongoing_session_found_error import NoOngoingSessionFoundError
 from socialds.goal import Goal
 from socialds.session import Session, SessionStatus
@@ -51,6 +51,7 @@ class SessionManager:
 
     @staticmethod
     def update_session_statuses(agent):
+        from socialds.managers.managers import message_streamer
         for session in vars.sessions:
             # No need to update the status of session if it is already completed or failed
             if session.status == SessionStatus.COMPLETED or session.status == SessionStatus.FAILED:
@@ -59,15 +60,27 @@ class SessionManager:
             is_start_conditions_true = Condition.check_conditions(session.start_conditions, agent)
             is_end_conditions_true = True
             for goal in session.end_goals:
-                is_end_conditions_true = is_end_conditions_true and goal.is_reached()
+                is_end_conditions_true = is_end_conditions_true and goal.is_reached(agent)
             if session.status == SessionStatus.NOT_STARTED:
                 if is_end_conditions_true:
                     session.status = SessionStatus.COMPLETED
+                    message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value,
+                                         ds_action_by='Dialogue System',
+                                         ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                         message='The session {} is completed without even being started'.format(session.name))
                 elif is_start_conditions_true:
                     session.status = SessionStatus.ONGOING
+                    message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value,
+                                         ds_action_by='Dialogue System',
+                                         ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                         message='The session {} is started and ongoing now.'.format(session.name))
             elif session.status == SessionStatus.ONGOING:
                 if is_end_conditions_true:
                     session.status = SessionStatus.COMPLETED
+                    message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value,
+                                         ds_action_by='Dialogue System',
+                                         ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                         message='The session {} is completed!'.format(session.name))
 
     # def check_conditions(self, conditions):
     #     """
@@ -120,13 +133,13 @@ class SessionManager:
     #     return is_all_conditions_true
 
     @staticmethod
-    def get_sessions_info():
+    def get_sessions_info(agent):
         info = ''
         for session in vars.sessions:
             info += session.name + '\n'
             info += 'Start Conditions' + '\n'
             for condition in session.start_conditions:
-                condition_str = ('Not Satisfied', 'Satisfied')[condition.check()]
+                condition_str = ('Not Satisfied', 'Satisfied')[condition.check(agent)]
                 condition_str += ' -> '
                 condition_str += str(condition) + '\n'
                 info += condition_str
@@ -134,7 +147,7 @@ class SessionManager:
             info += 'End Conditions' + '\n'
             for goal in session.end_goals:
                 for condition in goal.conditions:
-                    condition_str = ('Not Satisfied', 'Satisfied')[condition.check()]
+                    condition_str = ('Not Satisfied', 'Satisfied')[condition.check(agent)]
                     condition_str += ' -> '
                     condition_str += str(condition) + '\n'
                     info += condition_str

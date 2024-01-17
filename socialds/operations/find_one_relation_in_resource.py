@@ -53,4 +53,5 @@ class FindOneRelationInResource(StateOperation):
                                                                     rtype=self.rtype,
                                                                     rtense=self.rtense,
                                                                     right=self.right,
-                                                                    negation=self.negation)
+                                                                    negation=self.negation,
+                                                                    pronouns=pronouns)

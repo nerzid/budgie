@@ -25,7 +25,7 @@ class AgentDoesEffect(Condition):
             effects = action.base_effects + action.extra_effects
             for effect_in_action in effects:
                 effect_in_action.pronouns = checker.pronouns
-                if self.effect == effect_in_action:
+                if self.effect.equals_with_pronouns(effect_in_action, checker.pronouns):
                     if not self.negation:
                         return True
                     else:

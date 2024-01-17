@@ -101,9 +101,14 @@ class RelationStorage:
         return RSIterator(self.relations)
 
     # checks for the exact relation based on the values of the relation
-    def contains(self, relation: Relation):
+    def contains(self, relation: Relation, pronouns):
         try:
-            rel_in_rs = self.get_one(relation.left, relation.rtype, relation.rtense, relation.right, relation.negation)
+            rel_in_rs = self.get_one(left=relation.left,
+                                     rtype=relation.rtype,
+                                     rtense=relation.rtense,
+                                     right=relation.right,
+                                     negation=relation.negation,
+                                     pronouns=pronouns)
             if rel_in_rs is not None:
                 return True
             else:
@@ -128,28 +133,39 @@ class RelationStorage:
     def remove(self, relation: Relation):
         self.relations.remove(relation)
 
-    def get_one(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False,
+    def get_one(self, left: any, rtype: RType, rtense: Tense, right: any, pronouns, negation=False,
                 times: List[ActionHappenedAtTime] = None, excluded: List[Relation] = None):
         # if times is not None:
         #     for time in times:
         #         if isinstance(time, NumOfTimes):
         #             time_num = time.num
         # print(self.relations)
+        from socialds.other.dst_pronouns import pronounify
+
         found = False
         for relation in self.relations:
+            relation_left = pronounify(relation.left, pronouns)
+            left = pronounify(left, pronouns)
+            left_equality = True
+            from socialds.action.action import Action
+            from socialds.action.effects.effect import Effect
+            if isinstance(relation_left, Action) or isinstance(relation_left, Effect):
+                left_equality = relation_left.equals_with_pronouns(left, pronouns)
+            else:
+                left_equality = relation_left == left
 
-            # if isinstance(left, AnyObject):
-            #     if relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
-            #         found = True
-            # elif isinstance(right, AnyObject):
-            #     if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.negation == negation:
-            #         found = True
-            # else:
-            #     if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
-            #         found = True
-            if relation.left == left and (relation.rtype == rtype or relation.rtype == RType.ANY or rtype == RType.ANY) \
+            relation_right = pronounify(relation.right, pronouns)
+            right = pronounify(right, pronouns)
+            right_equality = True
+            if isinstance(relation_right, Action) or isinstance(relation_right, Effect):
+                right_equality = relation_right.equals_with_pronouns(right, pronouns)
+            else:
+                right_equality = relation_right == right
+
+
+            if left_equality and (relation.rtype == rtype or relation.rtype == RType.ANY or rtype == RType.ANY) \
                     and (relation.rtense == rtense or relation.rtense == Tense.ANY or rtense == Tense.ANY) \
-                    and relation.right == right and relation.negation == negation:
+                    and right_equality and relation.negation == negation:
                 found = True
             if found:
                 if excluded is None or len(excluded) == 0:

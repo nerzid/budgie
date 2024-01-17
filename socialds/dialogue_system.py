@@ -50,8 +50,8 @@ class DialogueSystem:
     def run(self, turns=4):
         self.session_manager.update_session_statuses(self.agents[0])
 
-        dst_pronouns.pronouns[DSTPronoun.I] = self.agents[1]
-        dst_pronouns.pronouns[DSTPronoun.YOU] = self.agents[0]
+        # dst_pronouns.pronouns[DSTPronoun.I] = self.agents[1]
+        # dst_pronouns.pronouns[DSTPronoun.YOU] = self.agents[0]
         turn = 0
 
         vars.last_turn_actions = []
