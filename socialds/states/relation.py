@@ -1,5 +1,6 @@
 from copy import copy
 from enum import Enum
+from typing import List
 
 from termcolor import colored
 
@@ -19,6 +20,7 @@ class RType(Enum):
     ACTION = 'action'
     EFFECT = 'effect'
     IS_AT = 'is_at'
+    SAYS = 'says'
     ANY = 'any'
 
 # e.g., Eren likes apples -> left: Eren, name: likes, right: apples
@@ -151,11 +153,25 @@ class Relation(State, DSTPronounHolder):
                 Tense.FUTURE: 'won\'t',
                 Tense.ANY: 'isn\'t'
             }
+        },
+        RType.SAYS: {
+            True: {
+                Tense.PAST: 'said',
+                Tense.PRESENT: 'says',
+                Tense.FUTURE: 'will say',
+                Tense.ANY: 'says'
+            },
+            False: {
+                Tense.PAST: 'didn\'t say',
+                Tense.PRESENT: 'doesn\'t say',
+                Tense.FUTURE: 'won\'t say',
+                Tense.ANY: 'doesn\'t say'
+            }
         }
     }
 
     def __init__(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False,
-                 times: [ActionHappenedAtTime] = None):
+                 times: List[ActionHappenedAtTime] = None):
         super().__init__()
         self.left = left
         self.rtype = rtype

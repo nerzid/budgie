@@ -33,12 +33,12 @@ class ModifyRelationTense(ModifyRelation):
 
     def execute_param_state_operations(self):
         if isinstance(self.relation, StateOperation):
-            self.relation = self.relation.execute(self.pronouns)
+            self.relation = self.relation.execute(self.agent)
         elif isinstance(self.rtense, StateOperation):
-            self.rtense = self.rtense.execute(self.pronouns)
+            self.rtense = self.rtense.execute(self.agent)
 
-    def execute(self, pronouns, *args, **kwargs) -> Relation:
-        super().execute(pronouns, *args, **kwargs)
+    def execute(self, agent, *args, **kwargs) -> Relation:
+        super().execute(agent, *args, **kwargs)
         self.execute_param_state_operations()
         self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()

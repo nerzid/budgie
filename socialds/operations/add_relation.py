@@ -15,8 +15,8 @@ class AddRelation(StateOperation):
         elif isinstance(self.rs, StateOperation):
             self.rs = self.rs.execute(self.pronouns)
 
-    def execute(self, pronouns, *args, **kwargs):
-        super().execute(pronouns, *args, **kwargs)
+    def execute(self, agent, *args, **kwargs):
+        super().execute(agent, *args, **kwargs)
         self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
         self.execute_param_state_operations()

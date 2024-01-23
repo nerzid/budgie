@@ -17,11 +17,10 @@ import socialds.agent as a
 from socialds.any.any_agent import AnyAgent
 from socialds.any.any_resource import AnyResource
 from socialds.enums import DSActionByType, DSAction
+from socialds.message import Message
 from socialds.other.dst_pronouns import DSTPronoun, get_agent
 from socialds.other.event_listener import EventListener
 from socialds.socialpractice.context.resource import Resource
-from socialds.managers.managers import action_manager, message_streamer
-from socialds.managers.managers import session_manager
 
 
 class ActionFailed(Exception):
@@ -65,8 +64,8 @@ class Action(ActionObj):
         self.specific = specific
         self.execution_time = execution_time
         self.on_action_finished_executing = EventListener()
-        self.on_action_finished_executing.subscribe(session_manager.update_expectations)
-        self.on_action_finished_executing.subscribe(session_manager.update_session_statuses)
+        # self.on_action_finished_executing.subscribe(session_manager.update_expectations)
+        # self.on_action_finished_executing.subscribe(session_manager.update_session_statuses)
 
         if times is None:
             times = []
@@ -126,7 +125,8 @@ class Action(ActionObj):
                          or isinstance(other_done_by, AnyAgent) or isinstance(self_done_by, AnyAgent))
                     and (self.act_type == other.act_type or other.act_type == ActionObjType.ANY)
                     and recipient_equality
-                    and (self.target_resource == other.target_resource or isinstance(self.target_resource, AnyResource)))
+                    and (self.target_resource == other.target_resource or isinstance(self.target_resource,
+                                                                                     AnyResource)))
         elif isinstance(other, Effect):
             # this uses the __eq__ in Effect class. This code exist to cop&paste the same code in the Effect class
             if len(self.base_effects + self.extra_effects) == 1:
@@ -173,36 +173,38 @@ class Action(ActionObj):
         for time in self.times:
             time.insert_pronouns(self.pronouns)
 
-    def execute(self, pronouns):
-        self.pronouns = pronouns
+    def execute(self, agent, **kwargs):
+        self.pronouns = agent.pronouns
         self.insert_pronouns()
         print('Executing {} for {} seconds with pronouns {}'.format(self.name, self.execution_time.duration,
                                                                     self.pronouns))
-        message_streamer.add(ds_action=DSAction.LOG_ACTION_START.value,
-                             ds_action_by=self.done_by.name,
-                             ds_action_by_type=DSActionByType.AGENT.value,
-                             message='Executing {} for {} seconds'.format(self.name, self.execution_time.duration),
-                             duration=self.execution_time.duration)
-        action_manager.ongoing_actions.append(self)
+        agent.message_streamer.add(Message(ds_action=DSAction.LOG_ACTION_START.value,
+                                           ds_action_by=self.done_by.name,
+                                           ds_action_by_type=DSActionByType.AGENT.value,
+                                           message='Executing {} for {} seconds'.format(self.name,
+                                                                                        self.execution_time.duration),
+                                           duration=self.execution_time.duration))
+        # action_manager.ongoing_actions.append(self)
 
         eventlet.sleep(self.execution_time.duration)
         try:
-            super().execute(pronouns)
+            super().execute(agent)
 
-            message_streamer.add(ds_action=DSAction.LOG_ACTION_COMPLETED.value,
-                                 ds_action_by=self.done_by.name,
-                                 ds_action_by_type=DSActionByType.AGENT.value,
-                                 message='Execution of {} is completed'.format(self.name),
-                                 duration=self.execution_time.duration)
+            agent.message_streamer.add(Message(ds_action=DSAction.LOG_ACTION_COMPLETED.value,
+                                               ds_action_by=self.done_by.name,
+                                               ds_action_by_type=DSActionByType.AGENT.value,
+                                               message='Execution of {} is completed'.format(self.name),
+                                               duration=self.execution_time.duration))
         except Exception as e:
-            message_streamer.add(ds_action=DSAction.LOG_ACTION_FAILED.value,
-                                 ds_action_by=self.done_by.name,
-                                 ds_action_by_type=DSActionByType.AGENT.value,
-                                 message='Execution of {} is failed'.format(self.name),
-                                 reason='Reason: {}'.format(repr(e)))
+            agent.message_streamer.add(Message(ds_action=DSAction.LOG_ACTION_FAILED.value,
+                                               ds_action_by=self.done_by.name,
+                                               ds_action_by_type=DSActionByType.AGENT.value,
+                                               message='Execution of {} is failed'.format(self.name),
+                                               reason='Reason: {}'.format(repr(e))))
         finally:
-            action_manager.remove_action(self, pronouns)
-            self.on_action_finished_executing.invoke(self.done_by)
+            # action_manager.remove_action(self, agent)
+            self.on_action_finished_executing.invoke(agent=agent, action=self)
+            # agent.session_manager.update_session_statuses(agent)
 
     def change_done_by(self, agent: a.Agent | DSTPronoun):
         self.done_by = agent

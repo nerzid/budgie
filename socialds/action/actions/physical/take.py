@@ -5,11 +5,12 @@ from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
+from socialds.socialpractice.context.resource import Resource
 from socialds.states.property import Property
 
 
 class Take(Action):
-    def __init__(self, taken: Property, done_by: Agent | DSTPronoun, r_tense: Tense, giver: Agent = None,
+    def __init__(self, taken: Resource, done_by: Agent | DSTPronoun, r_tense: Tense, giver: Agent = None,
                  negation: bool = False, times=None):
         self.giver = giver
         self.taken = taken
@@ -29,8 +30,3 @@ class Take(Action):
     def insert_pronouns(self):
         if isinstance(self.giver, DSTPronoun):
             self.giver = self.pronouns[self.giver]
-
-    def execute(self, pronouns):
-        self.pronouns = pronouns
-        self.insert_pronouns()
-        super().execute(pronouns)

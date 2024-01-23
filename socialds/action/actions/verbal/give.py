@@ -27,11 +27,6 @@ class Give(Action):
             self.recipient = self.pronouns[self.recipient]
         super().insert_pronouns()
 
-    def execute(self, pronouns):
-        self.pronouns = pronouns
-        self.insert_pronouns()
-        super().execute(pronouns)
-
     def get_requirement_holders(self) -> List:
         if self.target_resource:
             return [self.target_resource]

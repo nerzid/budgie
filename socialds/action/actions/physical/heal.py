@@ -3,11 +3,12 @@ from typing import List
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action import Action
+from socialds.socialpractice.context.resource import Resource
 from socialds.states.property import Property
 
 
 class Heal(Action):
-    def __init__(self, healed: Property, done_by: any = None, negation: bool = False, times: List[ActionHappenedAtTime] = None):
+    def __init__(self, healed: Resource, done_by: any = None, negation: bool = False, times: List[ActionHappenedAtTime] = None):
         self.healed = healed
         self.negation = negation
         super().__init__('heal', done_by, ActionObjType.PHYSICAL, [], times=times)

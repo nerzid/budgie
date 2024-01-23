@@ -2,10 +2,10 @@ from copy import copy
 from enum import Enum
 from typing import List
 
-import socialds.other.variables as vars
 from socialds.action.action_obj import ActionObj
 from socialds.enums import Tense, DSAction, DSActionByType
-from socialds.states.relation import Relation, RType
+from socialds.expectation_step import ExpectationStep
+from socialds.message import Message
 
 
 class ExpectationType(Enum):
@@ -21,7 +21,7 @@ class ExpectationStatus(Enum):
 
 
 class Expectation:
-    def __init__(self, name: str, etype: ExpectationType, status: ExpectationStatus, action_seq: List[ActionObj]):
+    def __init__(self, name: str, etype: ExpectationType, status: ExpectationStatus, steps: List[ExpectationStep]):
         """
         Creates an expectation of an action sequence that is expected to be seen during the dialogue.
         For example, norms are type of expectations that are expected to be performed by the agents
@@ -29,56 +29,63 @@ class Expectation:
         @param name:
         @param etype:
         @param status:
-        @param action_seq:
+        @param steps:
         """
         self.name = name
         self.etype = etype
         self.status = status
-        self.action_seq = action_seq
-        self.actions_left = copy(action_seq)
-        self.actions_done = []
+        self.step = steps
+        self.steps_left = copy(steps)
+        self.steps_done = []
 
     def update_status(self, agent):
-        from socialds.managers.managers import message_streamer
-        actions_to_removed = []
-        for action in self.actions_left:
+        steps_to_be_removed = []
+        for step in self.steps_left:
             from socialds.action.action import Action
+            action = step.action
             if isinstance(action, Action):
-                if action.is_action_in_list(vars.last_turn_actions, agent.pronouns) \
-                        and not action.is_action_in_list(actions_to_removed, agent.pronouns):
-                    actions_to_removed.append(action)
-                    self.status = ExpectationStatus.ONGOING
-                    continue
-        for action in actions_to_removed:
-            self.actions_left.remove(action)
-            self.actions_done.append(action)
-        if len(self.actions_left) == 0:
+                from socialds.states.relation import Relation
+                from socialds.states.relation import RType
+
+                # from socialds.any.any_agent import AnyAgent
+                if agent.dialogue_system.last_turn_actions.contains(
+                        Relation(left=agent,
+                                 rtense=Tense.ANY,
+                                 rtype=RType.ACTION,
+                                 right=action),
+                        agent.pronouns):
+                    is_to_be_removed = False
+                    for step_to_be_removed in steps_to_be_removed:
+                        if action.equals_with_pronouns(step_to_be_removed.action, agent.pronouns):
+                            is_to_be_removed = True
+                    if not is_to_be_removed:
+                        steps_to_be_removed.append(step)
+                        self.status = ExpectationStatus.ONGOING
+                        continue
+        for step in steps_to_be_removed:
+            self.steps_left.remove(step)
+            self.steps_done.append(step)
+        if len(self.steps_left) == 0:
             if self.status is not ExpectationStatus.COMPLETED:
                 self.status = ExpectationStatus.COMPLETED
-                message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                     ds_action_by='Dialogue System',
-                                     message='Expectation {} is completed!'.format(self.name),
-                                     ds_action=DSAction.DISPLAY_LOG.value)
+                agent.message_streamer.add(Message(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                   ds_action_by='Dialogue System',
+                                                   message='Expectation {} is completed!'.format(self.name),
+                                                   ds_action=DSAction.DISPLAY_LOG.value))
             elif self.status is ExpectationStatus.COMPLETED:
                 pass
             else:
                 self.status = ExpectationStatus.FAILED
-                message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                     ds_action_by='Dialogue System',
-                                     message='Expectation {} is failed!'.format(self.name),
-                                     ds_action=DSAction.DISPLAY_LOG.value)
+                agent.message_streamer.add(Message(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                   ds_action_by='Dialogue System',
+                                                   message='Expectation {} is failed!'.format(self.name),
+                                                   ds_action=DSAction.DISPLAY_LOG.value))
 
     def get_next_not_executed_action(self):
-        if len(self.actions_left) == 0:
-            if self.status is not ExpectationStatus.FAILED:
-                self.status = ExpectationStatus.COMPLETED
-                message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                     ds_action_by='Dialogue System',
-                                     message='Expectation {} is completed!'.format(self.name),
-                                     ds_action=DSAction.DISPLAY_LOG.value)
+        if len(self.steps_left) == 0:
             return None
         else:
-            return self.actions_left[0]
+            return self.steps_left[0].action
 
     def __repr__(self):
         return self.name

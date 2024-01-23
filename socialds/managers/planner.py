@@ -9,7 +9,7 @@ from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.action.effects.functional.move_knowledge import MoveKnowledge
 from socialds.action.effects.social.gain_permit import GainPermit
 from socialds.any.any_place import AnyPlace
-from socialds.conditions.action_on_property_happens import ActionOnPropertyHappens
+from socialds.conditions.action_on_property_happens import ActionOnResourceHappens
 from socialds.conditions.agent_at_place import AgentAtPlace
 from socialds.conditions.agent_does_action import AgentDoesAction
 from socialds.conditions.agent_does_effect import AgentDoesEffect
@@ -20,13 +20,11 @@ from socialds.conditions.object_at_place import ObjectAtPlace
 from socialds.enums import Tense, DSAction, DSActionByType
 from socialds.expectation import ExpectationStatus
 from socialds.goal import Goal
-from socialds.managers.session_manager import SessionManager
+from socialds.message import Message
 from socialds.other.dst_pronouns import DSTPronoun
-from socialds.other.variables import utterances
 from socialds.plan import Plan
 from socialds.relationstorage import RSType
 from socialds.states.relation import Relation, RType
-from socialds.utterance import Utterance
 
 
 class NoMatchingUtteranceFound(Exception):
@@ -64,7 +62,7 @@ class Planner:
         """
         Creates plans for the available goals
         """
-        ongoing_sessions = SessionManager.get_all_ongoing_sessions()
+        ongoing_sessions = self.agent.session_manager.get_all_ongoing_sessions()
 
         all_goals = []
         # Uncomment below when agent goals are implemented
@@ -186,19 +184,21 @@ class Planner:
                 )
             elif isinstance(condition, ObjectAtPlace):
                 pass
-            elif isinstance(condition, ActionOnPropertyHappens):
+            elif isinstance(condition, ActionOnResourceHappens):
                 pass
             elif isinstance(condition, ExpectationStatusIs):
                 expectation = condition.expectation
                 desired_status = condition.expectation_status
                 if expectation.status == ExpectationStatus.NOT_STARTED or ExpectationStatus.ONGOING:
                     if desired_status == ExpectationStatus.COMPLETED:
-                        condition_solutions.append(
-                            ConditionSolution(condition=condition,
-                                              desc='by performing the actions in the sequence',
-                                              steps=[
-                                                  condition.expectation.get_next_not_executed_action()
-                                              ]))
+                        action = condition.expectation.get_next_not_executed_action()
+                        if action is not None:
+                            condition_solutions.append(
+                                ConditionSolution(condition=condition,
+                                                  desc='by performing the actions in the sequence',
+                                                  steps=[
+                                                      action
+                                                  ]))
 
         # print('Removing the impossible solutions')
         solutions = self.filter_solutions(condition_solutions)
@@ -209,7 +209,8 @@ class Planner:
         expected_actions = self.agent.relation_storages[RSType.EXPECTED_ACTIONS]
         for action in expected_actions:
             condition = AgentDoesAction(agent=action.done_by, action=action, tense=Tense.ANY, negation=False)
-            goals.append(Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=[condition]))
+            goals.append(
+                Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=[condition]))
         return goals
 
     def create_goals_from_expected_effects(self):
@@ -218,7 +219,8 @@ class Planner:
         expected_effects = self.agent.relation_storages[RSType.EXPECTED_EFFECTS]
         for effect in expected_effects:
             condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect, tense=Tense.ANY, negation=False)
-            goals.append(Goal(owner=self.agent, name='goal for the expected action %s' % effect, conditions=[condition]))
+            goals.append(
+                Goal(owner=self.agent, name='goal for the expected action %s' % effect, conditions=[condition]))
         for action in expected_actions:
             if not action.specific:
                 effects = action.base_effects + action.extra_effects
@@ -226,7 +228,8 @@ class Planner:
                 for effect in effects:
                     condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect, tense=Tense.ANY, negation=False)
                     conditions.append(condition)
-                goals.append(Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=conditions))
+                goals.append(
+                    Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=conditions))
         return goals
 
     def filter_solutions(self, solutions: List[ConditionSolution]):
@@ -329,7 +332,7 @@ class Planner:
         # checks if there are any utterances that contains all the solution steps in it
         # in other words, it looks for a single utterance that the goal of the agent can be reached
         for solution in solutions:
-            for utterance in utterances:
+            for utterance in self.agent.utterances_manager.utterances:
                 agent_can_do_all_actions_in_utterance = True
                 actions = []
                 effects = []
@@ -373,17 +376,15 @@ class Planner:
                         possible_utterances_with_solutions.append((utterance, solution))
         if len(possible_utterances_with_solutions) == 0:
             logging.debug(solutions)
-            from socialds.managers.managers import session_manager
-            from socialds.managers.managers import message_streamer
-            message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value,
-                                 ds_action_by=self.name,
-                                 ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                 message=session_manager.get_sessions_info(self.agent))
+            self.agent.message_streamer.add(Message(ds_action=DSAction.DISPLAY_LOG.value,
+                                                    ds_action_by=self.name,
+                                                    ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                    message=self.agent.session_manager.get_sessions_info(self.agent)))
             raise NoMatchingUtteranceFound
         else:
             return possible_utterances_with_solutions
 
     def get_the_best_matching_utterance_with_solution(self, solutions: List[ConditionSolution]):
         utts_with_solutions = self.get_possible_utterances_with_solutions(solutions)
-        if len(utterances) > 0:
+        if len(self.agent.utterances_manager.utterances) > 0:
             return utts_with_solutions[0]

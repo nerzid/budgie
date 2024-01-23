@@ -9,17 +9,15 @@ class MessageStreamer:
         if messages is None:
             messages = queue.Queue()
         self.messages = messages
+        self.is_streaming = False
         self.on_message_added = EventListener()
 
-    def add(self, ds_action_by_type, ds_action_by, message, ds_action, **kwargs):
-        message = {'ds_action_by_type': ds_action_by_type,
-                   'ds_action_by': ds_action_by,
-                   'message': message,
-                   'ds_action': ds_action}
-        for k, v in kwargs.items():
-            message.update({k: v})
-        self.messages.put(message)
+    def add(self, message):
+        # print('message added ' + str(message))
+        self.messages.put(item=message, block=True)
+        # self.messages.put_nowait(message)
+        # print(self.messages.)
         self.on_message_added.invoke()
 
     def stream(self):
-        yield self.messages.get_nowait()
+        yield self.messages.get(block=True)

@@ -39,8 +39,3 @@ class Learn(Action):
         self.learned.pronouns = self.pronouns
         self.learned.insert_pronouns()
         super().insert_pronouns()
-
-    def execute(self, pronouns):
-        self.pronouns = pronouns
-        self.insert_pronouns()
-        super().execute(pronouns)

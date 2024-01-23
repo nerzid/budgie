@@ -23,8 +23,8 @@ class AddRelationToRSHolder(StateOperation):
         elif isinstance(self.rsholder, DSTPronoun):
             self.rsholder = self.pronouns[self.rsholder]
 
-    def execute(self, pronouns, *args, **kwargs):
-        super().execute(pronouns, *args, **kwargs)
+    def execute(self, agent, *args, **kwargs):
+        super().execute(agent, *args, **kwargs)
         self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
         self.execute_param_state_operations()

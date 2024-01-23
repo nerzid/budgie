@@ -133,6 +133,10 @@ class RelationStorage:
     def remove(self, relation: Relation):
         self.relations.remove(relation)
 
+    def remove_all(self):
+        del self.relations
+        self.relations = []
+
     def get_one(self, left: any, rtype: RType, rtense: Tense, right: any, pronouns, negation=False,
                 times: List[ActionHappenedAtTime] = None, excluded: List[Relation] = None):
         # if times is not None:

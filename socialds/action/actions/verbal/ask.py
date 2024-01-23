@@ -32,10 +32,10 @@ class Ask(Action):
         self.asked.insert_pronouns()
         super().insert_pronouns()
 
-    def execute(self, pronouns):
-        self.pronouns = pronouns
+    def execute(self, agent, **kwargs):
+        self.pronouns = agent.pronouns
         self.insert_pronouns()
-        super().execute(pronouns)
+        super().execute(agent, **kwargs)
 # joe asks color of jane's dress
 # Joe -do-> ask (Jane's dress's color -is-> X)
 

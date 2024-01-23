@@ -7,36 +7,33 @@ from socialds.conditions.condition import Condition
 from socialds.enums import TermColor, DSAction, DSActionByType
 from socialds.exceptions.no_ongoing_session_found_error import NoOngoingSessionFoundError
 from socialds.goal import Goal
+from socialds.message import Message
 from socialds.session import Session, SessionStatus
-import socialds.other.variables as vars
 
 
 class SessionManager:
     def __init__(self, sessions: List[Session] = None):
         if sessions is None:
             sessions = []
-        vars.sessions = sessions
+        self.sessions = sessions
+        self.message_streamer = None
 
-    @staticmethod
-    def add_session(session: Session):
-        vars.sessions.append(session)
+    def add_session(self, session: Session):
+        self.sessions.append(session)
 
-    @staticmethod
-    def add_multi_sessions(sessions: List[Session]):
+    def add_multi_sessions(self, sessions: List[Session]):
         for session in sessions:
-            SessionManager.add_session(session)
+            self.add_session(session)
 
-    @staticmethod
-    def get_ongoing_session():
-        for session in vars.sessions:
+    def get_ongoing_session(self):
+        for session in self.sessions:
             if session.status == SessionStatus.ONGOING:
                 return session
         raise NoOngoingSessionFoundError
 
-    @staticmethod
-    def get_all_ongoing_sessions() -> List[Session]:
+    def get_all_ongoing_sessions(self) -> List[Session]:
         ongoing_sessions = []
-        for session in vars.sessions:
+        for session in self.sessions:
             if session.status == SessionStatus.ONGOING:
                 ongoing_sessions.append(session)
         if len(ongoing_sessions) == 0:
@@ -44,15 +41,19 @@ class SessionManager:
         else:
             return ongoing_sessions
 
-    @staticmethod
-    def update_expectations(agent):
-        for expectation in vars.expectations:
-            expectation.update_status(agent)
+    def update_expectations(self, agent):
+        try:
+            ongoing_sessions = self.get_all_ongoing_sessions()
+        except NoOngoingSessionFoundError:
+            print("No ongoing session found. Won't update the expectations")
+        else:
+            for session in ongoing_sessions:
+                for expectation in session.expectations:
+                    expectation.update_status(agent)
 
-    @staticmethod
-    def update_session_statuses(agent):
-        from socialds.managers.managers import message_streamer
-        for session in vars.sessions:
+    def update_session_statuses(self, agent):
+        self.update_expectations(agent)
+        for session in self.sessions:
             # No need to update the status of session if it is already completed or failed
             if session.status == SessionStatus.COMPLETED or session.status == SessionStatus.FAILED:
                 continue
@@ -64,23 +65,25 @@ class SessionManager:
             if session.status == SessionStatus.NOT_STARTED:
                 if is_end_conditions_true:
                     session.status = SessionStatus.COMPLETED
-                    message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value,
-                                         ds_action_by='Dialogue System',
-                                         ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                         message='The session {} is completed without even being started'.format(session.name))
+                    self.message_streamer.add(Message(ds_action=DSAction.DISPLAY_LOG.value,
+                                                      ds_action_by='Dialogue System',
+                                                      ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                      message='The session {} is completed without even being started'.format(
+                                                          session.name)))
                 elif is_start_conditions_true:
                     session.status = SessionStatus.ONGOING
-                    message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value,
-                                         ds_action_by='Dialogue System',
-                                         ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                         message='The session {} is started and ongoing now.'.format(session.name))
+                    self.message_streamer.add(Message(ds_action=DSAction.DISPLAY_LOG.value,
+                                                      ds_action_by='Dialogue System',
+                                                      ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                      message='The session {} is started and ongoing now.'.format(
+                                                          session.name)))
             elif session.status == SessionStatus.ONGOING:
                 if is_end_conditions_true:
                     session.status = SessionStatus.COMPLETED
-                    message_streamer.add(ds_action=DSAction.DISPLAY_LOG.value,
-                                         ds_action_by='Dialogue System',
-                                         ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                         message='The session {} is completed!'.format(session.name))
+                    self.message_streamer.add(Message(ds_action=DSAction.DISPLAY_LOG.value,
+                                                      ds_action_by='Dialogue System',
+                                                      ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                      message='The session {} is completed!'.format(session.name)))
 
     # def check_conditions(self, conditions):
     #     """
@@ -132,10 +135,9 @@ class SessionManager:
     #             pass
     #     return is_all_conditions_true
 
-    @staticmethod
-    def get_sessions_info(agent):
+    def get_sessions_info(self, agent):
         info = ''
-        for session in vars.sessions:
+        for session in self.sessions:
             info += session.name + '\n'
             info += 'Start Conditions' + '\n'
             for condition in session.start_conditions:
@@ -153,10 +155,9 @@ class SessionManager:
                     info += condition_str
         return info
 
-    @staticmethod
-    def get_colorful_sessions_info():
+    def get_colorful_sessions_info(self):
         info = colored('Sessions\n', on_color=TermColor.ON_MAGENTA.value)
-        for session in vars.sessions:
+        for session in self.sessions:
             info += colored(text=session.name, on_color=TermColor.ON_LIGHT_MAGENTA.value)
             info += colored(text=session.status.value, on_color=TermColor.ON_WHITE.value,
                             color=TermColor.BLACK.value)

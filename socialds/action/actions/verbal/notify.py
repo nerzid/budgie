@@ -35,10 +35,6 @@ class Notify(Action):
         self.notification.insert_pronouns()
         super().insert_pronouns()
 
-    def execute(self, pronouns):
-        self.pronouns = pronouns
-        self.insert_pronouns()
-        super().execute(pronouns)
 # notifies other agent for an upcoming relation
 # I will examine your eye now
 # Joe -will do-> (Joe -examine-> Jane's eye)

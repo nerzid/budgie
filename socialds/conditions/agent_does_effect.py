@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import List
 
 import socialds.agent as a
-import socialds.other.variables as vars
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.enums import Tense
@@ -20,11 +19,12 @@ class AgentDoesEffect(Condition):
 
     def check(self, checker=None):
         self.effect.pronouns = checker.pronouns
-        for action in vars.actions_history:
-            action.pronouns = checker.pronouns
+        for action_rel in checker.dialogue_system.actions_history:
+            # action.pronouns = checker.pronouns
+            action = action_rel.right
             effects = action.base_effects + action.extra_effects
             for effect_in_action in effects:
-                effect_in_action.pronouns = checker.pronouns
+                # effect_in_action.pronouns = checker.pronouns
                 if self.effect.equals_with_pronouns(effect_in_action, checker.pronouns):
                     if not self.negation:
                         return True

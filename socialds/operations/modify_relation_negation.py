@@ -17,8 +17,8 @@ class ModifyRelationNegation(ModifyRelation):
         elif isinstance(self.negation, StateOperation):
             self.negation = self.negation.execute(self.pronouns)
 
-    def execute(self, pronouns, *args, **kwargs) -> Relation:
-        super().execute(pronouns, *args, **kwargs)
+    def execute(self, agent, *args, **kwargs) -> Relation:
+        super().execute(agent, *args, **kwargs)
         self.execute_param_state_operations()
         self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()

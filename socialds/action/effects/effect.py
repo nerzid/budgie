@@ -14,6 +14,7 @@ class Effect(SolutionStep, DSTPronounHolder):
                  op_seq: List[Operation]):
         super(DSTPronounHolder, self).__init__()
         super(SolutionStep, self).__init__()
+        self.agent = None
         self.op_seq = op_seq
         self.name = name
         self.from_state = from_state
@@ -90,11 +91,11 @@ class Effect(SolutionStep, DSTPronounHolder):
         """
         return []
 
-    def execute(self, pronouns):
-        self.pronouns = pronouns
+    def execute(self, agent, **kwargs):
+        self.agent = agent
         for op in self.op_seq:
-            op.pronouns = self.pronouns
-            op.execute(self.pronouns)
+            op.pronouns = agent.pronouns
+            op.execute(agent)
 
     def insert_pronouns(self):
         if isinstance(self.affected, DSTPronoun):

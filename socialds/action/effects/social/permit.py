@@ -45,8 +45,3 @@ class Permit(Action):
         self.permitted.insert_pronouns()
         self.relation.insert_pronouns()
         super().insert_pronouns()
-
-    def execute(self, pronouns):
-        self.pronouns = pronouns
-        self.insert_pronouns()
-        super().execute(pronouns)

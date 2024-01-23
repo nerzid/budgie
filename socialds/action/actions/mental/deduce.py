@@ -33,7 +33,7 @@ class Deduce(Action):
         self.deduced.insert_pronouns()
         super().insert_pronouns()
 
-    def execute(self, pronouns):
-        self.pronouns = pronouns
+    def execute(self, agent, **kwargs):
+        self.pronouns = agent.pronouns
         self.insert_pronouns()
-        super().execute(pronouns)
+        super().execute(agent, **kwargs)

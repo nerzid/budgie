@@ -7,7 +7,7 @@ from socialds.action.effects.effect import Effect
 from socialds.conditions.condition import Condition
 from socialds.enums import DSActionByType, DSAction
 from socialds.expectation import Expectation, ExpectationType, ExpectationStatus
-from socialds.managers.managers import message_streamer
+from socialds.expectation_step import ExpectationStep
 
 
 class NormStatus(Enum):
@@ -20,13 +20,13 @@ class NormStatus(Enum):
 
 class Norm(Expectation):
     def __init__(self, name: str,
-                 action_seq: List[ActionObj],
+                 steps: List[ExpectationStep],
                  violation_conditions: List[Condition] = None,
                  skipping_conditions: List[Condition] = None,
                  violation_effects: List[Effect] = None,
                  skipping_effects: List[Effect] = None,
                  completion_effects: List[Effect] = None):
-        super().__init__(name, ExpectationType.NORM, ExpectationStatus.NOT_STARTED, action_seq)
+        super().__init__(name, ExpectationType.NORM, ExpectationStatus.NOT_STARTED, steps)
         if violation_conditions is None:
             violation_conditions = []
         if skipping_conditions is None:
@@ -49,7 +49,7 @@ class Norm(Expectation):
 
         text += 'Actions:\n'
         i = 1
-        for action in self.action_seq:
+        for action in self.step:
             text += textwrap.indent(text="%i-) %s\n" % (i, action), prefix='  ')
             i += 1
 
@@ -125,14 +125,14 @@ class Norm(Expectation):
         if a_condition_is_true:
             self.norm_status = NormStatus.SKIPPED
             self.status = ExpectationStatus.COMPLETED
-            message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                 ds_action_by='Dialogue System',
-                                 message='Norm {} is skipped!'.format(self.name),
-                                 ds_action=DSAction.DISPLAY_LOG.value)
-            message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                 ds_action_by='Dialogue System',
-                                 message='Expectation {} is completed!'.format(self.name),
-                                 ds_action=DSAction.DISPLAY_LOG.value)
+            agent.message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                       ds_action_by='Dialogue System',
+                                       message='Norm {} is skipped!'.format(self.name),
+                                       ds_action=DSAction.DISPLAY_LOG.value)
+            agent.message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                       ds_action_by='Dialogue System',
+                                       message='Expectation {} is completed!'.format(self.name),
+                                       ds_action=DSAction.DISPLAY_LOG.value)
             self.activate_effects(self.skipping_effects)
             return
 
@@ -144,14 +144,14 @@ class Norm(Expectation):
         if a_condition_is_true:
             self.norm_status = NormStatus.VIOLATED
             self.status = ExpectationStatus.FAILED
-            message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                 ds_action_by='Dialogue System',
-                                 message='Norm {} is violated!'.format(self.name),
-                                 ds_action=DSAction.DISPLAY_LOG.value)
-            message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                 ds_action_by='Dialogue System',
-                                 message='Expectation {} is failed!'.format(self.name),
-                                 ds_action=DSAction.DISPLAY_LOG.value)
+            agent.message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                       ds_action_by='Dialogue System',
+                                       message='Norm {} is violated!'.format(self.name),
+                                       ds_action=DSAction.DISPLAY_LOG.value)
+            agent.message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                       ds_action_by='Dialogue System',
+                                       message='Expectation {} is failed!'.format(self.name),
+                                       ds_action=DSAction.DISPLAY_LOG.value)
             self.activate_effects(self.violation_effects)
             return
 

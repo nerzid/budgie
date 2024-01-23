@@ -45,8 +45,8 @@ class FindOneRelationInResource(StateOperation):
         # if isinstance(self.agent, DSTPronoun):
         #     self.agent = pronouns[self.agent]
 
-    def execute(self, pronouns, *args, **kwargs) -> Relation:
-        super().execute(pronouns, *args, **kwargs)
+    def execute(self, agent, *args, **kwargs) -> Relation:
+        super().execute(agent, *args, **kwargs)
         self.execute_param_state_operations()
         self.insert_pronouns()
         return self.resource.relation_storages[self.rstype].get_one(left=self.left,
@@ -54,4 +54,4 @@ class FindOneRelationInResource(StateOperation):
                                                                     rtense=self.rtense,
                                                                     right=self.right,
                                                                     negation=self.negation,
-                                                                    pronouns=pronouns)
+                                                                    pronouns=agent.pronouns)

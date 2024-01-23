@@ -6,7 +6,6 @@ from typing import List
 from socialds.action.actiontimes.num_of_times import NumOfTimes
 from socialds.any.any_agent import AnyAgent
 from socialds.other.dst_pronouns import DSTPronoun
-from socialds.other.variables import dialogue_history
 import socialds.agent as a
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition

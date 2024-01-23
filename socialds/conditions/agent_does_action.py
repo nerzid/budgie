@@ -8,7 +8,7 @@ from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
-import socialds.other.variables as vars
+
 
 class AgentDoesAction(Condition):
     def __init__(self, agent: a.Agent | DSTPronoun, action, tense: Tense, times: List[ActionHappenedAtTime] = None,
@@ -19,9 +19,9 @@ class AgentDoesAction(Condition):
 
     def check(self, checker=None):
         if self.negation:
-            return self.action not in vars.actions_history
+            return not checker.dialogue_system.action_history.contains(self.action, checker.pronouns)
         else:
-            return self.action in vars.actions_history
+            return checker.dialogue_system.action_history.contains(self.action, checker.pronouns)
 
     # def check(self):
     #     max_count = 1

@@ -11,6 +11,8 @@ class Operation(DSTPronounHolder):
     def __init__(self, name: str):
         super().__init__()
         self.name = name
+        self.agent = None
 
-    def execute(self, pronouns, *args, **kwargs):
-        self.pronouns = pronouns
+    def execute(self, agent, *args, **kwargs):
+        self.agent = agent
+        self.pronouns = agent.pronouns

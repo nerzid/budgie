@@ -48,8 +48,8 @@ class FindManyRelations(StateOperation):
         elif isinstance(self.right, DSTPronoun):
             self.right = self.pronouns[self.right]
 
-    def execute(self, pronouns, *args, **kwargs) -> Relation:
-        super().execute(pronouns, *args, **kwargs)
+    def execute(self, agent, *args, **kwargs) -> Relation:
+        super().execute(agent, *args, **kwargs)
         self.execute_param_state_operations()
         self.insert_pronouns()
         return self.rs.get_many(left=self.left,

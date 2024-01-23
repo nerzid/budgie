@@ -1,5 +1,7 @@
+import uuid
 from typing import List, Dict
 
+from socialds.dialogue_system import DialogueSystem
 from socialds.managers.planner import Planner
 from socialds.object import Object
 from socialds.relationstorage import RelationStorage, RSType
@@ -11,11 +13,14 @@ from socialds.socialpractice.context.role import Role
 
 class Agent(Object, RSHolder):
     def __init__(self, name: str, actor: Actor, roles: List[Role],
-                 relation_storages: Dict[RSType, RelationStorage] = None, auto: bool = False):
+                 relation_storages: Dict[RSType, RelationStorage] = None, auto: bool = False, agent_id=None):
         Object.__init__(self, name=name)
         RSHolder.__init__(self, rsholder_name=name,
                           rsholder_type=RSHolderType.AGENT,
                           relation_storages=relation_storages)
+        self.agent_id = agent_id
+        if self.agent_id is None:
+            self.agent_id = uuid.uuid4()
         self.actor = actor
         self.roles = roles
         self.planner = Planner(self)
@@ -26,6 +31,10 @@ class Agent(Object, RSHolder):
         self.update_competences_from_roles()
         # adds the knowledgebase into the agent's knowledgebase
         self.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(actor.knowledgebase)
+        self.dialogue_system = DialogueSystem(self)
+        self.message_streamer = None
+        self.session_manager = None
+        self.utterances_manager = None
 
     def __eq__(self, other):
         """
@@ -66,13 +75,6 @@ class Agent(Object, RSHolder):
 
     def __repr__(self):
         return "%s" % self.name
-
-    def act(self):
-        if self.auto:
-            pass
-        else:
-            pass
-        self.planner.plan()
 
     def update_competences_from_roles(self):
         for role in self.roles:

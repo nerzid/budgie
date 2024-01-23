@@ -29,8 +29,8 @@ class MoveRelation(StateOperation):
         elif isinstance(self.to_rs, StateOperation):
             self.to_rs.execute(self.pronouns)
 
-    def execute(self, pronouns, *args, **kwargs):
-        super().execute(pronouns, *args, **kwargs)
+    def execute(self, agent, *args, **kwargs):
+        super().execute(agent, *args, **kwargs)
         self.execute_param_state_operations()
         self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()

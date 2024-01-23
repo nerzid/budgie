@@ -17,8 +17,8 @@ class ModifyRelationLeft(ModifyRelation):
         elif isinstance(self.left, StateOperation):
             self.left = self.left.execute(self.pronouns)
 
-    def execute(self, pronouns, *args, **kwargs) -> Relation:
-        super().execute(pronouns, *args, **kwargs)
+    def execute(self, agent, *args, **kwargs) -> Relation:
+        super().execute(agent, *args, **kwargs)
         self.execute_param_state_operations()
         self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
