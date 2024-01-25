@@ -9,12 +9,13 @@ from socialds.action.effects.effect import Effect
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.agent import Agent
 from socialds.other.dst_pronouns import DSTPronoun
+from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Relation
 
 
 class Learn(Action):
 
-    def __init__(self, done_by: Agent | DSTPronoun, learned: Relation, extra_effects: List[Effect] = None):
+    def __init__(self, done_by: Agent | DSTPronoun, learned: Information, extra_effects: List[Effect] = None):
         """
         Learns a piece of information as relation. Learn is similar to Share except only agent who does
         the action saves the new information in their knowledgebase.

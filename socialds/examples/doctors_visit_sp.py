@@ -1,4 +1,5 @@
 from socialds.action.effects.functional.change_place import ChangePlace
+from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.any.any_information import AnyInformation
 from socialds.conditions.has_permit import HasPermit
 from socialds.expectation_step import ExpectationStep
@@ -177,7 +178,8 @@ def sp_main(dm_id):
         Information(left=actor1, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_patients_left_eye),
         Information(left=actor1, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_patients_right_eye),
         Information(left=p_patients_left_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_teary),
-        Information(left=p_patients_left_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_red),
+        Information(left=p_patients_left_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_red,
+                    requirements=[]),
         Information(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_pain),
         Information(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_vision),
         Information(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
@@ -389,15 +391,15 @@ def sp_main(dm_id):
             SelfTalk()
         ]),
         Utterance("I see that the veins in your left eye are red.", [
-            Learn(learned=Relation(left=p_veins_in_left_eye, rtype=RType.IS, rtense=Tense.PRESENT,
-                                   right=p_red), done_by=DSTPronoun.I),
+            Learn(learned=Information(left=p_veins_in_left_eye, rtype=RType.IS, rtense=Tense.PRESENT,
+                                      right=p_red), done_by=DSTPronoun.I),
             And(),
             Share(information=Information(left=p_veins_in_left_eye, rtype=RType.IS, rtense=Tense.PRESENT,
                                           right=p_red))
         ]),
         Utterance("And there is inflammation.", [
-            Learn(learned=Relation(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
-                                   right=p_inflammation), done_by=DSTPronoun.I),
+            Learn(learned=Information(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
+                                      right=p_inflammation), done_by=DSTPronoun.I),
             And(),
             Share(information=Information(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
                                           right=p_inflammation))
