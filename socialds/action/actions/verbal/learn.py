@@ -40,3 +40,6 @@ class Learn(Action):
         self.learned.pronouns = self.pronouns
         self.learned.insert_pronouns()
         super().insert_pronouns()
+
+    def get_requirement_holders(self) -> List:
+        return super().get_requirement_holders() + [self.learned]

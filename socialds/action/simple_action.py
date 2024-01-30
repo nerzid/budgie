@@ -27,4 +27,11 @@ class SimpleAction(Action):
     #     return "%r %r" % (self.done_by, self.name)
 
     def get_requirement_holders(self) -> List:
-        return [self.done_by, self.recipient, self.target_resource]
+        requirement_holders = []
+        if self.done_by is not None:
+            requirement_holders.append(self.done_by)
+        if self.recipient is not None:
+            requirement_holders.append(self.recipient)
+        if self.target_resource is not None:
+            requirement_holders.append(self.target_resource)
+        return requirement_holders

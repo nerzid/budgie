@@ -148,6 +148,7 @@ class RelationStorage:
 
         found = False
         for relation in self.relations:
+            print(relation)
             relation_left = pronounify(relation.left, pronouns)
             left = pronounify(left, pronouns)
             left_equality = True

@@ -1,3 +1,5 @@
+from typing import List
+
 from socialds.action.effects.effect import Effect
 import socialds.conditions.agent_knows as an
 from socialds.enums import Tense
@@ -7,6 +9,7 @@ from socialds.states.relation import Relation
 
 
 class GainKnowledge(Effect):
+
     def __init__(self, knowledge: Relation, affected: any):
         self.knowledge = knowledge
         self.affected = affected
@@ -30,7 +33,13 @@ class GainKnowledge(Effect):
     def __repr__(self):
         return f'{self.affected} gain knowledge {self.knowledge}'
 
+    def equals_with_pronouns(self, other, pronouns):
+        return super().equals_with_pronouns(other, pronouns) and self.knowledge == other.knowledge
+
     def insert_pronouns(self):
         super().insert_pronouns()
         self.knowledge.pronouns = self.pronouns
         self.knowledge.insert_pronouns()
+
+    def get_requirement_holders(self) -> List:
+        return super().get_requirement_holders() + [self.knowledge]

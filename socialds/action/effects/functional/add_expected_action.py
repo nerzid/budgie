@@ -27,3 +27,6 @@ class AddExpectedAction(Effect):
 
     def __repr__(self):
         return f'Expect the action {self.action} from {self.affected}'
+
+    def equals_with_pronouns(self, other, pronouns):
+        return super().equals_with_pronouns(other, pronouns) and self.action.equals_with_pronouns(other.action, pronouns)

@@ -5,6 +5,7 @@ from socialds.other.dst_pronouns import DSTPronoun
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
+from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Relation, RType
 from socialds.enums import Tense
 
@@ -14,7 +15,7 @@ class Notify(Action):
                  negation=False):
         self.done_by = done_by
         self.notified_about = notified_about
-        self.notification = Relation(done_by, RType.ACTION, Tense.FUTURE, notified_about, negation)
+        self.notification = Information(done_by, RType.ACTION, Tense.FUTURE, notified_about, negation)
         super().__init__('notify',done_by, ActionObjType.VERBAL,
                          base_effects=[
                              # this effect is incorrect for notify because there isnt any knowledge gain

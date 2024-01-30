@@ -57,6 +57,9 @@ class Effect(SolutionStep, DSTPronounHolder):
         return False
 
     def equals_with_pronouns(self, other, pronouns):
+        from socialds.action.action import Action
+        if isinstance(other, Action):
+            return other.equals_with_pronouns(self, pronouns)
         if isinstance(self.affected, DSTPronoun):
             affected = pronouns[self.affected]
         else:
@@ -70,9 +73,9 @@ class Effect(SolutionStep, DSTPronounHolder):
         if isinstance(other, Effect):
             from socialds.any.any_agent import AnyAgent
             return (self.name == other.name and
-                    (affected.equals_with_pronouns(other_affected, pronouns)) or
-                    isinstance(affected, AnyAgent) or isinstance(other_affected, AnyAgent)
-                    )
+                    (affected.equals_with_pronouns(other_affected, pronouns) or
+                     isinstance(affected, AnyAgent) or isinstance(other_affected, AnyAgent)
+                     ))
         return False
 
     def is_effect_in_list(self, effects, pronouns):

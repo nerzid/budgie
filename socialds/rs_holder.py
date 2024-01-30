@@ -8,6 +8,7 @@ class RSHolderType(Enum):
     PLACE = 'Place'
     AGENT = 'Agent'
     RESOURCE = 'Resource'
+    INFORMATION = 'Information'
 
 
 class RSHolder:
@@ -40,5 +41,9 @@ class RSHolder:
                 self.relation_storages = {
                     rs.RSType.PROPERTIES: rs.RelationStorage(rsholder_name + '\'s Properties'),
                     rs.RSType.PLACES: rs.RelationStorage(rsholder_name + '\'s Places'),
+                    rs.RSType.REQUIREMENTS: rs.RelationStorage(rsholder_name + '\'s Requirements')
+                }
+            elif rsholder_type is RSHolderType.INFORMATION:
+                self.relation_storages = {
                     rs.RSType.REQUIREMENTS: rs.RelationStorage(rsholder_name + '\'s Requirements')
                 }

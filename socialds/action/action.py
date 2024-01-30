@@ -147,7 +147,10 @@ class Action(ActionObj):
 
         All subclasses should implement this method
         """
-        return []
+        requirement_holders = []
+        for effect in self.base_effects + self. extra_effects:
+            requirement_holders.extend(effect.get_requirement_holders())
+        return requirement_holders
 
     def get_times_str(self):
         if self.times is None:

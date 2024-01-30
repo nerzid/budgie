@@ -8,4 +8,4 @@ from socialds.states.relation import RType
 
 class AnyInformation(Information, AnyObject):
     def __init__(self):
-        super().__init__(AnyAgent(), RType.ANY, Tense.ANY, AnyProperty())
+        super().__init__(AnyObject(), RType.ANY, Tense.ANY, AnyProperty())

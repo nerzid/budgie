@@ -6,6 +6,7 @@ from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.effect import Effect
 from socialds.action.effects.social.gain_permit import GainPermit
 from socialds.agent import Agent
+from socialds.conditions.has_permit import HasPermit
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.action.action import Action
 from socialds.states.relation import Relation, RType
@@ -26,7 +27,8 @@ class Permit(Action):
                          act_type=ActionObjType.VERBAL,
                          base_effects=[
                              GainPermit(permit=self.relation, affected=self.permit_given_to)
-                         ])
+                         ],
+                         preconditions=[HasPermit(agent=done_by, permit=self.permitted)])
 
     def __str__(self):
         return f"{self.done_by} give permit {self.permitted}"

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List
+
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
@@ -9,6 +11,7 @@ from socialds.states.relation import Relation
 
 
 class Deduce(Action):
+
     def __init__(self, done_by: Agent | DSTPronoun, deduced: Relation):
         """
         Agent thinks and arrives at a certain relation.
@@ -33,7 +36,5 @@ class Deduce(Action):
         self.deduced.insert_pronouns()
         super().insert_pronouns()
 
-    def execute(self, agent, **kwargs):
-        self.pronouns = agent.pronouns
-        self.insert_pronouns()
-        super().execute(agent, **kwargs)
+    def get_requirement_holders(self) -> List:
+        return super().get_requirement_holders() + [self.deduced]

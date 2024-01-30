@@ -6,9 +6,10 @@ from socialds.action.effects.functional.add_expected_action import AddExpectedAc
 from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
 from socialds.action.effects.functional.change_place import ChangePlace
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
-from socialds.action.effects.functional.move_knowledge import MoveKnowledge
+from socialds.action.effects.functional.move_knowledge import MoveInformation
 from socialds.action.effects.social.gain_permit import GainPermit
 from socialds.any.any_place import AnyPlace
+from socialds.conditions.IsRelationInRelationStorage import IsRelationInRelationStorage
 from socialds.conditions.action_on_property_happens import ActionOnResourceHappens
 from socialds.conditions.agent_at_place import AgentAtPlace
 from socialds.conditions.agent_does_action import AgentDoesAction
@@ -132,11 +133,11 @@ class Planner:
                         ConditionSolution(condition=condition,
                                           desc='by remembering it',
                                           steps=[
-                                              MoveKnowledge(knowledge=condition.knows,
-                                                            from_rs=condition.agent.relation_storages[RSType.FORGOTTEN],
-                                                            to_rs=condition.agent.relation_storages[
+                                              MoveInformation(information=condition.knows,
+                                                              from_rs=condition.agent.relation_storages[RSType.FORGOTTEN],
+                                                              to_rs=condition.agent.relation_storages[
                                                                 RSType.KNOWLEDGEBASE],
-                                                            affected=condition.agent)])
+                                                              affected=condition.agent)])
                     )
 
                     condition_solutions.append(
@@ -201,7 +202,7 @@ class Planner:
                                                   ]))
 
         # print('Removing the impossible solutions')
-        solutions = self.filter_solutions(condition_solutions)
+        solutions = self.filter_solutions_by_steps(condition_solutions)
         return solutions
 
     def create_goals_from_expected_actions(self):
@@ -232,7 +233,7 @@ class Planner:
                     Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=conditions))
         return goals
 
-    def filter_solutions(self, solutions: List[ConditionSolution]):
+    def filter_solutions_by_steps(self, solutions: List[ConditionSolution]):
         """
         Removes the solutions that cannot be executed by the agent if the agent doesn't have the competence for it
         @param solutions:
@@ -284,10 +285,9 @@ class Planner:
                         if requirement_holder is None:
                             continue
                         if isinstance(requirement_holder, DSTPronoun):
-                            print("{} REQUIREMENT HOLDER ===========> {}".format(self.agent, requirement_holder))
-                            print("{} Pronouns ===========> {}".format(self.agent, self.agent.pronouns))
                             requirement_holder = self.agent.pronouns[requirement_holder]
-                            print("{} REQUIREMENT HOLDER(after) ===========> {}".format(self.agent, requirement_holder))
+                        print(requirement_holder)
+                        print(step)
                         for requirement in requirement_holder.relation_storages[RSType.REQUIREMENTS]:
                             if not requirement.check(self.agent) and solution not in excluded_solutions:
                                 excluded_solutions.append(solution)
@@ -340,6 +340,24 @@ class Planner:
                 # if not, then the agent cannot choose that utterance
                 for action in utterance.actions:
                     if isinstance(action, Action):
+                        for precondition in action.preconditions:
+                            if not precondition.check(self.agent):
+                                agent_can_do_all_actions_in_utterance = False
+                                break
+                        # check if the actions in the utterance can be executed by the agent
+                        requirement_holders = action.get_requirement_holders()
+                        print(action.name)
+                        if requirement_holders is not None:
+                            for requirement_holder in requirement_holders:
+                                if requirement_holder is None:
+                                    continue
+                                if isinstance(requirement_holder, DSTPronoun):
+                                    requirement_holder = self.agent.pronouns[requirement_holder]
+                                for requirement in requirement_holder.relation_storages[RSType.REQUIREMENTS]:
+                                    if not requirement.check(self.agent):
+                                        agent_can_do_all_actions_in_utterance = False
+                                        break
+
                         # if the agent cannot perform an action inside the utterance
                         # then check if there are effects that can be performed instead
                         copied_action = deepcopy(action)

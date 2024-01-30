@@ -12,6 +12,7 @@ from socialds.states.relation import Relation
 
 
 class Share(Action):
+
     def __init__(self, information: Information, times: List[ActionHappenedAtTime] = None):
         self.recipient = DSTPronoun.YOU
         self.information = information
@@ -28,8 +29,14 @@ class Share(Action):
     def __repr__(self):
         return "%r share %r with %r" % (self.done_by, self.information, self.recipient)
 
+    def equals_with_pronouns(self, other, pronouns):
+        return super().equals_with_pronouns(other, pronouns) and self.information == other.information
+
     def insert_pronouns(self):
         self.information.pronouns = self.pronouns
         self.information.insert_pronouns()
         super().insert_pronouns()
+
+    def get_requirement_holders(self) -> List:
+        return super().get_requirement_holders() + [self.information]
 
