@@ -6,6 +6,8 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
+from socialds.conditions.agent_knows import AgentKnows
+from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Relation
@@ -21,7 +23,8 @@ class Share(Action):
                              GainKnowledge(knowledge=information, affected=self.recipient)
                          ],
                          recipient=self.recipient,
-                         times=times)
+                         times=times,
+                         preconditions=[AgentKnows(agent=DSTPronoun.I, knows=information, tense=Tense.ANY)])
 
     def __str__(self):
         return "%s share %s with %s" % (self.done_by, self.information, self.recipient)

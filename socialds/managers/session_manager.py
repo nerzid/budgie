@@ -85,55 +85,11 @@ class SessionManager:
                                                       ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
                                                       message='The session {} is completed!'.format(session.name)))
 
-    # def check_conditions(self, conditions):
-    #     """
-    #     Returns true if all conditions are true
-    #     :param conditions:
-    #     """
-    #     is_all_conditions_true = True
-    #     for condition in conditions:
-    #         relation = condition.relation
-    #         if relation.r_type == RelationType.ACTION:
-    #             if relation in managers.dialogue_history and not condition.negation:
-    #                 continue
-    #             elif relation not in managers.dialogue_history and condition.negation:
-    #                 continue
-    #             else:
-    #                 # TODO handle if relation.left is another relation
-    #                 is_all_conditions_true = False
-    #         elif relation.r_type == RelationType.HAS:
-    #             if isinstance(relation.left, Agent) and \
-    #                     relation in relation.left.knowledgebase and not \
-    #                     condition.negation:
-    #                 continue
-    #             elif isinstance(relation.left, Agent) and \
-    #                     relation not in relation.left.knowledgebase and \
-    #                     condition.negation:
-    #                 continue
-    #             else:
-    #                 # TODO handle if relation.left is Property
-    #                 # TODO handle if relation.left is another relation
-    #                 is_all_conditions_true = False
-    #         elif relation.r_type == RelationType.IS_AT:
-    #             if isinstance(relation.left, Agent) and \
-    #                     isinstance(relation.right, Place) and \
-    #                     relation.right in relation.left.places and \
-    #                     not condition.negation:
-    #                 continue
-    #             elif isinstance(relation.left, Agent) and \
-    #                     isinstance(relation.right, Place) and \
-    #                     relation.right not in relation.left.places and \
-    #                     condition.negation:
-    #                 continue
-    #             else:
-    #                 is_all_conditions_true = False
-    #         elif relation.r_type == RelationType.IS:
-    #             pass
-    #         elif relation.r_type == RelationType.CAN:
-    #             pass
-    #         elif relation.r_type == RelationType.IS_PERMITTED_TO:
-    #             pass
-    #     return is_all_conditions_true
+    def get_sessions_info_dict(self, agent):
+        result = []
+        for session in self.sessions:
+            result.append(session.to_dict(agent))
+        return result
 
     def get_sessions_info(self, agent):
         info = ''

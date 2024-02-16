@@ -47,6 +47,9 @@ def send_message():
                                         session_id=dm.dm_id,
                                         sender_agent_id=str(dm.agents[0].agent_id),
                                         receiver_agent_id=str(dm.agents[1].agent_id)))
+        dm.message_streamer.add(message=Message(ds_action=DSAction.SESSIONS_INFO.value, ds_action_by="Dialogue Manager",
+                                                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                message=dm.session_manager.get_sessions_info_dict(dm.agents[0])))
     elif message.get('ds_action') == DSAction.USER_CHOSE_MENU_OPTION.value:
         menu_option = message.get('message')
         sender_agent_id = message.get('sender_agent_id')
@@ -54,6 +57,9 @@ def send_message():
         sender_agent = dm.get_agent_by_id(sender_agent_id)
         receiver_agent = dm.get_agent_by_id(receiver_agent_id)
         dm.choose_menu_option(sender_agent, menu_option, receiver_agent)
+        dm.message_streamer.add(message=Message(ds_action=DSAction.SESSIONS_INFO.value, ds_action_by="Dialogue Manager",
+                                                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                message=dm.session_manager.get_sessions_info_dict(sender_agent)))
     elif message.get('ds_action') == DSAction.USER_CHOSE_UTTERANCE.value:
         utterance_str = message.get('message')
         sender_agent_id = message.get('sender_agent_id')
@@ -63,6 +69,9 @@ def send_message():
         sender_agent = dm.get_agent_by_id(sender_agent_id)
         receiver_agent = dm.get_agent_by_id(receiver_agent_id)
         dm.communicate(sender=sender_agent, receiver=receiver_agent, message=utterance)
+        dm.message_streamer.add(message=Message(ds_action=DSAction.SESSIONS_INFO.value, ds_action_by="Dialogue Manager",
+                                                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                message=dm.session_manager.get_sessions_info_dict(sender_agent)))
         dm.get_menu_options()
     else:
         return {"status": "no ds action present in the response"}

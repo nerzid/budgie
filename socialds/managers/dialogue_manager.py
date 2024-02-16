@@ -44,6 +44,7 @@ class DialogueManager:
         self.on_user_executed_all_actions_from_utterance = EventListener()
         self.on_auto_executed_all_actions_from_utterance = EventListener()
 
+
         # for age in self.agents:
         #     pronouns = {}
         #     for agent in self.agents:
@@ -79,6 +80,7 @@ class DialogueManager:
 
         for on_agent_executed_all_actions in on_agent_executed_all_actions_list:
             on_agent_executed_all_actions.subscribe(self.renew_last_turn_actions)
+            on_agent_executed_all_actions.subscribe(self.send_session_info)
 
         for agent in self.agents:
             if agent.auto:
@@ -97,7 +99,8 @@ class DialogueManager:
             agent.dialogue_system.on_agent_chose_utterance.subscribe(self.add_utterance_to_dialogue_history)
             if not self.allow_duplicate_utterances:
                 agent.dialogue_system.on_agent_chose_utterance.subscribe(self.remove_utterance)
-            agent.dialogue_system.on_agent_executed_action.subscribe(self.session_manager.update_session_statuses, agent)
+            agent.dialogue_system.on_agent_executed_action.subscribe(self.session_manager.update_session_statuses,
+                                                                     agent)
 
         for agent in self.agents:
             agent.message_streamer = self.message_streamer
@@ -106,6 +109,7 @@ class DialogueManager:
             agent.dialogue_system.action_history = self.action_history
             agent.dialogue_system.dialogue_history = self.dialogue_history
             agent.dialogue_system.last_turn_actions = self.last_turn_actions
+
 
     def choose_menu_option(self, agent, menu_option, receiver):
         if menu_option == 'All Utterances':
@@ -175,6 +179,12 @@ class DialogueManager:
                                                 rtense=Tense.PAST,
                                                 right=action))
         self.session_manager.update_session_statuses(agent)
+
+    def send_session_info(self, agent, actions):
+        self.message_streamer.add(
+            message=Message(ds_action=DSAction.SESSIONS_INFO.value, ds_action_by="Dialogue Manager",
+                            ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                            message=self.session_manager.get_sessions_info_dict(agent)))
 
     @staticmethod
     def communicate(message, sender: Agent, receiver: Agent):

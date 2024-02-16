@@ -391,11 +391,11 @@ def sp_main(dm_id):
         ]),
         Utterance("Will it hurt?", [
             Check(r_tense=Tense.PRESENT, negation=False,
-                  checked=Relation(left=Relation(left=DSTPronoun.YOU, rtype=RType.ACTION, rtense=Tense.PRESENT,
-                                                 right=Examine()),
-                                   rtype=RType.IS, rtense=Tense.PRESENT,
-                                   right=p_painful
-                                   ),
+                  checked=Information(left=Information(left=DSTPronoun.YOU, rtype=RType.ACTION, rtense=Tense.PRESENT,
+                                                       right=Examine()),
+                                      rtype=RType.IS, rtense=Tense.PRESENT,
+                                      right=p_painful
+                                      ),
                   recipient=DSTPronoun.YOU)
         ]),
         Utterance("No, you will just feel mild pressure in your eye, but it shouldn't hurt.", [

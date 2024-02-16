@@ -286,8 +286,6 @@ class Planner:
                             continue
                         if isinstance(requirement_holder, DSTPronoun):
                             requirement_holder = self.agent.pronouns[requirement_holder]
-                        print(requirement_holder)
-                        print(step)
                         for requirement in requirement_holder.relation_storages[RSType.REQUIREMENTS]:
                             if not requirement.check(self.agent) and solution not in excluded_solutions:
                                 excluded_solutions.append(solution)
