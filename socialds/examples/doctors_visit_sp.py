@@ -325,16 +325,10 @@ def sp_main(dm_id):
                 r_tense=Tense.PRESENT)
         ]),
         Utterance("My left eye has been red since this morning.", [
-            Share(information=info_problem_description_is_any),
-            And(),
-            Share(information=Information(
-                left=p_patients_left_eye, rtype=RType.IS, rtense=Tense.PAST, right=p_red
-            ))
+            Share(information=info_problem_description_is_any)
         ]),
         Utterance("And my vision is a little bit blurry.", [
-            Share(information=Information(
-                left=p_vision, rtype=RType.IS, rtense=Tense.PRESENT, negation=False, right=p_blurry
-            ))
+            Share(information=info_patients_vision_is_blurry)
         ]),
         Utterance("Hm hmm...", [
             Backchannel()
@@ -369,14 +363,10 @@ def sp_main(dm_id):
                   negation=False,
                   recipient=DSTPronoun.YOU)
         ]),
-        Utterance("Yes, both eyes.", [
+        Utterance("Yes, my left eye is teary.", [
             Affirm(),
             Then(),
-            Share(information=Information(left=p_patients_left_eye, rtype=RType.IS, rtense=Tense.PRESENT,
-                                          right=p_teary)),
-            And(),
-            Share(information=Information(left=p_patients_right_eye, rtype=RType.IS, rtense=Tense.PRESENT,
-                                          right=p_teary))
+            Share(information=info_patients_left_eye_is_teary)
         ]),
         Utterance("Okay, I need to examine your eye now if that's okay for you.", [
             Request(done_by=DSTPronoun.I, requested=Examine()),
