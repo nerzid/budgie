@@ -4,7 +4,10 @@ from socialds.action.action_obj import ActionObj
 
 
 class Utterance:
-    def __init__(self, text: str, actions: List[ActionObj]):
+    def __init__(self, text: str, actions: List[ActionObj], pronouns=None):
+        if pronouns is None:
+            pronouns = []
+        self.pronouns = pronouns
         self.text = text
         self.actions = actions
 

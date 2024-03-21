@@ -2,6 +2,7 @@ from socialds.action.effects.functional.change_place import ChangePlace
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.any.any_information import AnyInformation
 from socialds.conditions.has_permit import HasPermit
+from socialds.conditions.session_status_is import SessionStatusIs
 from socialds.expectation_step import ExpectationStep
 from socialds.managers.dialogue_manager import DialogueManager
 from socialds.managers.session_manager import SessionManager
@@ -447,7 +448,7 @@ def sp_main(dm_id):
             Deduce(done_by=DSTPronoun.I,
                    deduced=info_patients_problem_is_bacterial_conjunctivitis)
         ]),
-        Utterance("So, how is it doctor?", [
+        Utterance("So, what is the problem with my eye?", [
             Ask(asked=Relation(left=p_patients_problem, rtype=RType.IS, rtense=Tense.PRESENT,
                                right=AnyProperty()),
                 r_tense=Tense.PRESENT),
@@ -523,6 +524,16 @@ def sp_main(dm_id):
     session_manager = SessionManager()
     session_manager.add_multi_sessions(
         [
+            Session(name='Global',
+                    start_conditions=[],
+                    expectations=[
+
+                    ],
+                    end_goals=[
+                        SessionStatusIs()
+                    ]
+
+            ),
             Session(name='Greeting',
                     start_conditions=[
                         AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=place_waiting_room),
