@@ -64,7 +64,7 @@ from socialds.expectation import ExpectationStatus
 from socialds.goal import Goal
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RelationStorage, RSType
-from socialds.session import Session
+from socialds.session import Session, SessionStatus
 from socialds.socialpractice.activity.competence import Competence
 from socialds.socialpractice.context.actor import Actor
 from socialds.socialpractice.context.information import Information
@@ -522,60 +522,72 @@ def sp_main(dm_id):
     # vars.expectations.append(greeting_norm)
 
     session_manager = SessionManager()
+    session_greeting = Session(name='Greeting',
+                               start_conditions=[
+                                   AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=place_waiting_room),
+                                   AgentAtPlace(agent=agent2, tense=Tense.PRESENT, place=places_office)
+                               ],
+                               expectations=[
+                                   greeting_norm
+                               ],
+                               end_goals=[
+                                   Goal(owner=any_agent,
+                                        name='Patient is ready',
+                                        desc='Patient and doctor greeted each other and patient is ready to talk',
+                                        conditions=[
+                                            ExpectationStatusIs(expectation=greeting_norm,
+                                                                expectation_status=ExpectationStatus.COMPLETED),
+                                            AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=places_office)
+                                        ])
+                               ])
+    session_problem_presentation = Session(name='Problem Presentation',
+                                           start_conditions=[
+                                               ExpectationStatusIs(expectation=greeting_norm,
+                                                                   expectation_status=ExpectationStatus.COMPLETED),
+                                               AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=places_office)
+                                           ],
+                                           end_goals=[
+                                               Goal(owner=any_agent,
+                                                    name='Patient explained the problem',
+                                                    conditions=[
+                                                        AgentKnows(agent=agent2, tense=Tense.PRESENT,
+                                                                   knows=info_problem_description_is_any)
+                                                    ])
+                                           ])
+    session_history_taking = Session(name='History Taking',
+                                     start_conditions=[
+                                         AgentKnows(agent=agent2, tense=Tense.PRESENT,
+                                                    knows=info_problem_description_is_any)
+                                     ],
+                                     end_goals=[
+                                         Goal(owner=any_agent,
+                                              name='Doctor asked all the necessary questions before physical examination',
+                                              conditions=[
+                                                  AgentKnows(agent=agent2, tense=Tense.PRESENT,
+                                                             knows=info_patients_left_eye_is_teary)
+                                              ])
+                                     ])
+
+    session_global = Session(name='Global',
+                             start_conditions=[],
+                             expectations=[
+
+                             ],
+                             end_goals=[
+                                 Goal(owner=any_agent,
+                                      name='Social practice finished',
+                                      conditions=[
+                                          SessionStatusIs(session=session_history_taking,
+                                                          session_status=SessionStatus.COMPLETED)
+                                      ])
+                             ]
+                             )
     session_manager.add_multi_sessions(
         [
-            Session(name='Global',
-                    start_conditions=[],
-                    expectations=[
-
-                    ],
-                    end_goals=[
-                        SessionStatusIs()
-                    ]
-
-            ),
-            Session(name='Greeting',
-                    start_conditions=[
-                        AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=place_waiting_room),
-                        AgentAtPlace(agent=agent2, tense=Tense.PRESENT, place=places_office)
-                    ],
-                    expectations=[
-                        greeting_norm
-                    ],
-                    end_goals=[
-                        Goal(owner=any_agent,
-                             name='Patient is ready',
-                             desc='Patient and doctor greeted each other and patient is ready to talk',
-                             conditions=[
-                                 ExpectationStatusIs(expectation=greeting_norm,
-                                                     expectation_status=ExpectationStatus.COMPLETED),
-                                 AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=places_office)
-                             ])
-                    ]),
-            Session(name='Problem Presentation',
-                    start_conditions=[
-                        ExpectationStatusIs(expectation=greeting_norm, expectation_status=ExpectationStatus.COMPLETED),
-                        AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=places_office)
-                    ],
-                    end_goals=[
-                        Goal(owner=any_agent,
-                             name='Patient explained the problem',
-                             conditions=[
-                                 AgentKnows(agent=agent2, tense=Tense.PRESENT,
-                                            knows=info_problem_description_is_any)
-                             ])
-                    ]),
-            Session(name='History Taking',
-                    start_conditions=[
-                        AgentKnows(agent=agent2, tense=Tense.PRESENT, knows=info_problem_description_is_any)
-                    ],
-                    end_goals=[
-                        Goal(owner=any_agent,
-                             name='Doctor asked all the necessary questions before physical examination',
-                             conditions=[
-                                 AgentKnows(agent=agent2, tense=Tense.PRESENT, knows=info_patients_left_eye_is_teary)
-                             ])
-                    ])
+            session_global,
+            session_greeting,
+            session_problem_presentation,
+            session_problem_presentation
         ]
     )
     import logging
