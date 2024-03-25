@@ -19,7 +19,7 @@ class AgentDoesEffect(Condition):
 
     def check(self, checker=None):
         self.effect.pronouns = checker.pronouns
-        for action_rel in checker.dialogue_system.actions_history:
+        for action_rel in checker.dialogue_system.action_history:
             # action.pronouns = checker.pronouns
             action = action_rel.right
             effects = action.base_effects + action.extra_effects

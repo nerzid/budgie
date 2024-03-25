@@ -66,6 +66,10 @@ class Planner:
         ongoing_sessions = self.agent.session_manager.get_all_ongoing_sessions()
 
         all_goals = []
+
+        all_goals.extend(self.create_goals_from_expected_effects())
+        all_goals.extend(self.create_goals_from_expected_actions())
+
         # Uncomment below when agent goals are implemented
         # all_goals = self.agent.goals
 

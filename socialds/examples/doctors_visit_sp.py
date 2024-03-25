@@ -1,3 +1,4 @@
+from socialds.action.actions.verbal.bye import Bye
 from socialds.action.effects.functional.change_place import ChangePlace
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.any.any_information import AnyInformation
@@ -122,6 +123,7 @@ def sp_main(dm_id):
     p_red = Property('red')
     p_worry = Property('worry')
     p_cold = Property('cold')
+    p_swelling = Property('swelling')
     p_common = Property('common')
     p_symptom = Property('symptom')
 
@@ -138,7 +140,7 @@ def sp_main(dm_id):
                     rtense=Tense.PRESENT, right=p_symptom),
         Information(left=Information(left=p_eye, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_inflammation),
                     rtype=RType.IS,
-                    rtense=Tense.PRESENT, right=p_symptom),
+                    rtense=Tense.PRESENT, right=p_symptom)
     ])
 
     # VALUES
@@ -230,14 +232,23 @@ def sp_main(dm_id):
     info_patients_problem_is_bacterial_conjunctivitis = Information(left=p_patients_problem, rtype=RType.IS,
                                                                     rtense=Tense.PRESENT,
                                                                     right=p_bacterial_conjunctivitis)
+
+    info_patients_left_eye_has_swelling = Information(left=p_patients_left_eye, rtype=RType.HAS,
+                                                      rtense=Tense.PRESENT,
+                                                      right=p_swelling)
+
+    p_veins_in_left_eye.relation_storages[RSType.PROPERTIES].add(info_patients_veins_in_left_eye_is_red)
+
     info_patients_problem_is_bacterial_conjunctivitis.relation_storages[RSType.REQUIREMENTS].add_multi([
         Requirement(
             required_for=Deduce(done_by=DSTPronoun.I, deduced=info_patients_problem_is_bacterial_conjunctivitis),
             required=[AgentKnows(DSTPronoun.I, knows=info_patients_left_eye_has_inflammation, tense=Tense.PRESENT),
-                      AgentKnows(DSTPronoun.I, knows=info_patients_veins_in_left_eye_is_red, tense=Tense.PRESENT)])
+                      AgentKnows(DSTPronoun.I, knows=info_patients_veins_in_left_eye_is_red, tense=Tense.PRESENT)]),
+        Requirement(
+            required_for=GainKnowledge(knowledge=info_patients_left_eye_has_swelling, affected=DSTPronoun.I),
+            required=[AgentDoesAction(agent=DSTPronoun.I, action=Examine(), tense=Tense.PAST)]
+        )
     ])
-
-    p_veins_in_left_eye.relation_storages[RSType.PROPERTIES].add(info_patients_veins_in_left_eye_is_red)
 
     agent1.relation_storages[RSType.KNOWLEDGEBASE].add_multi([
         info_patient_is_sick,
@@ -251,6 +262,7 @@ def sp_main(dm_id):
         info_patients_right_eye_has_veins,
         info_patients_vision_is_blurry,
         info_patients_right_eye_is_healthy,
+        info_patients_left_eye_has_swelling,
         info_problem_description_is_any
     ])
     agent1.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(common_knowledge)
@@ -519,6 +531,15 @@ def sp_main(dm_id):
                          ],
                          completion_effects=[PromoteValue(affected=DSTPronoun.EVERYONE, value=value_politeness)],
                          violation_effects=[DemoteValue(affected=DSTPronoun.I, value=value_politeness)])
+
+    goodbye_norm = Norm(name='People said goodbye to each other', steps=[
+        ExpectationStep(action=Bye(), unique=True), ExpectationStep(action=Bye(), unique=True)
+    ], skipping_conditions=[
+        AgentCanDo(agent=DSTPronoun.I, action=Bye(), tense=Tense.ANY, negation=True)
+    ], completion_effects=[],
+                        violation_effects=[]
+                        )
+
     # vars.expectations.append(greeting_norm)
 
     session_manager = SessionManager()
@@ -568,6 +589,60 @@ def sp_main(dm_id):
                                               ])
                                      ])
 
+    session_physical_examination = Session(name='Physical Examination',
+                                           start_conditions=[
+                                               SessionStatusIs(session=session_history_taking,
+                                                               session_status=SessionStatus.COMPLETED)
+                                           ],
+                                           expectations=[],
+                                           end_goals=[
+                                               Goal(owner=any_agent,
+                                                    name='Doctor learnt all of the necessary symptoms from the examination',
+                                                    conditions=[
+                                                        AgentKnows(agent=agent2, tense=Tense.PRESENT,
+                                                                   knows=info_patients_left_eye_has_inflammation),
+                                                        AgentKnows(agent=agent2, tense=Tense.PRESENT,
+                                                                   knows=info_patients_left_eye_has_swelling)
+                                                    ])
+                                           ])
+
+    session_diagnosis = Session(name='Diagnosis',
+                                start_conditions=[
+                                    SessionStatusIs(session=session_physical_examination,
+                                                    session_status=SessionStatus.COMPLETED)
+                                ],
+                                expectations=[],
+                                end_goals=[
+                                    Goal(owner=any_agent,
+                                         name='Patient knows the name of the problem',
+                                         conditions=[AgentKnows(agent=agent1,
+                                                                knows=info_patients_problem_is_bacterial_conjunctivitis,
+                                                                tense=Tense.PRESENT)])
+                                ])
+
+    session_treatment = Session(name='Treatment and Recommendations',
+                                start_conditions=[
+                                    SessionStatusIs(session=session_diagnosis, session_status=SessionStatus.COMPLETED)
+                                ],
+                                expectations=[],
+                                end_goals=[
+                                    Goal(owner=any_agent,
+                                         name='Patient knows the treatment',
+                                         conditions=[AgentKnows(agent=agent1,
+                                                                knows=info_patients_problem_is_bacterial_conjunctivitis,
+                                                                tense=Tense.PRESENT)])
+                                ])
+
+    session_closing = Session(name='Closing',
+                              start_conditions=[
+                                  SessionStatusIs(session=session_treatment, session_status=SessionStatus.COMPLETED)
+                              ],
+                              expectations=[goodbye_norm],
+                              end_goals=[Goal(owner=any_agent,
+                                              name='People said good bye to each other',
+                                              conditions=[ExpectationStatusIs(expectation=goodbye_norm,
+                                                                              expectation_status=ExpectationStatus.COMPLETED)])])
+
     session_global = Session(name='Global',
                              start_conditions=[],
                              expectations=[
@@ -587,7 +662,11 @@ def sp_main(dm_id):
             session_global,
             session_greeting,
             session_problem_presentation,
-            session_history_taking
+            session_history_taking,
+            session_physical_examination,
+            session_diagnosis,
+            session_treatment,
+            session_closing
         ]
     )
     import logging

@@ -7,6 +7,7 @@ from socialds.enums import DSActionByType, DSAction
 from socialds.message import Message
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.other.event_listener import EventListener
+from socialds.relationstorage import RelationStorage
 
 
 class DialogueSystem:
@@ -14,8 +15,8 @@ class DialogueSystem:
         self.agent = agent
         self.auto_reaction_time = auto_reaction_time  # in seconds
 
-        self.action_history = None
-        self.dialogue_history = None
+        self.action_history = RelationStorage('Action History')
+        self.dialogue_history = RelationStorage('Dialogue History')
         self.last_turn_actions = None
 
         self.on_agent_chose_utterance = EventListener()
