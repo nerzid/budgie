@@ -587,7 +587,7 @@ def sp_main(dm_id):
             session_global,
             session_greeting,
             session_problem_presentation,
-            session_problem_presentation
+            session_history_taking
         ]
     )
     import logging
