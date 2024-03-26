@@ -21,7 +21,8 @@ class ExpectationStatus(Enum):
 
 
 class Expectation:
-    def __init__(self, name: str, etype: ExpectationType, status: ExpectationStatus, steps: List[ExpectationStep]):
+    def __init__(self, name: str, etype: ExpectationType, status: ExpectationStatus, steps: List[ExpectationStep],
+                 repeatable=False):
         """
         Creates an expectation of an action sequence that is expected to be seen during the dialogue.
         For example, norms are type of expectations that are expected to be performed by the agents
@@ -31,6 +32,7 @@ class Expectation:
         @param status:
         @param steps:
         """
+        self.repeatable = repeatable
         self.name = name
         self.etype = etype
         self.status = status
@@ -72,6 +74,12 @@ class Expectation:
                                                    ds_action_by='Dialogue System',
                                                    message='Expectation {} is completed!'.format(self.name),
                                                    ds_action=DSAction.DISPLAY_LOG.value))
+                if self.repeatable:
+                    self.status = ExpectationStatus.NOT_STARTED
+                    agent.message_streamer.add(Message(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                       ds_action_by='Dialogue System',
+                                                       message='Expectation {} can be repeated again now!'.format(self.name),
+                                                       ds_action=DSAction.DISPLAY_LOG.value))
             elif self.status is ExpectationStatus.COMPLETED:
                 pass
             else:
@@ -80,6 +88,12 @@ class Expectation:
                                                    ds_action_by='Dialogue System',
                                                    message='Expectation {} is failed!'.format(self.name),
                                                    ds_action=DSAction.DISPLAY_LOG.value))
+                if self.repeatable:
+                    self.status = ExpectationStatus.NOT_STARTED
+                    agent.message_streamer.add(Message(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                       ds_action_by='Dialogue System',
+                                                       message='Expectation {} can be repeated again now!'.format(self.name),
+                                                       ds_action=DSAction.DISPLAY_LOG.value))
 
     def get_next_not_executed_action(self):
         if len(self.steps_left) == 0:

@@ -340,6 +340,9 @@ def sp_main(dm_id):
         Utterance("My left eye has been red since this morning.", [
             Share(information=info_problem_description_is_any)
         ]),
+        Utterance("Is your vision blurry?", [
+            Ask(asked=info_patients_vision_is_blurry, r_tense=Tense.PRESENT)
+        ]),
         Utterance("And my vision is a little bit blurry.", [
             Share(information=info_patients_vision_is_blurry)
         ]),
@@ -585,7 +588,9 @@ def sp_main(dm_id):
                                               name='Doctor asked all the necessary questions before physical examination',
                                               conditions=[
                                                   AgentKnows(agent=agent2, tense=Tense.PRESENT,
-                                                             knows=info_patients_left_eye_is_teary)
+                                                             knows=info_patients_left_eye_is_teary),
+                                                  AgentKnows(agent=agent2, tense=Tense.PRESENT,
+                                                             knows=info_patients_vision_is_blurry)
                                               ])
                                      ])
 
