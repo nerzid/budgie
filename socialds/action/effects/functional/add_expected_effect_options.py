@@ -6,29 +6,30 @@ from socialds.relationstorage import RSType
 from socialds.states.relation import Relation, RType
 
 
-class AddExpectedEffect(Effect):
-    def __init__(self, effect: Effect, negation, affected: any):
-        self.effect = effect
+class AddExpectedEffectOptions(Effect):
+    def __init__(self, effects, negation, affected: any):
+        self.effects = effects
         self.negation = negation
         op_seq = [
             AddRelationToRSHolder(relation=Relation(
                 left=affected,
                 rtype=RType.EFFECT,
                 rtense=Tense.PRESENT,
-                right=effect,
+                right=effects,
                 negation=negation
             ), rsholder=affected, rstype=RSType.EXPECTED_EFFECTS)
         ]
-        super().__init__(name='add-expected-effect',
+        super().__init__(name='add-expected-effect-options',
                          from_state=[],
                          to_state=[],
                          affected=affected,
                          op_seq=op_seq)
 
     def __repr__(self):
-        return f'Adds the expected effect {self.effect} to {self.affected}'
+        return f'Adds the expected effects {self.effects} to {self.affected}'
 
     def insert_pronouns(self):
         super().insert_pronouns()
-        self.effect.pronouns = self.pronouns
-        self.effect.insert_pronouns()
+        for effect in self.effects:
+            effect.pronouns = self.pronouns
+            effect.insert_pronouns()

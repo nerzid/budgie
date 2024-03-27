@@ -1,6 +1,8 @@
 from copy import copy, deepcopy
 from typing import List
 import logging
+
+
 from socialds.action.effects.effect import Effect
 from socialds.action.effects.functional.add_expected_action import AddExpectedAction
 from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
@@ -14,6 +16,7 @@ from socialds.conditions.action_on_property_happens import ActionOnResourceHappe
 from socialds.conditions.agent_at_place import AgentAtPlace
 from socialds.conditions.agent_does_action import AgentDoesAction
 from socialds.conditions.agent_does_effect import AgentDoesEffect
+from socialds.conditions.agent_does_one_of_the_actions import AgentDoesOneOfTheActions
 from socialds.conditions.agent_knows import AgentKnows
 from socialds.conditions.condition_solution import ConditionSolution
 from socialds.conditions.expectation_status_is import ExpectationStatusIs
@@ -60,6 +63,8 @@ class Planner:
     #     print(managers.session_manager.get_sessions_info())
 
     def plan(self):
+        from socialds.action.actions.verbal.request_confirmation import RequestConfirmation
+
         """
         Creates plans for the available goals
         """
@@ -93,13 +98,13 @@ class Planner:
                 all_conditions = goal.conditions
                 # break
 
-        from socialds.action.action import Action
-        expected_actions: List[Action] = []
-        expected_effects: List[Effect] = []
-        for expected_action_relation in self.agent.relation_storages[RSType.EXPECTED_ACTIONS]:
-            expected_actions.append(expected_action_relation.right)
-        for expected_effect_relation in self.agent.relation_storages[RSType.EXPECTED_EFFECTS]:
-            expected_effects.append(expected_effect_relation.right)
+        # from socialds.action.action import Action
+        # expected_actions: List[Action] = []
+        # expected_effects: List[Effect] = []
+        # for expected_action_relation in self.agent.relation_storages[RSType.EXPECTED_ACTIONS]:
+        #     expected_actions.append(expected_action_relation.right)
+        # for expected_effect_relation in self.agent.relation_storages[RSType.EXPECTED_EFFECTS]:
+        #     expected_effects.append(expected_effect_relation.right)
 
         condition_solutions = []
         for condition in all_conditions:
@@ -122,6 +127,12 @@ class Planner:
                                                             negation=False,
                                                             affected=DSTPronoun.YOU)
                                       ])
+                )
+            elif isinstance(condition, AgentDoesOneOfTheActions):
+                condition_solutions.append(
+                    ConditionSolution(condition=condition,
+                                      desc='by performing one of the actions, starting from the first one',
+                                      steps=condition.actions)
                 )
             elif isinstance(condition, AgentKnows):
                 if self.agent.equals_with_pronouns(condition.agent, self.agent.pronouns):
@@ -151,6 +162,17 @@ class Planner:
                                               AddExpectedEffect(GainKnowledge(knowledge=condition.knows,
                                                                               affected=condition.agent),
                                                                 negation=condition.negation,
+                                                                affected=DSTPronoun.YOU)
+                                          ])
+                    )
+
+                    condition_solutions.append(
+                        ConditionSolution(condition=condition,
+                                          desc='by confirming it with an agent',
+                                          steps=[
+                                              AddExpectedAction(RequestConfirmation(asked=condition.knows,
+                                                                                    r_tense=Tense.ANY),
+                                                                negation=False,
                                                                 affected=DSTPronoun.YOU)
                                           ])
                     )
@@ -213,9 +235,15 @@ class Planner:
         goals = []
         expected_actions = self.agent.relation_storages[RSType.EXPECTED_ACTIONS]
         for action in expected_actions:
-            condition = AgentDoesAction(agent=action.done_by, action=action, tense=Tense.ANY, negation=False)
-            goals.append(
-                Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=[condition]))
+            from socialds.action.action import Action
+            if isinstance(action, Action):
+                condition = AgentDoesAction(agent=action.done_by, action=action, tense=Tense.ANY, negation=False)
+                goals.append(
+                    Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=[condition]))
+            elif isinstance(action, List):
+                condition = AgentDoesOneOfTheActions(agent=action[0].done_by, actions=action, tense=Tense.ANY, negation=False)
+                goals.append(
+                    Goal(owner=self.agent, name='goal for the expected actions %s' % action, conditions=[condition]))
         return goals
 
     def create_goals_from_expected_effects(self):

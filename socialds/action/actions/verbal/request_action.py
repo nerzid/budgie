@@ -7,7 +7,7 @@ from socialds.action.action import Action
 from socialds.other.dst_pronouns import DSTPronoun
 
 
-class Request(Action):
+class RequestAction(Action):
     def __init__(self, done_by: Agent | DSTPronoun, requested: Action):
         self.requested = requested
         super().__init__('request', done_by, ActionObjType.VERBAL, [

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import List
+
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
@@ -9,11 +11,11 @@ from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.relation import Relation, RType
 
 
-class Ask(Action):
+class RequestInfo(Action):
     def __init__(self, asked: Relation, r_tense: Tense, negation: bool = False):
         self.relation = Relation(DSTPronoun.I, RType.ACTION, r_tense, asked, negation)
         self.asked = asked
-        super().__init__("ask", DSTPronoun.I, ActionObjType.VERBAL, base_effects=[
+        super().__init__("request-info", DSTPronoun.I, ActionObjType.VERBAL, base_effects=[
             AddExpectedEffect(effect=GainKnowledge(affected=DSTPronoun.I, knowledge=asked),
                               affected=DSTPronoun.YOU,
                               negation=False)
@@ -36,6 +38,9 @@ class Ask(Action):
         self.pronouns = agent.pronouns
         self.insert_pronouns()
         super().execute(agent, **kwargs)
+
+    def get_requirement_holders(self) -> List:
+        pass
 # joe asks color of jane's dress
 # Joe -do-> ask (Jane's dress's color -is-> X)
 
