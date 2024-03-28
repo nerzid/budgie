@@ -32,3 +32,6 @@ class AddExpectedEffect(Effect):
         super().insert_pronouns()
         self.effect.pronouns = self.pronouns
         self.effect.insert_pronouns()
+
+    def equals_with_pronouns(self, other, pronouns):
+        return super().equals_with_pronouns(other, pronouns) and self.effect.equals_with_pronouns(other.effect, pronouns)

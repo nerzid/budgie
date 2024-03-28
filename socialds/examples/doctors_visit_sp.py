@@ -390,8 +390,8 @@ def sp_main(dm_id):
         ]),
         Utterance("Yes, my left eye is teary.", [
             Affirm(affirmed=info_patients_left_eye_is_teary),
-            Then(),
-            Share(information=info_patients_left_eye_is_teary)
+            # Then(),
+            # Share(information=info_patients_left_eye_is_teary)
         ]),
         Utterance("Okay, I need to examine your eye now if that's okay for you.", [
             RequestConfirmation(asked=action_examine, r_tense=Tense.PRESENT),
@@ -474,10 +474,10 @@ def sp_main(dm_id):
             RequestInfo(asked=Relation(left=p_patients_problem, rtype=RType.IS, rtense=Tense.PRESENT,
                                        right=AnyProperty()),
                         r_tense=Tense.PRESENT),
-            Or(),
-            RequestInfo(asked=Relation(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
-                                       right=AnyProperty()),
-                        r_tense=Tense.PRESENT)
+            # Or(),
+            # RequestInfo(asked=Relation(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
+            #                            right=AnyProperty()),
+            #             r_tense=Tense.PRESENT)
         ]),
         Utterance("Your left eye has bacterial conjunctivitis.", [
             Share(information=Information(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,

@@ -28,7 +28,7 @@ class AgentDoesOneOfTheActions(Condition):
             # if the negation is false, then we expect that one of the actions are executed in self.actions
             # at the moment, this doesn't enforce only one action of the list, rather it checks if at least one action is executed
             for action in self.actions:
-                return checker.dialogue_system.action_history.contains(action, checker.pronouns)
+                return checker.dialogue_system.action_history.contains(Relation(left=self.agent, rtype=RType.ACTION, rtense=self.tense, right=action, negation=self.negation), checker.pronouns)
 
     # def check(self):
     #     max_count = 1

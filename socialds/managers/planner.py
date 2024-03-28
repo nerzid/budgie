@@ -170,10 +170,8 @@ class Planner:
                         ConditionSolution(condition=condition,
                                           desc='by confirming it with an agent',
                                           steps=[
-                                              AddExpectedAction(RequestConfirmation(asked=condition.knows,
-                                                                                    r_tense=Tense.ANY),
-                                                                negation=False,
-                                                                affected=DSTPronoun.YOU)
+                                              RequestConfirmation(asked=condition.knows,
+                                                                  r_tense=Tense.ANY)
                                           ])
                     )
                 else:
@@ -248,21 +246,28 @@ class Planner:
 
     def create_goals_from_expected_effects(self):
         goals = []
+        conditions = []
         expected_actions = self.agent.relation_storages[RSType.EXPECTED_ACTIONS]
         expected_effects = self.agent.relation_storages[RSType.EXPECTED_EFFECTS]
-        for effect in expected_effects:
-            condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect, tense=Tense.ANY, negation=False)
+        for effect_rel in expected_effects:
+            condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect_rel.right, tense=Tense.ANY, negation=False)
             goals.append(
-                Goal(owner=self.agent, name='goal for the expected action %s' % effect, conditions=[condition]))
-        for action in expected_actions:
-            if not action.specific:
-                effects = action.base_effects + action.extra_effects
-                conditions = []
-                for effect in effects:
-                    condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect, tense=Tense.ANY, negation=False)
-                    conditions.append(condition)
+                Goal(owner=self.agent, name='goal for the expected effect %s' % effect_rel.right, conditions=[condition]))
+        for action_rel in expected_actions:
+            action = action_rel.right
+            if isinstance(action, List):
+                condition = AgentDoesOneOfTheActions(agent=DSTPronoun.I, actions=action, tense=Tense.ANY, negation=False)
+                conditions.append(condition)
                 goals.append(
-                    Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=conditions))
+                    Goal(owner=self.agent, name='goal for the expected one of the actions %s' % action, conditions=conditions))
+            else:
+                if not action.specific:
+                    effects = action.base_effects + action.extra_effects
+                    for effect in effects:
+                        condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect, tense=Tense.ANY, negation=False)
+                        conditions.append(condition)
+                    goals.append(
+                        Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=conditions))
         return goals
 
     def filter_solutions_by_steps(self, solutions: List[ConditionSolution]):
@@ -296,7 +301,7 @@ class Planner:
                         exclude_solution = True
                         break
                 elif isinstance(step, Effect):
-                    print(step.pronouns)
+                    # print(step.pronouns)
                     if not step.is_effect_in_list(possible_effects, self.agent.pronouns):
                         print("{} step {} not in possible effects {}".format(self.agent, step, possible_effects))
                         exclude_solution = True

@@ -95,6 +95,9 @@ class Action(ActionObj):
 
     def equals_with_pronouns(self, other, pronouns):
         if isinstance(other, Action):
+            from socialds.any.any_action import AnyAction
+            if isinstance(other, AnyAction):
+                return True
             self_done_by = get_agent(self.done_by, pronouns)
             other_done_by = get_agent(other.done_by, pronouns)
             self_recipient = get_agent(self.recipient, pronouns)

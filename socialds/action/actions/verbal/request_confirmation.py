@@ -42,5 +42,3 @@ class RequestConfirmation(Action):
         self.insert_pronouns()
         super().execute(agent, **kwargs)
 
-    def get_requirement_holders(self) -> List:
-        pass

@@ -104,7 +104,7 @@ class Effect(SolutionStep, DSTPronounHolder):
         if isinstance(self.affected, DSTPronoun):
             self.affected = self.pronouns[self.affected]
         for condition in self.from_state:
-            print(condition)
+            # print(condition)
             condition.insert_pronouns(self.pronouns)
         for condition in self.to_state:
             condition.insert_pronouns(self.pronouns)

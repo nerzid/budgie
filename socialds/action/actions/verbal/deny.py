@@ -1,5 +1,6 @@
 from socialds.action.action_obj import ActionObjType
 from socialds.action.actions.verbal.affirm_or_deny import AffirmOrDeny
+from socialds.action.effects.functional.change_property import GainKnowledge
 from socialds.action.simple_action import SimpleAction
 from socialds.other.dst_pronouns import DSTPronoun
 
@@ -7,7 +8,9 @@ from socialds.other.dst_pronouns import DSTPronoun
 class Deny(AffirmOrDeny):
     def __init__(self, denied):
         self.denied = denied
-        super().__init__('deny', DSTPronoun.I)
+        super().__init__('deny', done_by=DSTPronoun.I, base_effects=[
+            GainKnowledge(knowledge=denied, affected=DSTPronoun.YOU)
+        ])
 
     def equals_with_pronouns(self, other, pronouns):
         return super().equals_with_pronouns(other, pronouns) and self.denied == other.denied

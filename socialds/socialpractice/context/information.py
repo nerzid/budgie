@@ -18,6 +18,9 @@ class Information(Relation, RSHolder):
         RSHolder.__init__(self, rsholder_name='information', rsholder_type=RSHolderType.INFORMATION)
 
     def __eq__(self, other):
+        from socialds.any.any_relation import AnyRelation
+        if isinstance(other, AnyRelation):
+            return True
         if isinstance(other, Information):
             return (self.left == other.left and
                     (self.rtype == other.rtype or self.rtype == RType.ANY or other.rtype == RType.ANY) and
