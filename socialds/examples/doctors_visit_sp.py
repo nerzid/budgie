@@ -1,5 +1,5 @@
 from socialds.action.actions.verbal.bye import Bye
-from socialds.action.actions.verbal.request_confirmation import RequestConfirmation
+from socialds.action.actions.verbal.request_confirmation import RequestConfirmation, Affirm, Deny
 from socialds.action.effects.functional.change_place import ChangePlace
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.any.any_information import AnyInformation
@@ -30,13 +30,11 @@ from socialds.action.actions.verbal.check import Check
 from socialds.action.actions.verbal.greet import Greet
 from socialds.action.actions.verbal.have import Have
 from socialds.action.actions.verbal.learn import Learn
-from socialds.action.actions.verbal.deny import Deny
 from socialds.action.actions.verbal.notify import Notify
 from socialds.action.actions.verbal.request_action import RequestAction
 from socialds.action.actions.verbal.selftalk import SelfTalk
 from socialds.action.actions.verbal.share import Share
 from socialds.action.actions.verbal.thank import Thank
-from socialds.action.actions.verbal.affirm import Affirm
 from socialds.action.actiontimes.after import After
 from socialds.action.actiontimes.before import Before
 from socialds.action.actiontimes.in_morning import InMorning

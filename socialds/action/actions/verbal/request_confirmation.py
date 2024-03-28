@@ -5,12 +5,8 @@ from typing import List
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.actions.verbal.affirm import Affirm
-from socialds.action.actions.verbal.affirm_or_deny import AffirmOrDeny
 from socialds.action.actions.verbal.deny import Deny
-from socialds.action.effects.functional.add_expected_action import AddExpectedAction
 from socialds.action.effects.functional.add_expected_action_options import AddExpectedActionOptions
-from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
-from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.relation import Relation, RType
