@@ -27,8 +27,7 @@ class Permit(Action):
                          act_type=ActionObjType.VERBAL,
                          base_effects=[
                              GainPermit(permit=self.relation, affected=self.permit_given_to)
-                         ],
-                         preconditions=[HasPermit(agent=done_by, permit=self.permitted)])
+                         ])
 
     def __str__(self):
         return f"{self.done_by} give permit {self.permitted}"
@@ -47,3 +46,7 @@ class Permit(Action):
         self.permitted.insert_pronouns()
         self.relation.insert_pronouns()
         super().insert_pronouns()
+
+    def check_preconditions(self, checker):
+        return super().check_preconditions(checker=checker) and \
+            HasPermit(agent=self.done_by, permit=self.permitted).check(checker=checker)

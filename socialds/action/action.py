@@ -54,7 +54,6 @@ class Action(ActionObj):
                  extra_effects: List[Effect] = None,
                  recipient: a.Agent | DSTPronoun | AnyAgent = None,
                  target_resource: Resource | AnyResource = None,
-                 preconditions=None,
                  execution_time=ExecutionTime(),
                  times: List[ActionHappenedAtTime] = None,
                  specific=False):
@@ -72,10 +71,7 @@ class Action(ActionObj):
         if extra_effects is None:
             extra_effects = []
         self.times = times
-        if preconditions is None:
-            preconditions = []
         self.name = name
-        self.preconditions = preconditions
         super().__init__(name, act_type, base_effects, extra_effects)
 
     def __eq__(self, other):
@@ -178,6 +174,10 @@ class Action(ActionObj):
             effect.insert_pronouns()
         for time in self.times:
             time.insert_pronouns(self.pronouns)
+
+    @abstractmethod
+    def check_preconditions(self, checker):
+        return True
 
     def execute(self, agent, **kwargs):
         self.pronouns = agent.pronouns

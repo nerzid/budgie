@@ -5,12 +5,11 @@ import socialds.conditions.agent_knows as an
 from socialds.enums import Tense
 from socialds.operations.add_relation_to_rsholder import AddRelationToRSHolder
 from socialds.relationstorage import RSType
-from socialds.states.relation import Relation
 
 
 class GainKnowledge(Effect):
 
-    def __init__(self, knowledge: Relation, affected: any):
+    def __init__(self, knowledge, affected: any):
         self.knowledge = knowledge
         self.affected = affected
         op_seq = [

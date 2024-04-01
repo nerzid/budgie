@@ -375,10 +375,9 @@ class Planner:
                 # if not, then the agent cannot choose that utterance
                 for action in utterance.actions:
                     if isinstance(action, Action):
-                        for precondition in action.preconditions:
-                            if not precondition.check(self.agent):
-                                agent_can_do_all_actions_in_utterance = False
-                                break
+                        if not action.check_preconditions(checker=self.agent):
+                            agent_can_do_all_actions_in_utterance = False
+                            break
                         # check if the actions in the utterance can be executed by the agent
                         requirement_holders = action.get_requirement_holders()
                         print(action.name)

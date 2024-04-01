@@ -23,8 +23,7 @@ class Share(Action):
                              GainKnowledge(knowledge=information, affected=self.recipient)
                          ],
                          recipient=self.recipient,
-                         times=times,
-                         preconditions=[AgentKnows(agent=DSTPronoun.I, knows=information, tense=Tense.ANY)])
+                         times=times)
 
     def __str__(self):
         return "%s share %s with %s" % (self.done_by, self.information, self.recipient)
@@ -39,6 +38,10 @@ class Share(Action):
         self.information.pronouns = self.pronouns
         self.information.insert_pronouns()
         super().insert_pronouns()
+
+    def check_preconditions(self, checker):
+        return super().check_preconditions(checker) and \
+            AgentKnows(agent=DSTPronoun.I, knows=self.information, tense=Tense.ANY).check(checker=checker)
 
     def get_requirement_holders(self) -> List:
         return super().get_requirement_holders() + [self.information]

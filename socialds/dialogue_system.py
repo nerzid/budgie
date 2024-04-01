@@ -3,11 +3,12 @@ import copy
 import eventlet
 from eventlet.greenpool import GreenPool
 from socialds.action.action_operator import ActionOperator
-from socialds.enums import DSActionByType, DSAction
+from socialds.enums import DSActionByType, DSAction, Tense
 from socialds.message import Message
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.other.event_listener import EventListener
 from socialds.relationstorage import RelationStorage
+from socialds.states.relation import Relation, RType
 
 
 class DialogueSystem:
@@ -54,11 +55,17 @@ class DialogueSystem:
             if isinstance(action, ActionOperator):
                 continue
             actions.append(action)
+            action.on_action_finished_executing.subscribe(self.add_action_to_action_history)
             pool.spawn(action.execute, self.agent)
-            self.on_agent_executed_action.subscribe(action.on_action_finished_executing)
 
         pool.waitall()
         self.on_agent_executed_all_actions_from_utterance.invoke(self.agent, actions)
+
+    def add_action_to_action_history(self, agent, action):
+        self.action_history.add(Relation(left=agent,
+                                         rtype=RType.ACTION,
+                                         rtense=Tense.PAST,
+                                         right=action))
 
     def get_planned_utterances(self):
         utts_str = []

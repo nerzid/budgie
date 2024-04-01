@@ -44,7 +44,6 @@ class DialogueManager:
         self.on_user_executed_all_actions_from_utterance = EventListener()
         self.on_auto_executed_all_actions_from_utterance = EventListener()
 
-
         # for age in self.agents:
         #     pronouns = {}
         #     for agent in self.agents:
@@ -95,7 +94,7 @@ class DialogueManager:
                 #     self.run_auto_agent(agent)
 
         for agent in self.agents:
-            agent.dialogue_system.on_agent_executed_action.subscribe(self.add_action_to_action_history)
+            # agent.dialogue_system.on_agent_executed_action.subscribe(self.add_action_to_action_history)
             agent.dialogue_system.on_agent_chose_utterance.subscribe(self.add_utterance_to_dialogue_history)
             if not self.allow_duplicate_utterances:
                 agent.dialogue_system.on_agent_chose_utterance.subscribe(self.remove_utterance)
@@ -109,7 +108,6 @@ class DialogueManager:
             agent.dialogue_system.action_history = self.action_history
             agent.dialogue_system.dialogue_history = self.dialogue_history
             agent.dialogue_system.last_turn_actions = self.last_turn_actions
-
 
     def choose_menu_option(self, agent, menu_option, receiver):
         if menu_option == 'All Utterances':
@@ -155,12 +153,6 @@ class DialogueManager:
 
     def remove_utterance(self, utterance, **kwargs):
         self.utterances_manager.utterances.remove(utterance)
-
-    def add_action_to_action_history(self, agent, action):
-        self.action_history.add(Relation(left=agent,
-                                         rtype=RType.ACTION,
-                                         rtense=Tense.PAST,
-                                         right=action))
 
     def add_utterance_to_dialogue_history(self, agent, utterance):
         self.dialogue_history.add(Relation(left=agent,

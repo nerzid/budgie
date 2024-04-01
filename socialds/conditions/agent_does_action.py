@@ -18,16 +18,20 @@ class AgentDoesAction(Condition):
         self.action = action
 
     def check(self, checker=None):
-        if self.negation:
-            return not checker.dialogue_system.action_history.contains(self.action, checker.pronouns)
+        if isinstance(self.agent, DSTPronoun):
+            agent = checker.pronouns[self.agent]
         else:
-            return checker.dialogue_system.action_history.contains(self.action, checker.pronouns)
+            agent = self.agent
+        if self.negation:
+            return not agent.dialogue_system.action_history.contains(self.action, checker.pronouns)
+        else:
+            return agent.dialogue_system.action_history.contains(self.action, checker.pronouns)
 
     # def check(self):
     #     max_count = 1
-    #     if self.times is not None:
     #         for time in self.times:
     #             if isinstance(time, NumOfTimes):
+    #     if self.times is not None:
     #                 max_count = time.num
     #     found = []
     #     for i in range(max_count):

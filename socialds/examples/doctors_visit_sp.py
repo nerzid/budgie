@@ -160,7 +160,7 @@ def sp_main(dm_id):
         Competence('Acknowledge', Acknowledge()),
         Competence('Selftalk', SelfTalk()),
         Competence('Learn', Learn(done_by=DSTPronoun.I, learned=AnyRelation())),
-        Competence('Affirm', Affirm(AnyRelation())),
+        Competence('Affirm', Affirm(AnyInformation())),
         Competence('Deny', Deny(AnyRelation())),
         Competence('Share', Share(information=AnyInformation())),
         Competence('Feel', Feel(done_by=DSTPronoun.I, felt=AnyProperty(), about=AnyRelation(), r_tense=Tense.ANY)),
@@ -250,7 +250,7 @@ def sp_main(dm_id):
         )
     ])
 
-    info_patient_had_cold = Relation(left=DSTPronoun.YOU, rtype=RType.HAS, rtense=Tense.PAST, right=p_cold)
+    info_patient_had_cold = Information(left=DSTPronoun.YOU, rtype=RType.HAS, rtense=Tense.PAST, right=p_cold)
 
     agent1.relation_storages[RSType.KNOWLEDGEBASE].add_multi([
         info_patient_is_sick,
@@ -311,7 +311,7 @@ def sp_main(dm_id):
 
 
     # Actions
-    action_examine = Relation(left=DSTPronoun.I, rtype=RType.ACTION, rtense=Tense.FUTURE, right=Examine())
+    action_examine = Information(left=DSTPronoun.I, rtype=RType.ACTION, rtense=Tense.FUTURE, right=Examine())
 
     # Utterances
     utterances = [
