@@ -110,6 +110,9 @@ def sp_main(dm_id):
     p_bacterial_conjunctivitis = Resource('bacterial conjunctivitis')
     p_antibiotics = Resource('antibiotics')
     p_problem_description = Resource('problem description')
+    resources = [p_patients_problem, p_patients_left_eye, p_patients_right_eye, p_patients_both_eyes,
+                 p_veins_in_left_eye, p_veins_in_right_eye, p_eye, p_inflammation, p_medicine,
+                 p_bacterial_conjunctivitis, p_antibiotics, p_problem_description]
 
     # PROPERTIES
     p_sick = Property('sick')
@@ -125,6 +128,8 @@ def sp_main(dm_id):
     p_swelling = Property('swelling')
     p_common = Property('common')
     p_symptom = Property('symptom')
+    properties = [p_sick, p_teary, p_healthy, p_blurry, p_vision, p_pain, p_painful, p_red, p_worry, p_cold, p_swelling,
+                  p_common, p_symptom]
 
     common_knowledge = RelationStorage(name='Common Knowledge Relation Storage', is_private=False)
 
@@ -149,7 +154,7 @@ def sp_main(dm_id):
 
     basic_competences.add_multi([
         Competence('Asking questions for information', RequestInfo(asked=AnyRelation(), r_tense=Tense.ANY)),
-        Competence('Asking questions for yes or no answers', RequestConfirmation(asked=AnyRelation(), r_tense=Tense.ANY)),
+        Competence('Asking questions for yes or no answers', RequestConfirmation(done_by=DSTPronoun.I, asked=AnyRelation(), r_tense=Tense.ANY, recipient=DSTPronoun.YOU)),
         Competence('Moving like walking',
                    Move(done_by=DSTPronoun.I, moved=DSTPronoun.I, from_place=AnyPlace(), to_place=AnyPlace())),
         Competence('Carrying a resource from a place to a place',
@@ -347,7 +352,7 @@ def sp_main(dm_id):
             Share(information=info_problem_description_is_any)
         ]),
         Utterance("Is your vision blurry?", [
-            RequestConfirmation(asked=info_patients_vision_is_blurry, r_tense=Tense.PRESENT)
+            RequestConfirmation(done_by=DSTPronoun.I, asked=info_patients_vision_is_blurry, r_tense=Tense.PRESENT, recipient=DSTPronoun.YOU)
         ]),
         Utterance("Yes, I have a blurry vision", [
             Affirm(affirmed=info_patients_vision_is_blurry)
@@ -384,7 +389,8 @@ def sp_main(dm_id):
             #       r_tense=Tense.PRESENT,
             #       negation=False,
             #       recipient=DSTPronoun.YOU),
-            RequestConfirmation(asked=info_patients_left_eye_is_teary, r_tense=Tense.PRESENT)
+            RequestConfirmation(done_by=DSTPronoun.I, asked=info_patients_left_eye_is_teary, r_tense=Tense.PRESENT,
+                                recipient=DSTPronoun.YOU)
         ]),
         Utterance("Yes, my left eye is teary.", [
             Affirm(affirmed=info_patients_left_eye_is_teary),
@@ -392,7 +398,7 @@ def sp_main(dm_id):
             # Share(information=info_patients_left_eye_is_teary)
         ]),
         Utterance("Okay, I need to examine your eye now if that's okay for you.", [
-            RequestConfirmation(asked=action_examine, r_tense=Tense.PRESENT),
+            RequestConfirmation(done_by=DSTPronoun.I, asked=action_examine, r_tense=Tense.PRESENT, recipient=DSTPronoun.YOU),
             # RequestAction(done_by=DSTPronoun.I, requested=Examine()),
             And(),
             Notify(notified_about=action_examine, recipient=DSTPronoun.YOU, done_by=DSTPronoun.I)

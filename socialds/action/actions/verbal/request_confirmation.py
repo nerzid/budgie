@@ -13,12 +13,12 @@ from socialds.states.relation import Relation, RType
 
 
 class RequestConfirmation(Action):
-    def __init__(self, asked: Relation, r_tense: Tense, negation: bool = False):
-        self.relation = Relation(DSTPronoun.I, RType.ACTION, r_tense, asked, negation)
+    def __init__(self, done_by, recipient, asked: Relation, r_tense: Tense, negation: bool = False):
+        self.relation = Relation(done_by, RType.ACTION, r_tense, asked, negation)
         self.asked = asked
-        super().__init__("request-confirmation", DSTPronoun.I, ActionObjType.VERBAL, base_effects=[
-            AddExpectedActionOptions(actions=[Affirm(asked), Deny(asked)], negation=negation, affected=DSTPronoun.YOU)
-        ], recipient=DSTPronoun.YOU)
+        super().__init__("request-confirmation", done_by, ActionObjType.VERBAL, base_effects=[
+            AddExpectedActionOptions(actions=[Affirm(asked), Deny(asked)], negation=negation, affected=recipient)
+        ], recipient=recipient)
 
     def __str__(self):
         return "%s asks confirmation for %s" % (self.done_by.name, self.asked)

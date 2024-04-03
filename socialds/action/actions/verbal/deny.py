@@ -22,8 +22,10 @@ class Deny(Action):
         return super().check_preconditions(checker) and \
             AgentDoesAction(agent=DSTPronoun.YOU, action=Relation(left=DSTPronoun.YOU, rtype=RType.ACTION,
                                                                   rtense=Tense.PAST,
-                                                                  right=rc.RequestConfirmation(asked=self.denied,
-                                                                                               r_tense=Tense.ANY)),
+                                                                  right=rc.RequestConfirmation(done_by=DSTPronoun.YOU,
+                                                                                               asked=self.denied,
+                                                                                               r_tense=Tense.ANY,
+                                                                                               recipient=DSTPronoun.I)),
                             tense=Tense.PAST).check(checker=checker)
 
     def insert_pronouns(self):

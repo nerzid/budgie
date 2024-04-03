@@ -2,7 +2,6 @@ from copy import copy, deepcopy
 from typing import List
 import logging
 
-
 from socialds.action.effects.effect import Effect
 from socialds.action.effects.functional.add_expected_action import AddExpectedAction
 from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
@@ -149,9 +148,10 @@ class Planner:
                                           desc='by remembering it',
                                           steps=[
                                               MoveInformation(information=condition.knows,
-                                                              from_rs=condition.agent.relation_storages[RSType.FORGOTTEN],
+                                                              from_rs=condition.agent.relation_storages[
+                                                                  RSType.FORGOTTEN],
                                                               to_rs=condition.agent.relation_storages[
-                                                                RSType.KNOWLEDGEBASE],
+                                                                  RSType.KNOWLEDGEBASE],
                                                               affected=condition.agent)])
                     )
 
@@ -170,8 +170,10 @@ class Planner:
                         ConditionSolution(condition=condition,
                                           desc='by confirming it with an agent',
                                           steps=[
-                                              RequestConfirmation(asked=condition.knows,
-                                                                  r_tense=Tense.ANY)
+                                              RequestConfirmation(done_by=DSTPronoun.I,
+                                                                  asked=condition.knows,
+                                                                  r_tense=Tense.ANY,
+                                                                  recipient=DSTPronoun.YOU)
                                           ])
                     )
                 else:
@@ -239,7 +241,8 @@ class Planner:
                 goals.append(
                     Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=[condition]))
             elif isinstance(action, List):
-                condition = AgentDoesOneOfTheActions(agent=action[0].done_by, actions=action, tense=Tense.ANY, negation=False)
+                condition = AgentDoesOneOfTheActions(agent=action[0].done_by, actions=action, tense=Tense.ANY,
+                                                     negation=False)
                 goals.append(
                     Goal(owner=self.agent, name='goal for the expected actions %s' % action, conditions=[condition]))
         return goals
@@ -252,14 +255,17 @@ class Planner:
         for effect_rel in expected_effects:
             condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect_rel.right, tense=Tense.ANY, negation=False)
             goals.append(
-                Goal(owner=self.agent, name='goal for the expected effect %s' % effect_rel.right, conditions=[condition]))
+                Goal(owner=self.agent, name='goal for the expected effect %s' % effect_rel.right,
+                     conditions=[condition]))
         for action_rel in expected_actions:
             action = action_rel.right
             if isinstance(action, List):
-                condition = AgentDoesOneOfTheActions(agent=DSTPronoun.I, actions=action, tense=Tense.ANY, negation=False)
+                condition = AgentDoesOneOfTheActions(agent=DSTPronoun.I, actions=action, tense=Tense.ANY,
+                                                     negation=False)
                 conditions.append(condition)
                 goals.append(
-                    Goal(owner=self.agent, name='goal for the expected one of the actions %s' % action, conditions=conditions))
+                    Goal(owner=self.agent, name='goal for the expected one of the actions %s' % action,
+                         conditions=conditions))
             else:
                 if not action.specific:
                     effects = action.base_effects + action.extra_effects
