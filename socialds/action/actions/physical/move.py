@@ -11,6 +11,16 @@ from socialds.socialpractice.context.place import Place
 
 
 class Move(Action):
+    @staticmethod
+    def get_class_attr_mapping():
+        from socialds.socialpractice.context.resource import Resource
+        return super().get_class_attr_mapping().update({
+            "Name": "Move",
+            "Done By": [Agent, DSTPronoun],
+            "Recipients": [Agent, DSTPronoun],
+            "Resources": [Resource]
+        })
+
     def __init__(self, done_by: Agent | DSTPronoun, moved: any, from_place: Place, to_place: Place):
         # self.relation = Relation(mover, RelationType.ACTION, RelationTense.PRESENT, )
         self.relation = None

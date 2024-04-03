@@ -2,6 +2,7 @@ import datetime
 from typing import List
 from uuid import UUID
 
+from socialds.action.action import Action
 from socialds.agent import Agent
 from socialds.enums import DSAction, DSActionByType, Tense
 from socialds.managers.session_manager import SessionManager
@@ -10,6 +11,8 @@ from socialds.message import Message
 from socialds.message_streamer import MessageStreamer
 from socialds.other.event_listener import EventListener
 from socialds.relationstorage import RelationStorage
+from socialds.socialpractice.context.place import Place
+from socialds.socialpractice.context.resource import Resource
 from socialds.states.relation import Relation, RType
 from socialds.strategies.turntaking.turntaking import TurnTaking
 from socialds.utterance import Utterance
@@ -20,10 +23,16 @@ class DialogueManager:
                  dm_id,
                  agents: List[Agent],
                  utterances: List[Utterance],
+                 actions: List[Action],
+                 places: List[Place],
+                 resources: List[Resource],
                  dialogue_history: RelationStorage = None,
                  session_manager: SessionManager = None,
                  allow_duplicate_utterances=False):
         self.dm_id = dm_id
+        self.actions = actions
+        self.resources = resources
+        self.places = places
         self.last_time_dm_used_at = datetime.datetime.now()
         if session_manager is None:
             self.session_manager = SessionManager()
@@ -129,6 +138,27 @@ class DialogueManager:
                                           message=['All Utterances', 'Planned Utterances', 'Verbal Act', 'Physical Act',
                                                    'Functional Act', 'Mental Act'],
                                           ds_action_by=DSActionByType.DIALOGUE_SYSTEM.value))
+
+    def get_action_attrs_by_name(self, action_name):
+        return self.get_action_attrs(self.get_action_by_name(action_name))
+
+    def get_action_attrs(self, action):
+        attrs_dict = {}
+        for attr, val_list in action.get_class_attr_mapping().items():
+            attrs_dict[attr] = []
+            for val in val_list:
+                if isinstance(val, Agent):
+                    attrs_dict[attr].extend(self.agents)
+                elif isinstance(val, Resource):
+                    attrs_dict[attr].extend(self.resources)
+                elif isinstance(val, Place):
+                    attrs_dict[attr].extend(self.places)
+        return attrs_dict
+
+    def get_action_by_name(self, action_name):
+        for a in self.actions:
+            if action_name == a.name:
+                return a
 
     def get_all_utterances(self):
         utts_str = []

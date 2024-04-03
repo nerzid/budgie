@@ -132,6 +132,14 @@ class Action(ActionObj):
                 return (self.base_effects + self.extra_effects)[0].equals_with_pronouns(other, pronouns)
         return False
 
+    @staticmethod
+    def get_class_attr_mapping():
+        return {
+            "Done By": [],
+            "Recipients": [],
+            "Resources": [],
+        }
+
     def is_action_in_list(self, actions, pronouns):
         for act in actions:
             if self.equals_with_pronouns(act, pronouns):

@@ -95,6 +95,8 @@ def sp_main(dm_id):
                                                    affected=DSTPronoun.I))])
     )
 
+    places = [places_office, place_waiting_room]
+
     actor1 = Actor(name="Joe", knowledgebase=RelationStorage('Actor Joe\'s Knowledgebase'))
 
     # RESOURCES
@@ -686,7 +688,8 @@ def sp_main(dm_id):
 
     logging.basicConfig(level=logging.INFO)
     # Dialogue System initialization
-    dm = DialogueManager(dm_id=dm_id, agents=[agent1, agent2], utterances=utterances, session_manager=session_manager)
+    dm = DialogueManager(dm_id=dm_id, agents=[agent1, agent2], utterances=utterances, places=places,
+                         resources=resources, session_manager=session_manager)
     return dm
 
 # asyncio.run(main())

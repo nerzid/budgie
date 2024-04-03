@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import abstractmethod
 from typing import List
 
 from socialds.action.action import Action
@@ -11,6 +12,10 @@ from socialds.socialpractice.context.resource import Resource
 
 
 class SimpleAction(Action):
+
+    @staticmethod
+    def get_class_attr_mapping():
+        return super().get_class_attr_mapping()
 
     def __init__(self, name: str, done_by: Agent | DSTPronoun, act_type: ActionObjType,
                  recipient: Agent | DSTPronoun = None, target_resource: Resource = None,
