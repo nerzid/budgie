@@ -1,5 +1,5 @@
 import datetime
-from typing import List
+from typing import List, Type
 from uuid import UUID
 
 from socialds.action.action import Action
@@ -23,7 +23,7 @@ class DialogueManager:
                  dm_id,
                  agents: List[Agent],
                  utterances: List[Utterance],
-                 actions: List[Action],
+                 actions: List[Type[Action]],
                  places: List[Place],
                  resources: List[Resource],
                  dialogue_history: RelationStorage = None,
@@ -144,16 +144,31 @@ class DialogueManager:
 
     def get_action_attrs(self, action):
         attrs_dict = {}
-        for attr, val_list in action.get_class_attr_mapping().items():
+        for attr, val_list in getattr(action, 'get_class_attr_mapping')().items():
             attrs_dict[attr] = []
+            if attr == "Name":
+                attrs_dict[attr] = val_list
+                continue
             for val in val_list:
-                if isinstance(val, Agent):
-                    attrs_dict[attr].extend(self.agents)
-                elif isinstance(val, Resource):
-                    attrs_dict[attr].extend(self.resources)
-                elif isinstance(val, Place):
-                    attrs_dict[attr].extend(self.places)
+                if val == Agent:
+                    for agent in self.agents:
+                        attrs_dict[attr].append(agent.name)
+                elif val == Resource:
+                    for resource in self.resources:
+                        attrs_dict[attr].append(resource.name)
+                elif val == Place:
+                    for place in self.places:
+                        attrs_dict[attr].append(place.name)
+                elif val is None:
+                    attrs_dict[attr].append(None)
+        attrs_dict["template"] = getattr(action, 'get_pretty_template')()
         return attrs_dict
+
+    def get_all_action_attrs(self):
+        attrs_list = []
+        for action in self.actions:
+            attrs_list.append(self.get_action_attrs(action))
+        return attrs_list
 
     def get_action_by_name(self, action_name):
         for a in self.actions:

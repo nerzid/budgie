@@ -14,12 +14,15 @@ class Move(Action):
     @staticmethod
     def get_class_attr_mapping():
         from socialds.socialpractice.context.resource import Resource
-        return super().get_class_attr_mapping().update({
+        attrs = Action.get_class_attr_mapping()
+        attrs.update({
             "Name": "Move",
             "Done By": [Agent, DSTPronoun],
-            "Recipients": [Agent, DSTPronoun],
-            "Resources": [Resource]
+            "Moved": [Resource, Agent, DSTPronoun],
+            "From Place": [Place],
+            "To Place": [Place]
         })
+        return attrs
 
     def __init__(self, done_by: Agent | DSTPronoun, moved: any, from_place: Place, to_place: Place):
         # self.relation = Relation(mover, RelationType.ACTION, RelationTense.PRESENT, )
@@ -42,6 +45,10 @@ class Move(Action):
         super().insert_pronouns()
         if isinstance(self.moved, DSTPronoun):
             self.moved = self.pronouns[self.moved]
+
+    @staticmethod
+    def get_pretty_template():
+        return "[Done By] moves [Moved] from [From Place] to [To Place]"
 
     def __str__(self):
         if self.done_by == self.moved:

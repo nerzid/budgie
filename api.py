@@ -50,6 +50,9 @@ def send_message():
         dm.message_streamer.add(message=Message(ds_action=DSAction.SESSIONS_INFO.value, ds_action_by="Dialogue Manager",
                                                 ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
                                                 message=dm.session_manager.get_sessions_info_dict(dm.agents[0])))
+        dm.message_streamer.add(message=Message(ds_action=DSAction.ACTIONS_INFO.value, ds_action_by="Dialogue Manager",
+                                                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                message=dm.get_all_action_attrs()))
     elif message.get('ds_action') == DSAction.USER_CHOSE_MENU_OPTION.value:
         menu_option = message.get('message')
         sender_agent_id = message.get('sender_agent_id')

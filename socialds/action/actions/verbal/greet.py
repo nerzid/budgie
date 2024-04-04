@@ -7,14 +7,20 @@ class Greet(SimpleAction):
     @staticmethod
     def get_class_attr_mapping():
         from socialds.agent import Agent
-        return super().get_class_attr_mapping().update({
+        attrs = SimpleAction.get_class_attr_mapping()
+        attrs.update({
             "Name": "Greet",
             "Done By": [Agent, DSTPronoun],
             "Recipients": [Agent, DSTPronoun]
         })
+        return attrs
 
     def __init__(self):
         super().__init__('greet', done_by=DSTPronoun.I, act_type=ActionObjType.VERBAL, recipient=DSTPronoun.YOU)
+
+    @staticmethod
+    def get_pretty_template():
+        return "[Done By] greets [Recipients]"
 
     def __str__(self):
         return "%s %s %s" % (self.done_by, self.name, self.recipient)

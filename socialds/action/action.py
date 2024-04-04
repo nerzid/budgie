@@ -48,6 +48,7 @@ class ExecutionTime:
 
 
 class Action(ActionObj):
+
     def __init__(self, name, done_by: a.Agent | DSTPronoun,
                  act_type: ActionObjType,
                  base_effects: List[Effect],
@@ -88,6 +89,10 @@ class Action(ActionObj):
             # this uses the __eq__ in Effect class. This code exist to cop&paste the same code in the Effect class
             return other == self
         return False
+
+    @staticmethod
+    def get_pretty_template():
+        pass
 
     def equals_with_pronouns(self, other, pronouns):
         if isinstance(other, Action):

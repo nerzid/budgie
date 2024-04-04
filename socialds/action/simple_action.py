@@ -15,7 +15,7 @@ class SimpleAction(Action):
 
     @staticmethod
     def get_class_attr_mapping():
-        return super().get_class_attr_mapping()
+        return Action.get_class_attr_mapping()
 
     def __init__(self, name: str, done_by: Agent | DSTPronoun, act_type: ActionObjType,
                  recipient: Agent | DSTPronoun = None, target_resource: Resource = None,
