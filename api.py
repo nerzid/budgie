@@ -76,6 +76,8 @@ def send_message():
                                                 ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
                                                 message=dm.session_manager.get_sessions_info_dict(sender_agent)))
         dm.get_menu_options()
+    elif message.get('ds_action') == DSAction.USER_CHOSE_ACTIONS.value:
+        pass
     else:
         return {"status": "no ds action present in the response"}
     return {"status": "Message received"}

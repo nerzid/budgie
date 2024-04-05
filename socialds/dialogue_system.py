@@ -25,12 +25,14 @@ class DialogueSystem:
         self.on_agent_executed_last_action_from_utterance = EventListener()
         self.on_agent_executed_all_actions_from_utterance = EventListener()
 
-    def act(self, beneficiary, utterance=None):
+    def act(self, beneficiary, utterance=None, actions=None):
         self.agent.pronouns[DSTPronoun.YOU] = beneficiary
         if self.agent.auto:
             self.run_auto_agent()
-        else:
+        elif utterance is not None:
             self.choose_utterance(utterance)
+        elif actions is not None:
+            self.choose_actions(actions)
 
     def run_auto_agent(self):
         eventlet.sleep(self.auto_reaction_time)
@@ -44,14 +46,18 @@ class DialogueSystem:
                                                 ds_action_by=self.agent.name,
                                                 message=utterance.text,
                                                 ds_action=DSAction.DISPLAY_UTTERANCE.value))
-        eventlet.spawn(self.execute_actions_of_utterance, utterance)
+        copied_utt = copy.deepcopy(utterance)
+        eventlet.spawn(self.execute_actions, copied_utt.actions)
 
-    def execute_actions_of_utterance(self, utterance):
+    def choose_actions(self, actions):
+        eventlet.spawn(self.execute_actions, actions)
+
+    def execute_actions(self, actions):
         # print('EXECUTING ACTIONS NOW for agent" {}'.format(self.agent))
         pool = eventlet.GreenPool()
-        copied_utt = copy.deepcopy(utterance)
+
         actions = []
-        for action in copied_utt.actions:
+        for action in actions:
             if isinstance(action, ActionOperator):
                 continue
             actions.append(action)

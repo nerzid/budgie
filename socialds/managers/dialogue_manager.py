@@ -1,8 +1,11 @@
 import datetime
+import inspect
 from typing import List, Type
 from uuid import UUID
 
 from socialds.action.action import Action
+from socialds.action.actions.physical.move import Move
+from socialds.action.actions.verbal.greet import Greet
 from socialds.agent import Agent
 from socialds.enums import DSAction, DSActionByType, Tense
 from socialds.managers.session_manager import SessionManager
@@ -143,26 +146,52 @@ class DialogueManager:
         return self.get_action_attrs(self.get_action_by_name(action_name))
 
     def get_action_attrs(self, action):
+        # Move()
+        # Greet()
         attrs_dict = {}
-        for attr, val_list in getattr(action, 'get_class_attr_mapping')().items():
-            attrs_dict[attr] = []
-            if attr == "Name":
-                attrs_dict[attr] = val_list
+        # cls = globals().get(action_name)
+        for key, value in inspect.signature(action.__init__).parameters.items():
+            if key == "self":
                 continue
+            val_list = [x.strip() for x in value.annotation.split("|")]
             for val in val_list:
-                if val == Agent:
+                if key not in attrs_dict:
+                    attrs_dict[key] = []
+                if val == Agent.__name__:
                     for agent in self.agents:
-                        attrs_dict[attr].append(agent.name)
-                elif val == Resource:
+                        attrs_dict[key].append(agent.name)
+                elif val == Resource.__name__:
                     for resource in self.resources:
-                        attrs_dict[attr].append(resource.name)
-                elif val == Place:
+                        attrs_dict[key].append(resource.name)
+                elif val == Place.__name__:
                     for place in self.places:
-                        attrs_dict[attr].append(place.name)
+                        attrs_dict[key].append(place.name)
                 elif val is None:
-                    attrs_dict[attr].append(None)
+                    attrs_dict[key].append(None)
+        attrs_dict["name"] = action.__name__
         attrs_dict["template"] = getattr(action, 'get_pretty_template')()
         return attrs_dict
+
+
+        # for attr, val_list in getattr(action, 'get_class_attr_mapping')().items():
+        #     attrs_dict[attr] = []
+        #     if attr == "Name":
+        #         attrs_dict[attr] = val_list
+        #         continue
+        #     for val in val_list:
+        #         if val == Agent:
+        #             for agent in self.agents:
+        #                 attrs_dict[attr].append(agent.name)
+        #         elif val == Resource:
+        #             for resource in self.resources:
+        #                 attrs_dict[attr].append(resource.name)
+        #         elif val == Place:
+        #             for place in self.places:
+        #                 attrs_dict[attr].append(place.name)
+        #         elif val is None:
+        #             attrs_dict[attr].append(None)
+
+        # return attrs_dict
 
     def get_all_action_attrs(self):
         attrs_list = []
