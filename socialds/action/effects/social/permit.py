@@ -30,10 +30,14 @@ class Permit(Action):
                          ])
 
     def __str__(self):
-        return f"{self.done_by} give permit {self.permitted}"
+        return f"{self.done_by} gives permit for {self.permitted}"
 
     def __repr__(self):
-        return f"{str(self.done_by.name)} give permit {self.permitted}"
+        return f"{str(self.done_by.name)} gives permit for {self.permitted}"
+
+    @staticmethod
+    def get_pretty_template():
+        return "[done_by] gives permit for [permitted] to [permit_given_to]"
 
     def get_requirement_holders(self) -> List:
         return [self.done_by, self.permit_given_to]

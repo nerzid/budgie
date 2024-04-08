@@ -6,12 +6,14 @@ from uuid import UUID
 from socialds.action.action import Action
 from socialds.action.actions.physical.move import Move
 from socialds.action.actions.verbal.greet import Greet
+from socialds.action.effects.effect import Effect
 from socialds.agent import Agent
 from socialds.enums import DSAction, DSActionByType, Tense
 from socialds.managers.session_manager import SessionManager
 from socialds.managers.utterances_manager import UtterancesManager
 from socialds.message import Message
 from socialds.message_streamer import MessageStreamer
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.other.event_listener import EventListener
 from socialds.relationstorage import RelationStorage
 from socialds.socialpractice.context.place import Place
@@ -143,55 +145,114 @@ class DialogueManager:
                                           ds_action_by=DSActionByType.DIALOGUE_SYSTEM.value))
 
     def get_action_attrs_by_name(self, action_name):
-        return self.get_action_attrs(self.get_action_by_name(action_name))
+        return self.get_action_attrs(self.get_action_class_name_by_action_name(action_name))
 
     def get_action_attrs(self, action):
         # Move()
         # Greet()
-        attrs_dict = {}
+        attrs_dict = {
+            'name': action.__name__,
+            'template': getattr(action, 'get_pretty_template')(),
+            'parameters': {}
+        }
         # cls = globals().get(action_name)
         for key, value in inspect.signature(action.__init__).parameters.items():
             if key == "self":
                 continue
-            val_list = [x.strip() for x in value.annotation.split("|")]
+            if value == any:
+                val_list = [any]
+            else:
+                val_list = [x.strip() for x in value.annotation.split("|")]
             for val in val_list:
-                if key not in attrs_dict:
-                    attrs_dict[key] = []
-                if val == Agent.__name__:
-                    for agent in self.agents:
-                        attrs_dict[key].append(agent.name)
-                elif val == Resource.__name__:
-                    for resource in self.resources:
-                        attrs_dict[key].append(resource.name)
-                elif val == Place.__name__:
-                    for place in self.places:
-                        attrs_dict[key].append(place.name)
-                elif val is None:
-                    attrs_dict[key].append(None)
-        attrs_dict["name"] = action.__name__
-        attrs_dict["template"] = getattr(action, 'get_pretty_template')()
+                if key not in attrs_dict['parameters']:
+                    attrs_dict['parameters'][key] = []
+                attrs_dict['parameters'][key].extend(self.get_parameters(val))
         return attrs_dict
 
-
-        # for attr, val_list in getattr(action, 'get_class_attr_mapping')().items():
-        #     attrs_dict[attr] = []
-        #     if attr == "Name":
-        #         attrs_dict[attr] = val_list
-        #         continue
-        #     for val in val_list:
-        #         if val == Agent:
-        #             for agent in self.agents:
-        #                 attrs_dict[attr].append(agent.name)
-        #         elif val == Resource:
-        #             for resource in self.resources:
-        #                 attrs_dict[attr].append(resource.name)
-        #         elif val == Place:
-        #             for place in self.places:
-        #                 attrs_dict[attr].append(place.name)
-        #         elif val is None:
-        #             attrs_dict[attr].append(None)
-
-        # return attrs_dict
+    def get_parameters(self, val):
+        params = []
+        if val == Agent:
+            for agent in self.agents:
+                params.append({'type': val,
+                               'value': agent.name})
+        elif val == Resource:
+            for resource in self.resources:
+                params.append({'type': val,
+                               'value': resource.name})
+        elif val == Place:
+            for place in self.places:
+                params.append({'type': val,
+                               'value': place.name})
+        elif val == RType:
+            params.extend([{'type': val,
+                            'value': RType.ANY},
+                           {'type': val,
+                            'value': RType.IS},
+                           {'type': val,
+                            'value': RType.HAS},
+                           {'type': val,
+                            'value': RType.IS_AT},
+                           {'type': val,
+                            'value': RType.CAN},
+                           {'type': val,
+                            'value': RType.IS_PERMITTED_TO},
+                           {'type': val,
+                            'value': RType.HAS_REQUIREMENTS},
+                           {'type': val,
+                            'value': RType.ACTION},
+                           {'type': val,
+                            'value': RType.EFFECT}
+                           ])
+        elif val == Relation:
+            rel_attrs_dict = {'parameters': {}}
+            for key, value in inspect.signature(Relation.__init__).parameters.items():
+                if key == "self":
+                    continue
+                if value.annotation == inspect._empty:
+                    val_list = ['any']
+                else:
+                    val_list = [x.strip() for x in value.annotation.split("|")]
+                for val in val_list:
+                    if key not in rel_attrs_dict['parameters']:
+                        rel_attrs_dict['parameters'][key] = []
+                    rel_attrs_dict['parameters'][key].extend(self.get_parameters(val))
+            params.append({'type': val,
+                           'value': rel_attrs_dict})
+        elif val == Action:
+            pass
+        elif val == Effect:
+            pass
+        elif val == Tense:
+            params.extend([{'type': val,
+                            'value': 'ANY'},
+                           {'type': val,
+                            'value': 'PAST'},
+                           {'type': val,
+                            'value': 'PRESENT'},
+                           {'type': val,
+                            'value': 'FUTURE'}])
+        elif val == bool:
+            pass
+            # attrs_dict['parameters'][key].extend([{'type': val,
+            #                                        'value': False},
+            #                                       {'type': val,
+            #                                        'value': True}
+            #                                       ])
+        elif val == 'any':
+            params.extend(self.get_parameters(Agent))
+            params.extend(self.get_parameters(Resource))
+            params.extend(self.get_parameters(Place))
+            params.extend(self.get_parameters(RType))
+            params.extend(self.get_parameters(Tense))
+            params.extend(self.get_parameters(Action))
+            params.extend(self.get_parameters(Effect))
+            params.extend(self.get_parameters(Relation))
+            params.extend(self.get_parameters(bool))
+            params.extend(self.get_parameters(any))
+            params.extend(self.get_parameters(None))
+        elif val is None:
+            params.append(None)
+        return params
 
     def get_all_action_attrs(self):
         attrs_list = []
@@ -199,10 +260,42 @@ class DialogueManager:
             attrs_list.append(self.get_action_attrs(action))
         return attrs_list
 
-    def get_action_by_name(self, action_name):
+    def get_action_class_name_by_action_name(self, action_name):
         for a in self.actions:
-            if action_name == a.name:
+            if action_name == a.__name__:
                 return a
+
+    def get_actions_from_actions_attrs(self, actions_attrs):
+        actions = []
+        for attrs_dict in actions_attrs:
+            actions.append(self.get_action_from_attrs_dict(attrs_dict))
+        return actions
+
+    def get_action_from_attrs_dict(self, attrs_dict):
+        action_name = attrs_dict['name']
+        del attrs_dict['name']
+        action_class = self.get_action_class_name_by_action_name(action_name)
+        action_dict = {}
+
+        for key, attr in attrs_dict['parameters'].items():
+            attr_instance = None
+            attr_type = attr['type']
+            attr_value = attr['value']
+            if attr_type == 'Agent':
+                attr_instance = self.get_agent_by_name(attr_value)
+            if attr_type == 'Resource':
+                attr_instance = self.get_resource_by_name(attr_value)
+            if attr_type == 'Place':
+                attr_instance = self.get_place_by_name(attr_value)
+            if attr_type == 'DSTPronoun':
+                if attr_value == 'I':
+                    attr_instance = DSTPronoun.I
+                elif attr_value == 'YOU':
+                    attr_instance = DSTPronoun.YOU
+            action_dict[key] = attr_instance
+
+        action = action_class(**action_dict)
+        return action
 
     def get_all_utterances(self):
         utts_str = []
@@ -224,6 +317,18 @@ class DialogueManager:
         for agent in self.agents:
             if agent.agent_id == UUID(agent_id):
                 return agent
+
+    def get_resource_by_name(self, r_name):
+        for resource in self.resources:
+            if resource.name == r_name:
+                return resource
+        return None
+
+    def get_place_by_name(self, p_name):
+        for place in self.places:
+            if place.name == p_name:
+                return place
+        return None
 
     def remove_utterance(self, utterance, **kwargs):
         self.utterances_manager.utterances.remove(utterance)
@@ -258,3 +363,10 @@ class DialogueManager:
             sender.dialogue_system.act(beneficiary=receiver)
         else:
             sender.dialogue_system.act(utterance=message, beneficiary=receiver)
+
+    @staticmethod
+    def communicate_with_actions(actions, sender: Agent, receiver: Agent):
+        if sender.auto:
+            sender.dialogue_system.act(beneficiary=receiver)
+        else:
+            sender.dialogue_system.act(actions=actions, beneficiary=receiver)

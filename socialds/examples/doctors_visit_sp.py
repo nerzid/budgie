@@ -155,8 +155,10 @@ def sp_main(dm_id):
     basic_competences = RelationStorage('Basic Competences')
 
     basic_competences.add_multi([
-        Competence('Asking questions for information', RequestInfo(asked=AnyRelation(), r_tense=Tense.ANY)),
-        Competence('Asking questions for yes or no answers', RequestConfirmation(done_by=DSTPronoun.I, asked=AnyRelation(), r_tense=Tense.ANY, recipient=DSTPronoun.YOU)),
+        Competence('Asking questions for information', RequestInfo(asked=AnyRelation(), tense=Tense.ANY)),
+        Competence('Asking questions for yes or no answers',
+                   RequestConfirmation(done_by=DSTPronoun.I, asked=AnyRelation(), tense=Tense.ANY,
+                                       recipient=DSTPronoun.YOU)),
         Competence('Moving like walking',
                    Move(done_by=DSTPronoun.I, moved=DSTPronoun.I, from_place=AnyPlace(), to_place=AnyPlace())),
         Competence('Carrying a resource from a place to a place',
@@ -316,7 +318,6 @@ def sp_main(dm_id):
         Relation(left=agent2, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=places_office)
     ])
 
-
     # Actions
     action_examine = Information(left=DSTPronoun.I, rtype=RType.ACTION, rtense=Tense.FUTURE, right=Examine())
 
@@ -327,7 +328,7 @@ def sp_main(dm_id):
         Utterance("Hi!", [
             Greet()
         ]),
-        Utterance("Hi, come in", [
+        Utterance("Hi, come in.", [
             Greet(),
             Then(),
             Permit(done_by=DSTPronoun.I,
@@ -337,7 +338,24 @@ def sp_main(dm_id):
                                   to_place=places_office),
                    r_tense=Tense.PRESENT, negation=False, permit_given_to=DSTPronoun.YOU)
         ]),
-        Utterance("Thank you.", [
+        Utterance("Can I come in?", [
+            RequestAction(done_by=DSTPronoun.I,
+                          requested=Permit(done_by=DSTPronoun.YOU,
+                                           permitted=Move(done_by=DSTPronoun.I,
+                                                          moved=DSTPronoun.I,
+                                                          from_place=any_place,
+                                                          to_place=places_office),
+                                           r_tense=Tense.PRESENT, negation=False, permit_given_to=DSTPronoun.I))
+        ]),
+        Utterance("Yes, please.", [
+            Permit(done_by=DSTPronoun.I,
+                   permitted=Move(done_by=DSTPronoun.YOU,
+                                  moved=DSTPronoun.YOU,
+                                  from_place=any_place,
+                                  to_place=places_office),
+                   r_tense=Tense.PRESENT, negation=False, permit_given_to=DSTPronoun.YOU)
+        ]),
+        Utterance("Thank you. (Moves to doctor's office)", [
             Thank(),
             And(),
             Move(done_by=DSTPronoun.I,
@@ -348,13 +366,14 @@ def sp_main(dm_id):
         Utterance("So, what brings you here today?", [
             RequestInfo(asked=info_problem_description_is_any,
                         negation=False,
-                        r_tense=Tense.PRESENT)
+                        tense=Tense.PRESENT)
         ]),
         Utterance("My left eye has been red since this morning.", [
             Share(information=info_problem_description_is_any)
         ]),
         Utterance("Is your vision blurry?", [
-            RequestConfirmation(done_by=DSTPronoun.I, asked=info_patients_vision_is_blurry, r_tense=Tense.PRESENT, recipient=DSTPronoun.YOU)
+            RequestConfirmation(done_by=DSTPronoun.I, asked=info_patients_vision_is_blurry, tense=Tense.PRESENT,
+                                recipient=DSTPronoun.YOU)
         ]),
         Utterance("Yes, I have a blurry vision", [
             Affirm(affirmed=info_patients_vision_is_blurry)
@@ -391,7 +410,7 @@ def sp_main(dm_id):
             #       r_tense=Tense.PRESENT,
             #       negation=False,
             #       recipient=DSTPronoun.YOU),
-            RequestConfirmation(done_by=DSTPronoun.I, asked=info_patients_left_eye_is_teary, r_tense=Tense.PRESENT,
+            RequestConfirmation(done_by=DSTPronoun.I, asked=info_patients_left_eye_is_teary, tense=Tense.PRESENT,
                                 recipient=DSTPronoun.YOU)
         ]),
         Utterance("Yes, my left eye is teary.", [
@@ -400,7 +419,8 @@ def sp_main(dm_id):
             # Share(information=info_patients_left_eye_is_teary)
         ]),
         Utterance("Okay, I need to examine your eye now if that's okay for you.", [
-            RequestConfirmation(done_by=DSTPronoun.I, asked=action_examine, r_tense=Tense.PRESENT, recipient=DSTPronoun.YOU),
+            RequestConfirmation(done_by=DSTPronoun.I, asked=action_examine, tense=Tense.PRESENT,
+                                recipient=DSTPronoun.YOU),
             # RequestAction(done_by=DSTPronoun.I, requested=Examine()),
             And(),
             Notify(notified_about=action_examine, recipient=DSTPronoun.YOU, done_by=DSTPronoun.I)
@@ -479,7 +499,7 @@ def sp_main(dm_id):
         Utterance("So, what is the problem with my eye?", [
             RequestInfo(asked=Relation(left=p_patients_problem, rtype=RType.IS, rtense=Tense.PRESENT,
                                        right=AnyProperty()),
-                        r_tense=Tense.PRESENT),
+                        tense=Tense.PRESENT),
             # Or(),
             # RequestInfo(asked=Relation(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
             #                            right=AnyProperty()),
@@ -515,10 +535,10 @@ def sp_main(dm_id):
                 And(),
                 RequestAction(done_by=DSTPronoun.I,
                               requested=Take(done_by=DSTPronoun.YOU, taken=p_antibiotics,
-                                       r_tense=Tense.PRESENT,
-                                       times=[InMorning(num_of_times=NumOfTimes(1)),
-                                              Before(Sleep(done_by=DSTPronoun.YOU), num_of_times=NumOfTimes(1))]
-                                       ))
+                                             r_tense=Tense.PRESENT,
+                                             times=[InMorning(num_of_times=NumOfTimes(1)),
+                                                    Before(Sleep(done_by=DSTPronoun.YOU), num_of_times=NumOfTimes(1))]
+                                             ))
             ]),
         Utterance("Thank you, doctor.", [
             Thank()
@@ -689,7 +709,9 @@ def sp_main(dm_id):
     logging.basicConfig(level=logging.INFO)
     # Dialogue System initialization
     dm = DialogueManager(dm_id=dm_id, agents=[agent1, agent2], utterances=utterances, places=places,
-                         resources=resources, session_manager=session_manager, actions=[Greet, Thank, Move])
+                         resources=resources, session_manager=session_manager,
+                         actions=[Greet, Thank, Move, Permit, RequestAction, RequestInfo, RequestConfirmation,
+                                  Affirm, Deny])
     return dm
 
 # asyncio.run(main())

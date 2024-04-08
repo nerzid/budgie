@@ -4,6 +4,7 @@ import schedule
 # from managers import dialogue_managers, message_streamers, session_managers
 from settings import SERVER_HOST, SERVER_PORT, SERVER_DEBUG_MODE, SECRET_KEY
 from socialds.message import Message
+from socialds.other.dst_pronouns import DSTPronoun
 
 eventlet.monkey_patch()
 
@@ -77,7 +78,30 @@ def send_message():
                                                 message=dm.session_manager.get_sessions_info_dict(sender_agent)))
         dm.get_menu_options()
     elif message.get('ds_action') == DSAction.USER_CHOSE_ACTIONS.value:
-        pass
+        actions = message.get('message')
+        sender_agent_id = message.get('sender_agent_id')
+        receiver_agent_id = message.get('receiver_agent_id')
+        sender_agent = dm.get_agent_by_id(sender_agent_id)
+        receiver_agent = dm.get_agent_by_id(receiver_agent_id)
+        dm.communicate_with_actions(actions, sender_agent, receiver_agent)
+        dm.message_streamer.add(message=Message(ds_action=DSAction.SESSIONS_INFO.value, ds_action_by="Dialogue Manager",
+                                                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                                                message=dm.session_manager.get_sessions_info_dict(sender_agent)))
+        # dm.get_menu_options()
+
+    elif message.get('ds_action') == DSAction.REQUEST_UTTERANCE_BY_ACTION.value:
+        action_attrs = message.get('message')
+        sender_agent_id = message.get('sender_agent_id')
+        receiver_agent_id = message.get('receiver_agent_id')
+        sender_agent = dm.get_agent_by_id(sender_agent_id)
+        receiver_agent = dm.get_agent_by_id(receiver_agent_id)
+        sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
+        receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
+        dm.message_streamer.add(
+            message=Message(ds_action=DSAction.SEND_UTTERANCE_BY_ACTION.value, ds_action_by="Dialogue Manager",
+                            ds_action_by_type=DSActionByType.DIALOGUE_MANAGER.value,
+                            message=dm.utterances_manager.get_utterance_by_action(
+                                dm.get_actions_from_actions_attrs(action_attrs), sender_agent).text))
     else:
         return {"status": "no ds action present in the response"}
     return {"status": "Message received"}

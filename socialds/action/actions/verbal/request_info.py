@@ -6,28 +6,34 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
+from socialds.agent import Agent
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.relation import Relation, RType
 
 
 class RequestInfo(Action):
-    def __init__(self, asked: Relation, r_tense: Tense, negation: bool = False):
-        self.relation = Relation(DSTPronoun.I, RType.ACTION, r_tense, asked, negation)
+    def __init__(self, asked: Relation, tense: Tense, negation: bool = False,
+                 done_by: Agent | DSTPronoun = DSTPronoun.I, recipient: Agent | DSTPronoun = DSTPronoun.YOU, ):
+        self.relation = Relation(DSTPronoun.I, RType.ACTION, tense, asked, negation)
         self.asked = asked
-        super().__init__("request-info", DSTPronoun.I, ActionObjType.VERBAL, base_effects=[
-            AddExpectedEffect(effect=GainKnowledge(affected=DSTPronoun.I, knowledge=asked),
-                              affected=DSTPronoun.YOU,
+        super().__init__("request-info", done_by=done_by, act_type=ActionObjType.VERBAL, base_effects=[
+            AddExpectedEffect(effect=GainKnowledge(affected=done_by, knowledge=asked),
+                              affected=recipient,
                               negation=False)
-        ], recipient=DSTPronoun.YOU)
+        ], recipient=recipient)
 
     def __str__(self):
-        return "%s ask what %s" % (self.done_by.name, self.asked)
+        return "%s asks what %s" % (self.done_by.name, self.asked)
 
     def __repr__(self):
-        return "%r ask what %r" % (self.done_by.name, self.asked)
+        return "%r asks what %r" % (self.done_by.name, self.asked)
 
-    def insert_pronouns(self,):
+    @staticmethod
+    def get_pretty_template():
+        return "[done_by] asks what [asked]([tense][negation])"
+
+    def insert_pronouns(self, ):
         self.relation.pronouns = self.pronouns
         self.asked.pronouns = self.pronouns
         self.relation.insert_pronouns()

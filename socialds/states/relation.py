@@ -170,7 +170,7 @@ class Relation(State, DSTPronounHolder):
         }
     }
 
-    def __init__(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False,
+    def __init__(self, left, rtype: RType, rtense: Tense, right, negation=False,
                  times: List[ActionHappenedAtTime] = None):
         super().__init__()
         self.left = left
@@ -214,6 +214,10 @@ class Relation(State, DSTPronounHolder):
     def __repr__(self):
         tense_str = self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]
         return "%r-%r->%r%r" % (self.left, tense_str, self.right, self.get_times_str())
+
+    @staticmethod
+    def get_pretty_template():
+        return "[left][rtype][rtense][negation][right]"
 
     def insert_pronouns(self):
         if isinstance(self.left, Relation):

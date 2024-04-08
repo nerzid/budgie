@@ -8,11 +8,17 @@ from socialds.other.dst_pronouns import DSTPronoun
 
 
 class RequestAction(Action):
-    def __init__(self, done_by: Agent | DSTPronoun, requested: Action):
+    def __init__(self, requested: Action, done_by: Agent | DSTPronoun = DSTPronoun.I,
+                 recipient: Agent | DSTPronoun = DSTPronoun.YOU, ):
         self.requested = requested
-        super().__init__('request', done_by, ActionObjType.VERBAL, [
-            AddExpectedAction(requested, False, DSTPronoun.YOU)
-        ])
+        super().__init__('request', done_by=done_by, act_type=ActionObjType.VERBAL, recipient=recipient,
+                         base_effects=[
+                             AddExpectedAction(requested, False, recipient)
+                         ])
+
+    @staticmethod
+    def get_pretty_template():
+        return "[done_by] requests [action]"
 
     def __str__(self):
         return "%s request %s" % (self.done_by.name, self.requested)

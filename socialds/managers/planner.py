@@ -172,7 +172,7 @@ class Planner:
                                           steps=[
                                               RequestConfirmation(done_by=DSTPronoun.I,
                                                                   asked=condition.knows,
-                                                                  r_tense=Tense.ANY,
+                                                                  tense=Tense.ANY,
                                                                   recipient=DSTPronoun.YOU)
                                           ])
                     )

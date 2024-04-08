@@ -7,16 +7,20 @@ from socialds.action.action_obj import ActionObjType
 from socialds.action.actions.verbal.affirm import Affirm
 from socialds.action.actions.verbal.deny import Deny
 from socialds.action.effects.functional.add_expected_action_options import AddExpectedActionOptions
+from socialds.agent import Agent
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.relation import Relation, RType
 
 
 class RequestConfirmation(Action):
-    def __init__(self, done_by, recipient, asked: Relation, r_tense: Tense, negation: bool = False):
-        self.relation = Relation(done_by, RType.ACTION, r_tense, asked, negation)
+    def __init__(self, asked: Relation, done_by: Agent | DSTPronoun = DSTPronoun.I,
+                 recipient: Agent | DSTPronoun = DSTPronoun.YOU,
+                 tense: Tense = Tense.ANY,
+                 negation: bool = False):
+        self.relation = Relation(done_by, RType.ACTION, tense, asked, negation)
         self.asked = asked
-        super().__init__("request-confirmation", done_by, ActionObjType.VERBAL, base_effects=[
+        super().__init__("request-confirmation", done_by=done_by, act_type=ActionObjType.VERBAL, base_effects=[
             AddExpectedActionOptions(actions=[Affirm(asked), Deny(asked)], negation=negation, affected=recipient)
         ], recipient=recipient)
 
@@ -24,7 +28,11 @@ class RequestConfirmation(Action):
         return "%s asks confirmation for %s" % (self.done_by.name, self.asked)
 
     def __repr__(self):
-        return "%r ask confirmation for %r" % (self.done_by.name, self.asked)
+        return "%r asks confirmation for %r" % (self.done_by.name, self.asked)
+
+    @staticmethod
+    def get_pretty_template():
+        return "[done_by] asks confirmation for [asked] to [recipient]([tense][negation])"
 
     def insert_pronouns(self, ):
         self.relation.pronouns = self.pronouns
@@ -37,4 +45,3 @@ class RequestConfirmation(Action):
         self.pronouns = agent.pronouns
         self.insert_pronouns()
         super().execute(agent, **kwargs)
-

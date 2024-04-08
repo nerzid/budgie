@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.change_property import GainKnowledge
+from socialds.agent import Agent
 from socialds.conditions.agent_does_action import AgentDoesAction
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
@@ -9,11 +12,16 @@ from socialds.states.relation import Relation, RType
 
 
 class Deny(Action):
-    def __init__(self, denied):
+    def __init__(self, denied: Relation, done_by: Agent | DSTPronoun = DSTPronoun.I,
+                 recipient: Agent | DSTPronoun = DSTPronoun.YOU):
         self.denied = denied
-        super().__init__('deny', done_by=DSTPronoun.I, act_type=ActionObjType.VERBAL, base_effects=[
-            GainKnowledge(knowledge=denied, affected=DSTPronoun.YOU)
+        super().__init__('deny', done_by=done_by, recipient=recipient, act_type=ActionObjType.VERBAL, base_effects=[
+            GainKnowledge(knowledge=denied, affected=recipient)
         ])
+
+    @staticmethod
+    def get_pretty_template():
+        return "[done_by] denies [denied]"
 
     def equals_with_pronouns(self, other, pronouns):
         return super().equals_with_pronouns(other, pronouns) and self.denied == other.denied
@@ -24,7 +32,7 @@ class Deny(Action):
                                                                   rtense=Tense.PAST,
                                                                   right=rc.RequestConfirmation(done_by=DSTPronoun.YOU,
                                                                                                asked=self.denied,
-                                                                                               r_tense=Tense.ANY,
+                                                                                               tense=Tense.ANY,
                                                                                                recipient=DSTPronoun.I)),
                             tense=Tense.PAST).check(checker=checker)
 

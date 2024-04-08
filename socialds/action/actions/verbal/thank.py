@@ -8,17 +8,6 @@ from socialds.other.dst_pronouns import DSTPronoun
 
 class Thank(SimpleAction):
 
-    @staticmethod
-    def get_class_attr_mapping():
-        from socialds.agent import Agent
-        attrs = SimpleAction.get_class_attr_mapping()
-        attrs.update({
-            "Name": "Thank",
-            "Done By": [Agent, DSTPronoun],
-            "Recipients": [Agent, DSTPronoun]
-        })
-        return attrs
-
     def __init__(self, done_by: Agent | DSTPronoun = DSTPronoun.I, recipient: Agent | DSTPronoun = DSTPronoun.YOU):
         super().__init__('thank', done_by=done_by, act_type=ActionObjType.VERBAL, recipient=recipient)
 
