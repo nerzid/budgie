@@ -23,6 +23,7 @@ class RType(Enum):
     SAYS = 'says'
     ANY = 'any'
 
+
 # e.g., Eren likes apples -> left: Eren, name: likes, right: apples
 
 
@@ -170,8 +171,9 @@ class Relation(State, DSTPronounHolder):
         }
     }
 
-    def __init__(self, left, rtype: RType, rtense: Tense, right, negation=False,
-                 times: List[ActionHappenedAtTime] = None):
+    def __init__(self, left, rtype: RType, rtense: Tense, right, negation: bool = False,
+                 times: List[ActionHappenedAtTime] = None
+                 ):
         super().__init__()
         self.left = left
         self.rtype = rtype

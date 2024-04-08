@@ -1,5 +1,6 @@
 import datetime
 import inspect
+from enum import EnumMeta
 from typing import List, Type
 from uuid import UUID
 
@@ -8,6 +9,10 @@ from socialds.action.actions.physical.move import Move
 from socialds.action.actions.verbal.greet import Greet
 from socialds.action.effects.effect import Effect
 from socialds.agent import Agent
+from socialds.any.any_agent import AnyAgent
+from socialds.any.any_place import AnyPlace
+from socialds.any.any_property import AnyProperty
+from socialds.any.any_resource import AnyResource
 from socialds.enums import DSAction, DSActionByType, Tense
 from socialds.managers.session_manager import SessionManager
 from socialds.managers.utterances_manager import UtterancesManager
@@ -18,6 +23,7 @@ from socialds.other.event_listener import EventListener
 from socialds.relationstorage import RelationStorage
 from socialds.socialpractice.context.place import Place
 from socialds.socialpractice.context.resource import Resource
+from socialds.states.property import Property
 from socialds.states.relation import Relation, RType
 from socialds.strategies.turntaking.turntaking import TurnTaking
 from socialds.utterance import Utterance
@@ -30,12 +36,14 @@ class DialogueManager:
                  utterances: List[Utterance],
                  actions: List[Type[Action]],
                  places: List[Place],
+                 properties: List[Property],
                  resources: List[Resource],
                  dialogue_history: RelationStorage = None,
                  session_manager: SessionManager = None,
                  allow_duplicate_utterances=False):
         self.dm_id = dm_id
         self.actions = actions
+        self.properties = properties
         self.resources = resources
         self.places = places
         self.last_time_dm_used_at = datetime.datetime.now()
@@ -159,8 +167,14 @@ class DialogueManager:
         for key, value in inspect.signature(action.__init__).parameters.items():
             if key == "self":
                 continue
-            if value == any:
-                val_list = [any]
+            if key == 'times':
+                continue
+            if value.annotation == inspect._empty:
+                val_list = ['any']
+            elif value.annotation == bool or value.annotation == 'bool':
+                val_list = ['boolean']
+            elif isinstance(value.annotation, EnumMeta):
+                val_list = [value.annotation.__name__]
             else:
                 val_list = [x.strip() for x in value.annotation.split("|")]
             for val in val_list:
@@ -171,85 +185,105 @@ class DialogueManager:
 
     def get_parameters(self, val):
         params = []
-        if val == Agent:
+        if val == Agent.__name__:
             for agent in self.agents:
                 params.append({'type': val,
                                'value': agent.name})
-        elif val == Resource:
+            params.append({'type': val,
+                           'value': AnyAgent().name})
+        elif val == Resource.__name__:
             for resource in self.resources:
                 params.append({'type': val,
                                'value': resource.name})
-        elif val == Place:
+            params.append({'type': val,
+                           'value': AnyResource().name})
+        elif val == Property.__name__:
+            for pproperty in self.properties:
+                params.append({'type': val,
+                               'value': pproperty.name})
+            params.append({'type': val,
+                           'value': AnyProperty().name})
+        elif val == Place.__name__:
             for place in self.places:
                 params.append({'type': val,
                                'value': place.name})
-        elif val == RType:
+            params.append({'type': val,
+                           'value': AnyPlace().name})
+        elif val == RType.__name__:
             params.extend([{'type': val,
-                            'value': RType.ANY},
+                            'value': RType.ANY.value},
                            {'type': val,
-                            'value': RType.IS},
+                            'value': RType.IS.value},
                            {'type': val,
-                            'value': RType.HAS},
+                            'value': RType.HAS.value},
                            {'type': val,
-                            'value': RType.IS_AT},
+                            'value': RType.IS_AT.value},
                            {'type': val,
-                            'value': RType.CAN},
+                            'value': RType.CAN.value},
                            {'type': val,
-                            'value': RType.IS_PERMITTED_TO},
+                            'value': RType.IS_PERMITTED_TO.value},
                            {'type': val,
-                            'value': RType.HAS_REQUIREMENTS},
+                            'value': RType.HAS_REQUIREMENTS.value},
                            {'type': val,
-                            'value': RType.ACTION},
+                            'value': RType.ACTION.value},
                            {'type': val,
-                            'value': RType.EFFECT}
+                            'value': RType.EFFECT.value}
                            ])
-        elif val == Relation:
+        elif val == Relation.__name__:
             rel_attrs_dict = {'parameters': {}}
             for key, value in inspect.signature(Relation.__init__).parameters.items():
                 if key == "self":
                     continue
+                if key == 'times':
+                    continue
                 if value.annotation == inspect._empty:
                     val_list = ['any']
+                elif value.annotation == bool or value.annotation == 'bool':
+                    val_list = ['boolean']
+                elif isinstance(value.annotation, EnumMeta):
+                    val_list = [value.annotation.__name__]
                 else:
                     val_list = [x.strip() for x in value.annotation.split("|")]
-                for val in val_list:
+                for vv in val_list:
                     if key not in rel_attrs_dict['parameters']:
                         rel_attrs_dict['parameters'][key] = []
-                    rel_attrs_dict['parameters'][key].extend(self.get_parameters(val))
+                    rel_attrs_dict['parameters'][key].extend(self.get_parameters(vv))
             params.append({'type': val,
-                           'value': rel_attrs_dict})
-        elif val == Action:
+                           'value': rel_attrs_dict,
+                           'template': Relation.get_pretty_template()})
+        elif val == Action.__name__:
             pass
-        elif val == Effect:
+        elif val == Effect.__name__:
             pass
-        elif val == Tense:
+        elif val == Tense.__name__:
             params.extend([{'type': val,
-                            'value': 'ANY'},
+                            'value': Tense.ANY.value},
                            {'type': val,
-                            'value': 'PAST'},
+                            'value': Tense.PAST.value},
                            {'type': val,
-                            'value': 'PRESENT'},
+                            'value': Tense.PRESENT.value},
                            {'type': val,
-                            'value': 'FUTURE'}])
-        elif val == bool:
-            pass
-            # attrs_dict['parameters'][key].extend([{'type': val,
-            #                                        'value': False},
-            #                                       {'type': val,
-            #                                        'value': True}
-            #                                       ])
+                            'value': Tense.FUTURE.value}])
+        elif val == 'boolean':
+            # pass
+            params.extend([{'type': 'boolean',
+                            'value': False},
+                           {'type': 'boolean',
+                            'value': True}
+                           ])
         elif val == 'any':
-            params.extend(self.get_parameters(Agent))
-            params.extend(self.get_parameters(Resource))
-            params.extend(self.get_parameters(Place))
-            params.extend(self.get_parameters(RType))
-            params.extend(self.get_parameters(Tense))
-            params.extend(self.get_parameters(Action))
-            params.extend(self.get_parameters(Effect))
-            params.extend(self.get_parameters(Relation))
-            params.extend(self.get_parameters(bool))
-            params.extend(self.get_parameters(any))
-            params.extend(self.get_parameters(None))
+            params.extend(self.get_parameters(Agent.__name__))
+            params.extend(self.get_parameters(Resource.__name__))
+            params.extend(self.get_parameters(Place.__name__))
+            params.extend(self.get_parameters(Property.__name__))
+            # params.extend(self.get_parameters(RType.__name__))
+            # params.extend(self.get_parameters(Tense.__name__))
+            params.extend(self.get_parameters(Action.__name__))
+            params.extend(self.get_parameters(Effect.__name__))
+            # params.extend(self.get_parameters(Relation.__name__))
+            # params.extend(self.get_parameters('boolean'))
+            # params.extend(self.get_parameters('any'))
+            # params.extend(self.get_parameters(None))
         elif val is None:
             params.append(None)
         return params
@@ -309,6 +343,8 @@ class DialogueManager:
                 return utt
 
     def get_agent_by_name(self, agent_name: str):
+        if agent_name == 'any-agent':
+            return AnyAgent()
         for agent in self.agents:
             if agent.name == agent_name:
                 return agent
@@ -319,12 +355,16 @@ class DialogueManager:
                 return agent
 
     def get_resource_by_name(self, r_name):
+        if r_name == 'any-resource':
+            return AnyResource()
         for resource in self.resources:
             if resource.name == r_name:
                 return resource
         return None
 
     def get_place_by_name(self, p_name):
+        if p_name == 'any-place':
+            return AnyPlace()
         for place in self.places:
             if place.name == p_name:
                 return place
