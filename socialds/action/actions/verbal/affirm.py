@@ -10,12 +10,13 @@ from socialds.conditions.agent_does_action import AgentDoesAction
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 import socialds.action.actions.verbal.request_confirmation as rc
+from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Relation, RType
 
 
 class Affirm(Action):
 
-    def __init__(self, affirmed: Relation, done_by: Agent | DSTPronoun = DSTPronoun.I,
+    def __init__(self, affirmed: Information, done_by: Agent | DSTPronoun = DSTPronoun.I,
                  recipient: Agent | DSTPronoun = DSTPronoun.YOU):
         self.affirmed = affirmed
         super().__init__('affirm', done_by=done_by, act_type=ActionObjType.VERBAL, base_effects=[

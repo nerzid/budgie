@@ -497,8 +497,8 @@ def sp_main(dm_id):
                    deduced=info_patients_problem_is_bacterial_conjunctivitis)
         ]),
         Utterance("So, what is the problem with my eye?", [
-            RequestInfo(asked=Relation(left=p_patients_problem, rtype=RType.IS, rtense=Tense.PRESENT,
-                                       right=AnyProperty()),
+            RequestInfo(asked=Information(left=p_patients_problem, rtype=RType.IS, rtense=Tense.PRESENT,
+                                          right=AnyProperty()),
                         tense=Tense.PRESENT),
             # Or(),
             # RequestInfo(asked=Relation(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,

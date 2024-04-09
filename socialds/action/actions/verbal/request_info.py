@@ -9,13 +9,14 @@ from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.agent import Agent
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
+from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Relation, RType
 
 
 class RequestInfo(Action):
-    def __init__(self, asked: Relation, tense: Tense, negation: bool = False,
+    def __init__(self, asked: Information, tense: Tense, negation: bool = False,
                  done_by: Agent | DSTPronoun = DSTPronoun.I, recipient: Agent | DSTPronoun = DSTPronoun.YOU, ):
-        self.relation = Relation(DSTPronoun.I, RType.ACTION, tense, asked, negation)
+        self.relation = Information(DSTPronoun.I, RType.ACTION, tense, asked, negation)
         self.asked = asked
         super().__init__("request-info", done_by=done_by, act_type=ActionObjType.VERBAL, base_effects=[
             AddExpectedEffect(effect=GainKnowledge(affected=done_by, knowledge=asked),

@@ -21,6 +21,7 @@ from socialds.message_streamer import MessageStreamer
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.other.event_listener import EventListener
 from socialds.relationstorage import RelationStorage
+from socialds.socialpractice.context.information import Information
 from socialds.socialpractice.context.place import Place
 from socialds.socialpractice.context.resource import Resource
 from socialds.states.property import Property
@@ -229,9 +230,9 @@ class DialogueManager:
                            {'type': val,
                             'value': RType.EFFECT.value}
                            ])
-        elif val == Relation.__name__:
+        elif val == Information.__name__:
             rel_attrs_dict = {'parameters': {}}
-            for key, value in inspect.signature(Relation.__init__).parameters.items():
+            for key, value in inspect.signature(Information.__init__).parameters.items():
                 if key == "self":
                     continue
                 if key == 'times':
@@ -250,7 +251,7 @@ class DialogueManager:
                     rel_attrs_dict['parameters'][key].extend(self.get_parameters(vv))
             params.append({'type': val,
                            'value': rel_attrs_dict,
-                           'template': Relation.get_pretty_template()})
+                           'template': Information.get_pretty_template()})
         elif val == Action.__name__:
             pass
         elif val == Effect.__name__:
@@ -312,24 +313,69 @@ class DialogueManager:
         action_dict = {}
 
         for key, attr in attrs_dict['parameters'].items():
-            attr_instance = None
-            attr_type = attr['type']
-            attr_value = attr['value']
-            if attr_type == 'Agent':
-                attr_instance = self.get_agent_by_name(attr_value)
-            if attr_type == 'Resource':
-                attr_instance = self.get_resource_by_name(attr_value)
-            if attr_type == 'Place':
-                attr_instance = self.get_place_by_name(attr_value)
-            if attr_type == 'DSTPronoun':
-                if attr_value == 'I':
-                    attr_instance = DSTPronoun.I
-                elif attr_value == 'YOU':
-                    attr_instance = DSTPronoun.YOU
+            attr_instance = self.get_attr_instance(attr)
             action_dict[key] = attr_instance
 
         action = action_class(**action_dict)
         return action
+
+    def get_attr_instance(self, attr):
+        attr_type = attr['type']
+        attr_value = attr['value']
+        attr_instance = None
+
+        if attr_type == 'Agent':
+            attr_instance = self.get_agent_by_name(attr_value)
+        if attr_type == 'Resource':
+            attr_instance = self.get_resource_by_name(attr_value)
+        if attr_type == 'Place':
+            attr_instance = self.get_place_by_name(attr_value)
+        if attr_type == 'Property':
+            attr_instance = self.get_property_by_name(attr_value)
+        if attr_type == 'DSTPronoun':
+            if attr_value == 'I':
+                attr_instance = DSTPronoun.I
+            elif attr_value == 'YOU':
+                attr_instance = DSTPronoun.YOU
+        if attr_type == 'RType':
+            if attr_value == RType.ANY.value:
+                attr_instance = RType.ANY
+            if attr_value == RType.IS.value:
+                attr_instance = RType.IS
+            if attr_value == RType.IS_AT.value:
+                attr_instance = RType.IS_AT
+            if attr_value == RType.HAS.value:
+                attr_instance = RType.HAS
+            if attr_value == RType.IS_PERMITTED_TO.value:
+                attr_instance = RType.IS_PERMITTED_TO
+            if attr_value == RType.EFFECT.value:
+                attr_instance = RType.EFFECT
+            if attr_value == RType.ACTION.value:
+                attr_instance = RType.ACTION
+            if attr_value == RType.CAN.value:
+                attr_instance = RType.CAN
+            if attr_value == RType.HAS_REQUIREMENTS.value:
+                attr_instance = RType.HAS_REQUIREMENTS
+        if attr_type == 'Tense':
+            if attr_value == Tense.ANY.value:
+                attr_instance = Tense.ANY
+            if attr_value == Tense.PAST.value:
+                attr_instance = Tense.PAST
+            if attr_value == Tense.PRESENT.value:
+                attr_instance = Tense.PRESENT
+            if attr_value == Tense.FUTURE.value:
+                attr_instance = Tense.FUTURE
+        if attr_type == 'boolean':
+            if attr_value == 'false':
+                attr_instance = False
+            if attr_value == 'true':
+                attr_instance = True
+        if attr_type == 'Information':
+            relation_instance_values = {}
+            for k, v in attr_value.items():
+                relation_instance_values[k] = self.get_attr_instance(v)
+            attr_instance = Information(**relation_instance_values)
+        return attr_instance
 
     def get_all_utterances(self):
         utts_str = []
@@ -368,6 +414,14 @@ class DialogueManager:
         for place in self.places:
             if place.name == p_name:
                 return place
+        return None
+
+    def get_property_by_name(self, p_name):
+        if p_name == 'any-property':
+            return AnyProperty()
+        for pproperty in self.properties:
+            if pproperty.name == p_name:
+                return pproperty
         return None
 
     def remove_utterance(self, utterance, **kwargs):

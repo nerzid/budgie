@@ -8,11 +8,12 @@ from socialds.conditions.agent_does_action import AgentDoesAction
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 import socialds.action.actions.verbal.request_confirmation as rc
+from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Relation, RType
 
 
 class Deny(Action):
-    def __init__(self, denied: Relation, done_by: Agent | DSTPronoun = DSTPronoun.I,
+    def __init__(self, denied: Information, done_by: Agent | DSTPronoun = DSTPronoun.I,
                  recipient: Agent | DSTPronoun = DSTPronoun.YOU):
         self.denied = denied
         super().__init__('deny', done_by=done_by, recipient=recipient, act_type=ActionObjType.VERBAL, base_effects=[

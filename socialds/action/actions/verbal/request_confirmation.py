@@ -10,15 +10,16 @@ from socialds.action.effects.functional.add_expected_action_options import AddEx
 from socialds.agent import Agent
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
+from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Relation, RType
 
 
 class RequestConfirmation(Action):
-    def __init__(self, asked: Relation, done_by: Agent | DSTPronoun = DSTPronoun.I,
+    def __init__(self, asked: Information, done_by: Agent | DSTPronoun = DSTPronoun.I,
                  recipient: Agent | DSTPronoun = DSTPronoun.YOU,
                  tense: Tense = Tense.ANY,
                  negation: bool = False):
-        self.relation = Relation(done_by, RType.ACTION, tense, asked, negation)
+        self.relation = Information(done_by, RType.ACTION, tense, asked, negation)
         self.asked = asked
         super().__init__("request-confirmation", done_by=done_by, act_type=ActionObjType.VERBAL, base_effects=[
             AddExpectedActionOptions(actions=[Affirm(asked), Deny(asked)], negation=negation, affected=recipient)
