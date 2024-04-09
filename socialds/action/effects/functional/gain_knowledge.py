@@ -1,15 +1,19 @@
+from __future__ import annotations
+
 from typing import List
 
 from socialds.action.effects.effect import Effect
 import socialds.conditions.agent_knows as an
 from socialds.enums import Tense
 from socialds.operations.add_relation_to_rsholder import AddRelationToRSHolder
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
+from socialds.socialpractice.context.information import Information
 
 
 class GainKnowledge(Effect):
 
-    def __init__(self, knowledge, affected: any):
+    def __init__(self, knowledge: Information, affected: 'Agent' | DSTPronoun):
         self.knowledge = knowledge
         self.affected = affected
         op_seq = [
@@ -31,6 +35,10 @@ class GainKnowledge(Effect):
 
     def __repr__(self):
         return f'{self.affected} gain knowledge {self.knowledge}'
+
+    @staticmethod
+    def get_pretty_template():
+        return "[affected] gains the knowledge [knowledge]"
 
     def equals_with_pronouns(self, other, pronouns):
         return super().equals_with_pronouns(other, pronouns) and self.knowledge == other.knowledge

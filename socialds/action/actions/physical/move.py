@@ -6,6 +6,7 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.change_place import ChangePlace
 from socialds.agent import Agent
+from socialds.any.any_agent import AnyAgent
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.socialpractice.context.place import Place
 import inspect
@@ -13,43 +14,7 @@ import inspect
 from socialds.socialpractice.context.resource import Resource
 
 
-class AnotherClass:
-    def __init__(self, class_name):
-        self.class_name = class_name
-        self.attribute_names = self.get_attribute_names()
-
-    def get_attribute_names(self):
-        cls = globals().get(self.class_name)
-        if cls:
-            attrs_names = {}
-            for key, value in inspect.signature(cls.__init__).parameters.items():
-                if key == "self":
-                    continue
-                attrs_names[key] = [x.strip() for x in value.annotation.split("|")]
-            return attrs_names
-        else:
-            raise ValueError(f"Class {self.class_name} not found.")
-
 class Move(Action):
-    @staticmethod
-    def get_class_attr_mapping():
-        from socialds.socialpractice.context.resource import Resource
-        attrs = Action.get_class_attr_mapping()
-        # attrs.update({
-        #     "Name": "Move",
-        #     "Done By": [Agent, DSTPronoun],
-        #     "Moved": [Resource, Agent, DSTPronoun],
-        #     "From Place": [Place],
-        #     "To Place": [Place]
-        # })
-        another_instance = AnotherClass("Move")
-        attribute_names = another_instance.attribute_names
-        attributes = inspect.getmembers(Move, lambda a: not (inspect.isroutine(a)))
-        for att in attributes:
-            if not (att[0].startswith('__') and att[0].endswith('__')):
-                attrs[att[0]] = att[1]
-
-        return attrs
 
     def __init__(self, moved: Resource | Agent | DSTPronoun, from_place: Place, to_place: Place, done_by: Agent | DSTPronoun = DSTPronoun.I,):
         # self.relation = Relation(mover, RelationType.ACTION, RelationTense.PRESENT, )
@@ -64,6 +29,11 @@ class Move(Action):
                         affected=self.moved)
         ]
         super().__init__('move', done_by, ActionObjType.PHYSICAL, base_effects=effects)
+
+    def equals_with_pronouns(self, other, pronouns):
+        return super().equals_with_pronouns(other, pronouns) and self.from_place == other.from_place and self.to_place == other.to_place and \
+            (self.moved == other.moved or isinstance(other.moved, AnyAgent) or isinstance(
+                self.moved, AnyAgent))
 
     def get_requirement_holders(self) -> List:
         return [self.moved, self.from_place, self.to_place]

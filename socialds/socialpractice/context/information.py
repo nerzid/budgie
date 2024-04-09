@@ -3,10 +3,6 @@ from __future__ import annotations
 from typing import List
 
 from socialds.action.action_time import ActionHappenedAtTime
-from socialds.agent import Agent
-from socialds.object import Object
-from socialds.other.dst_pronouns import DSTPronoun
-from socialds.requirement import Requirement
 from socialds.rs_holder import RSHolder, RSHolderType
 from socialds.states.relation import Relation, RType, Tense
 

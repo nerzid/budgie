@@ -1,13 +1,15 @@
+from __future__ import annotations
 
 from socialds.action.effects.effect import Effect
 from socialds.enums import Tense
 from socialds.operations.add_relation_to_rsholder import AddRelationToRSHolder
+from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
 from socialds.states.relation import Relation, RType
 
 
 class AddExpectedEffect(Effect):
-    def __init__(self, effect: Effect, negation, affected: any):
+    def __init__(self, effect: Effect, affected: 'Agent' | DSTPronoun, negation:bool=False):
         self.effect = effect
         self.negation = negation
         op_seq = [
@@ -27,6 +29,10 @@ class AddExpectedEffect(Effect):
 
     def __repr__(self):
         return f'Adds the expected effect {self.effect} to {self.affected}'
+
+    @staticmethod
+    def get_pretty_template():
+        return "The expected effect [effect] will be added to [affected]"
 
     def insert_pronouns(self):
         super().insert_pronouns()

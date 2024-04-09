@@ -26,6 +26,7 @@ from socialds.socialpractice.context.place import Place
 from socialds.socialpractice.context.resource import Resource
 from socialds.states.property import Property
 from socialds.states.relation import Relation, RType
+from socialds.states.value import Value
 from socialds.strategies.turntaking.turntaking import TurnTaking
 from socialds.utterance import Utterance
 
@@ -36,17 +37,21 @@ class DialogueManager:
                  agents: List[Agent],
                  utterances: List[Utterance],
                  actions: List[Type[Action]],
+                 effects: List[Type[Effect]],
                  places: List[Place],
                  properties: List[Property],
                  resources: List[Resource],
+                 values: List[Value],
                  dialogue_history: RelationStorage = None,
                  session_manager: SessionManager = None,
                  allow_duplicate_utterances=False):
         self.dm_id = dm_id
         self.actions = actions
+        self.effects = effects
         self.properties = properties
         self.resources = resources
         self.places = places
+        self.values = values
         self.last_time_dm_used_at = datetime.datetime.now()
         if session_manager is None:
             self.session_manager = SessionManager()
@@ -184,7 +189,34 @@ class DialogueManager:
                 attrs_dict['parameters'][key].extend(self.get_parameters(val))
         return attrs_dict
 
+    def get_effect_attrs(self, effect):
+        attrs_dict = {
+            'name': effect.__name__,
+            'template': getattr(effect, 'get_pretty_template')(),
+            'parameters': {}
+        }
+        # cls = globals().get(action_name)
+        for key, value in inspect.signature(effect.__init__).parameters.items():
+            if key == "self":
+                continue
+            if key == 'times':
+                continue
+            if value.annotation == inspect._empty:
+                val_list = ['any']
+            elif value.annotation == bool or value.annotation == 'bool':
+                val_list = ['boolean']
+            elif isinstance(value.annotation, EnumMeta):
+                val_list = [value.annotation.__name__]
+            else:
+                val_list = [x.strip() for x in value.annotation.split("|")]
+            for val in val_list:
+                if key not in attrs_dict['parameters']:
+                    attrs_dict['parameters'][key] = []
+                attrs_dict['parameters'][key].extend(self.get_parameters(val))
+        return attrs_dict
+
     def get_parameters(self, val):
+        val = val.replace("'", "")  # for type hints that use 'Agent' instead of Agent to avoid circular imports
         params = []
         if val == Agent.__name__:
             for agent in self.agents:
@@ -210,6 +242,12 @@ class DialogueManager:
                                'value': place.name})
             params.append({'type': val,
                            'value': AnyPlace().name})
+        elif val == Value.__name__:
+            for value in self.values:
+                params.append({'type': val,
+                               'value': value.name})
+            # params.append({'type': val,
+            #                'value': AnyValue().name})
         elif val == RType.__name__:
             params.extend([{'type': val,
                             'value': RType.ANY.value},
@@ -253,9 +291,17 @@ class DialogueManager:
                            'value': rel_attrs_dict,
                            'template': Information.get_pretty_template()})
         elif val == Action.__name__:
-            pass
+            action_names = []
+            for action in self.actions:
+                action_names.append(action.__name__)
+            params.append({'type': val,
+                           'value': action_names})
         elif val == Effect.__name__:
-            pass
+            effect_names = []
+            for effect in self.effects:
+                effect_names.append(effect.__name__)
+            params.append({'type': val,
+                           'value': effect_names})
         elif val == Tense.__name__:
             params.extend([{'type': val,
                             'value': Tense.ANY.value},
@@ -266,7 +312,6 @@ class DialogueManager:
                            {'type': val,
                             'value': Tense.FUTURE.value}])
         elif val == 'boolean':
-            # pass
             params.extend([{'type': 'boolean',
                             'value': False},
                            {'type': 'boolean',
@@ -293,6 +338,12 @@ class DialogueManager:
         attrs_list = []
         for action in self.actions:
             attrs_list.append(self.get_action_attrs(action))
+        return attrs_list
+
+    def get_all_effect_attrs(self):
+        attrs_list = []
+        for effect in self.effects:
+            attrs_list.append(self.get_effect_attrs(effect))
         return attrs_list
 
     def get_action_class_name_by_action_name(self, action_name):
@@ -332,6 +383,8 @@ class DialogueManager:
             attr_instance = self.get_place_by_name(attr_value)
         if attr_type == 'Property':
             attr_instance = self.get_property_by_name(attr_value)
+        if attr_type == 'Value':
+            attr_instance = self.get_value_by_name(attr_value)
         if attr_type == 'DSTPronoun':
             if attr_value == 'I':
                 attr_instance = DSTPronoun.I
@@ -375,6 +428,15 @@ class DialogueManager:
             for k, v in attr_value.items():
                 relation_instance_values[k] = self.get_attr_instance(v)
             attr_instance = Information(**relation_instance_values)
+        if 'Action' in attr_type:
+            action_name = attr_type.split('-')[1]
+            action_class = self.get_action_class_name_by_action_name(action_name)
+            action_instance_values = {}
+            for k, v in attr_value.items():
+                action_instance_values[k] = self.get_attr_instance(v)
+            attr_instance = action_class(**action_instance_values)
+        if attr_type == 'Effect':
+            pass
         return attr_instance
 
     def get_all_utterances(self):
@@ -422,6 +484,18 @@ class DialogueManager:
         for pproperty in self.properties:
             if pproperty.name == p_name:
                 return pproperty
+        return None
+
+    def get_effect_by_name(self, e_name):
+        for effect in self.effects:
+            if effect.__name__ == e_name:
+                return effect
+        return None
+
+    def get_value_by_name(self, v_name):
+        for val in self.values:
+            if val.name == v_name:
+                return val
         return None
 
     def remove_utterance(self, utterance, **kwargs):

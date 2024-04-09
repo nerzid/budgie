@@ -18,7 +18,7 @@ class RequestAction(Action):
 
     @staticmethod
     def get_pretty_template():
-        return "[done_by] requests [action]"
+        return "[done_by] requests [requested]"
 
     def __str__(self):
         return "%s request %s" % (self.done_by.name, self.requested)

@@ -37,7 +37,7 @@ class Permit(Action):
 
     @staticmethod
     def get_pretty_template():
-        return "[done_by] gives permit for [permitted] to [permit_given_to]"
+        return "[done_by] gives permit for [permitted] to [permit_given_to] ([r_tense][negation])"
 
     def get_requirement_holders(self) -> List:
         return [self.done_by, self.permit_given_to]
