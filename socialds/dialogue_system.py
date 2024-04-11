@@ -50,17 +50,25 @@ class DialogueSystem:
         eventlet.spawn(self.execute_actions, copied_utt.actions)
 
     def choose_actions(self, actions):
+        action_pretty_string = ''
+        for action in actions:
+            action_pretty_string += str(action) + '\n'
+        action_pretty_string = '<i>' + action_pretty_string + '</i>'
+        self.agent.message_streamer.add(Message(ds_action_by_type=DSActionByType.AGENT.value,
+                                                ds_action_by=self.agent.name,
+                                                message=action_pretty_string,
+                                                ds_action=DSAction.DISPLAY_UTTERANCE.value))
         eventlet.spawn(self.execute_actions, actions)
 
     def execute_actions(self, actions):
         # print('EXECUTING ACTIONS NOW for agent" {}'.format(self.agent))
         pool = eventlet.GreenPool()
 
-        actions = []
+        # executed_actions = []
         for action in actions:
             if isinstance(action, ActionOperator):
                 continue
-            actions.append(action)
+            # executed_actions.append(action)
             action.on_action_finished_executing.subscribe(self.add_action_to_action_history)
             pool.spawn(action.execute, self.agent)
 

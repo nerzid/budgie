@@ -81,12 +81,14 @@ def send_message():
                                                 message=dm.session_manager.get_sessions_info_dict(sender_agent)))
         dm.get_menu_options()
     elif message.get('ds_action') == DSAction.USER_CHOSE_ACTIONS.value:
-        actions = message.get('message')
+        actions_attrs = message.get('message')
         sender_agent_id = message.get('sender_agent_id')
         receiver_agent_id = message.get('receiver_agent_id')
         sender_agent = dm.get_agent_by_id(sender_agent_id)
         receiver_agent = dm.get_agent_by_id(receiver_agent_id)
-        dm.communicate_with_actions(actions, sender_agent, receiver_agent)
+        sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
+        receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
+        dm.communicate_with_actions(dm.get_actions_from_actions_attrs(actions_attrs), sender_agent, receiver_agent)
         dm.message_streamer.add(message=Message(ds_action=DSAction.SESSIONS_INFO.value, ds_action_by="Dialogue Manager",
                                                 ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
                                                 message=dm.session_manager.get_sessions_info_dict(sender_agent)))

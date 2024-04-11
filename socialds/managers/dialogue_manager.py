@@ -525,16 +525,17 @@ class DialogueManager:
                             ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
                             message=self.session_manager.get_sessions_info_dict(agent)))
 
-    @staticmethod
-    def communicate(message, sender: Agent, receiver: Agent):
+    # @staticmethod
+    def communicate(self, message, sender: Agent, receiver: Agent):
         if sender.auto:
             sender.dialogue_system.act(beneficiary=receiver)
         else:
             sender.dialogue_system.act(utterance=message, beneficiary=receiver)
 
-    @staticmethod
-    def communicate_with_actions(actions, sender: Agent, receiver: Agent):
+    # @staticmethod
+    def communicate_with_actions(self, actions, sender: Agent, receiver: Agent):
         if sender.auto:
             sender.dialogue_system.act(beneficiary=receiver)
         else:
-            sender.dialogue_system.act(actions=actions, beneficiary=receiver)
+            utterance = self.utterances_manager.get_utterance_by_action(actions, sender)
+            sender.dialogue_system.act(actions=actions, utterance=utterance, beneficiary=receiver)

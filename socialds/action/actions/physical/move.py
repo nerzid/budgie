@@ -16,12 +16,22 @@ from socialds.socialpractice.context.resource import Resource
 
 class Move(Action):
 
-    def __init__(self, moved: Resource | Agent | DSTPronoun, from_place: Place, to_place: Place, done_by: Agent | DSTPronoun = DSTPronoun.I,):
+    def __init__(self, moved: Resource | Agent | DSTPronoun, from_place: Place, to_place: Place,
+                 done_by: Agent | DSTPronoun = DSTPronoun.I, ):
         # self.relation = Relation(mover, RelationType.ACTION, RelationTense.PRESENT, )
         self.relation = None
         self.moved = moved
         self.from_place = from_place
         self.to_place = to_place
+
+        # TODO all inputs except done_by should go into either target_resources or recipients for correct equality check
+        # TODO atm, target_resource and recipient is singular. It should be turned into array to work with the suggestion above
+        target_resources = []
+        recipients = []
+        # if isinstance(moved, Agent) or isinstance(moved, DSTPronoun):
+        #     recipients.append(moved)
+        # elif isinstance(moved, Resource):
+        #     target_resources.append(moved)
 
         effects = [
             ChangePlace(from_place=self.from_place,
@@ -30,10 +40,10 @@ class Move(Action):
         ]
         super().__init__('move', done_by, ActionObjType.PHYSICAL, base_effects=effects)
 
-    def equals_with_pronouns(self, other, pronouns):
-        return super().equals_with_pronouns(other, pronouns) and self.from_place == other.from_place and self.to_place == other.to_place and \
-            (self.moved == other.moved or isinstance(other.moved, AnyAgent) or isinstance(
-                self.moved, AnyAgent))
+    # def equals_with_pronouns(self, other, pronouns):
+    #     return super().equals_with_pronouns(other, pronouns) and self.from_place == other.from_place and self.to_place == other.to_place and \
+    #         (self.moved == other.moved or isinstance(other.moved, AnyAgent) or isinstance(
+    #             self.moved, AnyAgent))
 
     def get_requirement_holders(self) -> List:
         return [self.moved, self.from_place, self.to_place]

@@ -156,9 +156,9 @@ def sp_main(dm_id):
     basic_competences = RelationStorage('Basic Competences')
 
     basic_competences.add_multi([
-        Competence('Asking questions for information', RequestInfo(asked=AnyRelation(), tense=Tense.ANY)),
+        Competence('Asking questions for information', RequestInfo(asked=AnyInformation(), tense=Tense.ANY)),
         Competence('Asking questions for yes or no answers',
-                   RequestConfirmation(done_by=DSTPronoun.I, asked=AnyRelation(), tense=Tense.ANY,
+                   RequestConfirmation(done_by=DSTPronoun.I, asked=AnyInformation(), tense=Tense.ANY,
                                        recipient=DSTPronoun.YOU)),
         Competence('Moving like walking',
                    Move(done_by=DSTPronoun.I, moved=DSTPronoun.I, from_place=AnyPlace(), to_place=AnyPlace())),
@@ -169,9 +169,9 @@ def sp_main(dm_id):
         Competence('Backchannel', Backchannel()),
         Competence('Acknowledge', Acknowledge()),
         Competence('Selftalk', SelfTalk()),
-        Competence('Learn', Learn(done_by=DSTPronoun.I, learned=AnyRelation())),
+        Competence('Learn', Learn(done_by=DSTPronoun.I, learned=AnyInformation())),
         Competence('Affirm', Affirm(AnyInformation())),
-        Competence('Deny', Deny(AnyRelation())),
+        Competence('Deny', Deny(AnyInformation())),
         Competence('Share', Share(information=AnyInformation())),
         Competence('Feel', Feel(done_by=DSTPronoun.I, felt=AnyProperty(), about=AnyRelation(), r_tense=Tense.ANY)),
         Competence('Thank', Thank()),
