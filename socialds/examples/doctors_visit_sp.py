@@ -720,7 +720,7 @@ def sp_main(dm_id):
     # Dialogue System initialization
     dm = DialogueManager(dm_id=dm_id, agents=[agent1, agent2], utterances=utterances, places=places,
                          properties=properties, resources=resources, session_manager=session_manager,
-                         actions=[Greet, Thank, Move, Permit, RequestAction, RequestInfo, RequestConfirmation,
+                         actions=[Greet, Thank, Move, Share, Permit, RequestAction, RequestInfo, RequestConfirmation,
                                   Affirm, Deny],
                          effects=[ChangePlace, GainKnowledge, AddExpectedEffect, PromoteValue, DemoteValue],
                          values=values)

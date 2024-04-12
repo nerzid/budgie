@@ -4,6 +4,7 @@ import eventlet
 from eventlet.greenpool import GreenPool
 from socialds.action.action_operator import ActionOperator
 from socialds.enums import DSActionByType, DSAction, Tense
+from socialds.managers.planner import NoMatchingUtteranceFound
 from socialds.message import Message
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.other.event_listener import EventListener
@@ -36,9 +37,13 @@ class DialogueSystem:
 
     def run_auto_agent(self):
         eventlet.sleep(self.auto_reaction_time)
-        selected_utt, solution = self.agent.planner.get_the_best_matching_utterance_with_solution(
-            self.agent.planner.plan())
+        plan = self.agent.planner.plan()
+        # try:
+        selected_utt, solution = self.agent.planner.get_the_best_matching_utterance_with_solution(plan)
         self.choose_utterance(selected_utt)
+        # except NoMatchingUtteranceFound:
+
+
 
     def choose_utterance(self, utterance):
         self.on_agent_chose_utterance.invoke(agent=self.agent, utterance=utterance)

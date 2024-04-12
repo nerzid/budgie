@@ -442,7 +442,38 @@ class Planner:
         else:
             return possible_utterances_with_solutions
 
+    def get_actions_from_plans(self, plans: List[ConditionSolution]):
+        actions = []
+        for plan in plans:
+            for step in plan.steps:
+                from socialds.action.action import Action
+                if isinstance(step, Action):
+                    actions.append(step)
+                elif isinstance(step, Effect):
+                    action = self.from_effect_to_action(step)
+                    if action is not None:
+                        actions.append(action)
+
     def get_the_best_matching_utterance_with_solution(self, solutions: List[ConditionSolution]):
         utts_with_solutions = self.get_possible_utterances_with_solutions(solutions)
         if len(self.agent.utterances_manager.utterances) > 0:
             return utts_with_solutions[0]
+
+    # def from_effect_to_action(self, effect):
+    #     possible_actions = []
+    #     possible_effects = []
+    #     competences = self.agent.relation_storages[RSType.COMPETENCES].relations
+    #     permits = self.agent.relation_storages[RSType.PERMITS].relations
+    #     for competence in competences:
+    #         possible_actions.append(competence.action)
+    #
+    #     for permit in permits:
+    #         from socialds.action.action import Action
+    #         permitted = permit.right
+    #         if isinstance(permitted, Action):
+    #             possible_actions.append(permitted)
+    #
+    #     for action in possible_actions:
+    #         effects = action.base_effects
+    #         if len(effects) == 1:
+    #             if effects[0].equals_with_pronouns(effect, self.agent.pronouns):

@@ -6,6 +6,7 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
+from socialds.agent import Agent
 from socialds.conditions.agent_knows import AgentKnows
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
@@ -15,14 +16,14 @@ from socialds.states.relation import Relation
 
 class Share(Action):
 
-    def __init__(self, information: Information, times: List[ActionHappenedAtTime] = None):
-        self.recipient = DSTPronoun.YOU
+    def __init__(self, information: Information, times: List[ActionHappenedAtTime] = None,
+                 done_by: Agent | DSTPronoun = DSTPronoun.I, recipient: Agent | DSTPronoun = DSTPronoun.YOU):
         self.information = information
-        super().__init__(name="share", done_by=DSTPronoun.I, act_type=ActionObjType.VERBAL,
+        super().__init__(name="share", done_by=done_by, act_type=ActionObjType.VERBAL,
                          base_effects=[
-                             GainKnowledge(knowledge=information, affected=self.recipient)
+                             GainKnowledge(knowledge=information, affected=recipient)
                          ],
-                         recipient=self.recipient,
+                         recipient=recipient,
                          times=times)
 
     def __str__(self):
@@ -30,6 +31,10 @@ class Share(Action):
 
     def __repr__(self):
         return "%r share %r with %r" % (self.done_by, self.information, self.recipient)
+
+    @staticmethod
+    def get_pretty_template():
+        return "[done_by] shares [information] with [recipient]"
 
     def equals_with_pronouns(self, other, pronouns):
         return super().equals_with_pronouns(other, pronouns) and self.information == other.information
@@ -45,4 +50,3 @@ class Share(Action):
 
     def get_requirement_holders(self) -> List:
         return super().get_requirement_holders() + [self.information]
-
