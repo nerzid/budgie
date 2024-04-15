@@ -3,12 +3,12 @@ from socialds.object import Object
 from socialds.enums import SemanticEvent, Tense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.states.state import State
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 
 
 class Competence(Relation):
     # Role -can-> Action(semantic roles)
-    def __init__(self, name: str, action: Action, negation = False):
+    def __init__(self, name: str, action: Action, negation: Negation = Negation.FALSE):
         super().__init__(DSTPronoun.I, RType.CAN, Tense.PRESENT, action, negation)
         self.name = name
         self.action = action

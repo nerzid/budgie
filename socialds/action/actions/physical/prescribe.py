@@ -9,13 +9,13 @@ from socialds.agent import Agent
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.socialpractice.context.resource import Resource
 from socialds.states.property import Property
-from socialds.states.relation import Relation
+from socialds.states.relation import Relation, Negation
 
 
 class Prescribe(Action):
 
     def __init__(self, done_by: Agent | DSTPronoun, prescribed: List[Resource], recipient: Agent | DSTPronoun,
-                 negation: bool = False,
+                 negation: Negation = Negation.FALSE,
                  times=None):
         self.prescribed = prescribed
         self.negation = negation

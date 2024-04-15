@@ -27,7 +27,8 @@ class Learn(Action):
                          act_type=ActionObjType.VERBAL,
                          base_effects=[
                              GainKnowledge(knowledge=learned, affected=done_by)
-                         ], extra_effects=extra_effects
+                         ], extra_effects=extra_effects,
+                         target_relations=[learned]
                          )
 
     def __str__(self):

@@ -7,12 +7,12 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.agent import Agent
 from socialds.other.dst_pronouns import DSTPronoun
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 
 
 class Check(Action):
     def __init__(self, checked: Relation, r_tense: Tense, recipient: Agent | DSTPronoun,
-                 negation: bool = False):
+                 negation: Negation = Negation.FALSE):
         super().__init__("check", DSTPronoun.I, ActionObjType.VERBAL, [], recipient=recipient)
         self.checked = checked
         self.relation = Relation(self.done_by, RType.ACTION, r_tense, checked, negation)

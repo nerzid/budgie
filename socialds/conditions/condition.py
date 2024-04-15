@@ -3,6 +3,7 @@ from typing import List
 
 from socialds.enums import Tense
 from socialds.action.action_time import ActionHappenedAtTime
+from socialds.states.relation import Negation
 
 
 # class ConditionType(Enum):
@@ -13,7 +14,7 @@ from socialds.action.action_time import ActionHappenedAtTime
 
 
 class Condition:
-    def __init__(self, tense: Tense, times: List[ActionHappenedAtTime] = None, negation=False):
+    def __init__(self, tense: Tense, times: List[ActionHappenedAtTime] = None, negation:Negation=Negation.FALSE):
         if times is None:
             self.times = []
         else:

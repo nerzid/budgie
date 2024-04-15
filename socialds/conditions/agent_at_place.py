@@ -8,14 +8,14 @@ from socialds.conditions.condition import Condition
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
 from socialds.socialpractice.context.place import Place
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 from socialds.enums import Tense
 
 
 class AgentAtPlace(Condition):
     def __init__(self, agent: a.Agent | DSTPronoun, place: Place, tense: Tense,
                  times: List[ActionHappenedAtTime] = None,
-                 negation=False):
+                 negation:Negation=Negation.FALSE):
         super().__init__(tense, times, negation)
         self.agent = agent
         self.place = place
@@ -25,25 +25,21 @@ class AgentAtPlace(Condition):
             agent = checker.pronouns[self.agent]
         else:
             agent = self.agent
-        if not self.negation:
-            return agent.relation_storages[RSType.PLACES].contains(Relation(left=agent,
-                                                                            rtype=RType.IS_AT,
-                                                                            rtense=Tense.PRESENT,
-                                                                            right=self.place),
-                                                                   pronouns=checker.pronouns)
+        if self.negation == Negation.FALSE or self.negation == Negation.ANY:
+            return agent.relation_storages[RSType.PLACES].contains(
+                Relation(left=agent, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=self.place),
+                pronouns=checker.pronouns)
         else:
-            return not agent.relation_storages[RSType.PLACES].contains(Relation(left=agent,
-                                                                                rtype=RType.IS_AT,
-                                                                                rtense=Tense.PRESENT,
-                                                                                right=self.place),
-                                                                       pronouns=checker.pronouns)
+            return not agent.relation_storages[RSType.PLACES].contains(
+                Relation(left=agent, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=self.place),
+                pronouns=checker.pronouns)
 
     def __str__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.IS_AT][not self.negation][self.tense]
+        tense_str = Relation.relation_types_with_tenses[RType.IS_AT][self.negation][self.tense]
         return "%s %s %s %s" % (self.agent, tense_str, self.place, self.get_times_str())
 
     def __repr__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.IS_AT][not self.negation][self.tense]
+        tense_str = Relation.relation_types_with_tenses[RType.IS_AT][self.negation][self.tense]
         return "%r %r %r %r" % (self.agent, tense_str, self.place, self.get_times_str())
 
     def insert_pronouns(self, pronouns):

@@ -11,14 +11,14 @@ from socialds.agent import Agent
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.socialpractice.context.information import Information
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 
 
 class RequestConfirmation(Action):
     def __init__(self, asked: Information, done_by: Agent | DSTPronoun = DSTPronoun.I,
                  recipient: Agent | DSTPronoun = DSTPronoun.YOU,
                  tense: Tense = Tense.ANY,
-                 negation: bool = False):
+                 negation: Negation = Negation.FALSE):
         self.relation = Information(done_by, RType.ACTION, tense, asked, negation)
         self.asked = asked
         super().__init__("request-confirmation", done_by=done_by, act_type=ActionObjType.VERBAL, base_effects=[

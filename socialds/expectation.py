@@ -51,10 +51,7 @@ class Expectation:
 
                 # from socialds.any.any_agent import AnyAgent
                 if agent.dialogue_system.last_turn_actions.contains(
-                        Relation(left=agent,
-                                 rtense=Tense.ANY,
-                                 rtype=RType.ACTION,
-                                 right=action),
+                        Relation(left=agent, rtype=RType.ACTION, rtense=Tense.ANY, right=action),
                         agent.pronouns):
                     is_to_be_removed = False
                     for step_to_be_removed in steps_to_be_removed:

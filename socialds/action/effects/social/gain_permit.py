@@ -22,8 +22,7 @@ class GainPermit(Effect):
                          from_state=[],
                          to_state=[
                              HasPermit(agent=affected,
-                                       permit=permit.right,
-                                       negation=False)
+                                       permit=permit.right)
                          ],
                          affected=affected,
                          op_seq=op_seq)

@@ -21,6 +21,7 @@ from socialds.message import Message
 from socialds.other.dst_pronouns import DSTPronoun, get_agent
 from socialds.other.event_listener import EventListener
 from socialds.socialpractice.context.resource import Resource
+from socialds.states.relation import Relation
 
 
 class ActionFailed(Exception):
@@ -55,6 +56,7 @@ class Action(ActionObj):
                  extra_effects: List[Effect] = None,
                  recipient: a.Agent | DSTPronoun | AnyAgent = None,
                  target_resource: Resource | AnyResource = None,
+                 target_relations: List[Relation] = None,
                  execution_time=ExecutionTime(),
                  times: List[ActionHappenedAtTime] = None,
                  specific=False):
@@ -71,6 +73,9 @@ class Action(ActionObj):
             times = []
         if extra_effects is None:
             extra_effects = []
+        if target_relations is None:
+            target_relations = []
+        self.target_relations = target_relations
         self.times = times
         self.name = name
         super().__init__(name, act_type, base_effects, extra_effects)
@@ -120,6 +125,13 @@ class Action(ActionObj):
                 found = False
                 for e2 in other.extra_effects:
                     if e1.equals_with_pronouns(e2, pronouns):
+                        found = True
+                if not found:
+                    return False
+            for r1 in self.target_relations:
+                found = False
+                for r2 in other.target_relations:
+                    if r1.equals_with_pronouns(r2, pronouns):
                         found = True
                 if not found:
                     return False

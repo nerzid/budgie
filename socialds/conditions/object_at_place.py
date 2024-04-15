@@ -6,13 +6,14 @@ from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.socialpractice.context.place import Place
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 from socialds.enums import Tense
 from socialds.states.relation import Relation as r
 
 
 class ObjectAtPlace(Condition):
-    def __init__(self, rsholder, place: Place, tense: Tense, times: List[ActionHappenedAtTime] = None, negation=False):
+    def __init__(self, rsholder, place: Place, tense: Tense, times: List[ActionHappenedAtTime] = None,
+                 negation: Negation = Negation.FALSE):
         super().__init__(tense, times, negation)
         self.rsholder = rsholder
         self.place = place
@@ -34,27 +35,23 @@ class ObjectAtPlace(Condition):
             rsholder = checker.pronouns[self.rsholder]
         else:
             rsholder = self.rsholder
-        if not self.negation:
-            return rsholder.relation_storages[RSType.PLACES].contains(Relation(left=rsholder,
-                                                                               rtype=RType.IS_AT,
-                                                                               rtense=Tense.PRESENT,
-                                                                               right=self.place),
-                                                                      pronouns=checker.pronouns)
+        if self.negation == Negation.FALSE or self.negation == Negation.ANY:
+            return rsholder.relation_storages[RSType.PLACES].contains(
+                Relation(left=rsholder, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=self.place),
+                pronouns=checker.pronouns)
         else:
-            return not rsholder.relation_storages[RSType.PLACES].contains(Relation(left=self.rsholder,
-                                                                                   rtype=RType.IS_AT,
-                                                                                   rtense=Tense.PRESENT,
-                                                                                   right=self.place),
-                                                                          pronouns=checker.pronouns)
+            return not rsholder.relation_storages[RSType.PLACES].contains(
+                Relation(left=self.rsholder, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=self.place),
+                pronouns=checker.pronouns)
 
     def __str__(self):
         return "%s %s %s %s" % (
-            self.rsholder, r.relation_types_with_tenses[RType.IS_AT][not self.negation][self.tense], self.place,
+            self.rsholder, r.relation_types_with_tenses[RType.IS_AT][self.negation][self.tense], self.place,
             super().get_times_str())
 
     def __repr__(self):
         return "%r %r %r %r" % (
-            self.rsholder, r.relation_types_with_tenses[RType.IS_AT][not self.negation][self.tense], self.place,
+            self.rsholder, r.relation_types_with_tenses[RType.IS_AT][self.negation][self.tense], self.place,
             super().get_times_str())
 
     def insert_pronouns(self, pronouns):

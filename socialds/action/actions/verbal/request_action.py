@@ -5,6 +5,7 @@ from socialds.agent import Agent
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action import Action
 from socialds.other.dst_pronouns import DSTPronoun
+from socialds.states.relation import Negation
 
 
 class RequestAction(Action):
@@ -13,7 +14,7 @@ class RequestAction(Action):
         self.requested = requested
         super().__init__('request', done_by=done_by, act_type=ActionObjType.VERBAL, recipient=recipient,
                          base_effects=[
-                             AddExpectedAction(requested, False, recipient)
+                             AddExpectedAction(action=requested, affected=recipient)
                          ])
 
     @staticmethod

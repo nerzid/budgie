@@ -5,7 +5,7 @@ from socialds.states.relation import Relation, RType
 
 
 class CreateRelation(StateOperation):
-    def __init__(self, left: any, rtype: RType, rtense: Tense, right: any, negation: bool, rs: RelationStorage):
+    def __init__(self, left: any, rtype: RType, rtense: Tense, right: any, negation, rs: RelationStorage):
         """
         Finds the first matching relation
         :param rs:
@@ -25,10 +25,7 @@ class CreateRelation(StateOperation):
 
     def execute(self, agent, *args, **kwargs) -> Relation:
         super().execute(agent, *args, **kwargs)
-        relation = Relation(left=self.left,
-                            rtype=self.rtype,
-                            rtense=self.rtense,
-                            right=self.right,
+        relation = Relation(left=self.left, rtype=self.rtype, rtense=self.rtense, right=self.right,
                             negation=self.negation)
         relation.pronouns = self.pronouns
         relation.insert_pronouns()

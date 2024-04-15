@@ -21,7 +21,7 @@ class Affirm(Action):
         self.affirmed = affirmed
         super().__init__('affirm', done_by=done_by, act_type=ActionObjType.VERBAL, base_effects=[
             GainKnowledge(knowledge=affirmed, affected=recipient)
-        ])
+        ], target_relations=[affirmed])
 
     @staticmethod
     def get_pretty_template():
@@ -43,4 +43,4 @@ class Affirm(Action):
                             tense=Tense.PAST).check(checker=checker)
 
     def equals_with_pronouns(self, other, pronouns):
-        return super().equals_with_pronouns(other, pronouns) and self.affirmed == other.affirmed
+        return super().equals_with_pronouns(other, pronouns)

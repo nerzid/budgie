@@ -10,18 +10,17 @@ from socialds.agent import Agent
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.socialpractice.context.information import Information
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 
 
 class RequestInfo(Action):
-    def __init__(self, asked: Information, tense: Tense, negation: bool = False,
+    def __init__(self, asked: Information, tense: Tense, negation: Negation = Negation.FALSE,
                  done_by: Agent | DSTPronoun = DSTPronoun.I, recipient: Agent | DSTPronoun = DSTPronoun.YOU, ):
         self.relation = Information(DSTPronoun.I, RType.ACTION, tense, asked, negation)
         self.asked = asked
         super().__init__("request-info", done_by=done_by, act_type=ActionObjType.VERBAL, base_effects=[
             AddExpectedEffect(effect=GainKnowledge(affected=done_by, knowledge=asked),
-                              affected=recipient,
-                              negation=False)
+                              affected=recipient)
         ], recipient=recipient)
 
     def __str__(self):

@@ -7,12 +7,13 @@ from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.agent import Agent
 from socialds.other.dst_pronouns import DSTPronoun
+from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Relation
 
 
 class Deduce(Action):
 
-    def __init__(self, done_by: Agent | DSTPronoun, deduced: Relation):
+    def __init__(self, done_by: Agent | DSTPronoun, deduced: Information):
         """
         Agent thinks and arrives at a certain relation.
         E.g., after thinking, doctor figures out that the patient has bacterial conjunctivitis

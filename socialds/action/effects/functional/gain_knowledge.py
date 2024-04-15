@@ -9,6 +9,7 @@ from socialds.operations.add_relation_to_rsholder import AddRelationToRSHolder
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
 from socialds.socialpractice.context.information import Information
+from socialds.states.relation import Negation
 
 
 class GainKnowledge(Effect):
@@ -27,8 +28,7 @@ class GainKnowledge(Effect):
                              an.AgentKnows(agent=affected,
                                            knows=knowledge,
                                            tense=Tense.PRESENT,
-                                           times=[],
-                                           negation=False)
+                                           times=[])
                          ],
                          affected=affected,
                          op_seq=op_seq)
@@ -41,7 +41,9 @@ class GainKnowledge(Effect):
         return "[affected] gains the knowledge [knowledge]"
 
     def equals_with_pronouns(self, other, pronouns):
-        return super().equals_with_pronouns(other, pronouns) and self.knowledge == other.knowledge
+        if not isinstance(other, GainKnowledge):
+            return False
+        return super().equals_with_pronouns(other, pronouns) and self.knowledge.equals_with_pronouns(other.knowledge, pronouns)
 
     def insert_pronouns(self):
         super().insert_pronouns()

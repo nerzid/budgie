@@ -6,11 +6,11 @@ from socialds.conditions.condition import Condition
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 
 
 class HasPermit(Condition):
-    def __init__(self, agent, permit, negation: bool = False):
+    def __init__(self, agent, permit, negation: Negation = Negation.FALSE):
         super().__init__(tense=Tense.PRESENT, negation=negation)
         self.agent = agent
         self.negation = negation
@@ -39,7 +39,7 @@ class HasPermit(Condition):
         print("CHECKER -> {}".format(checker))
         print("PERMIT -> {}".format(copied_permit))
         print("HAS PERMIT? -> {}".format(rel_result))
-        if not self.negation:
+        if self.negation == Negation.FALSE or self.negation == Negation.ANY:
             return rel_result
         else:
             return not rel_result

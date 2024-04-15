@@ -5,21 +5,16 @@ from socialds.enums import Tense
 from socialds.operations.add_relation_to_rsholder import AddRelationToRSHolder
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 
 
 class AddExpectedEffect(Effect):
-    def __init__(self, effect: Effect, affected: 'Agent' | DSTPronoun, negation:bool=False):
+    def __init__(self, effect: Effect, affected: 'Agent' | DSTPronoun, negation:Negation=Negation.FALSE):
         self.effect = effect
         self.negation = negation
         op_seq = [
-            AddRelationToRSHolder(relation=Relation(
-                left=affected,
-                rtype=RType.EFFECT,
-                rtense=Tense.PRESENT,
-                right=effect,
-                negation=negation
-            ), rsholder=affected, rstype=RSType.EXPECTED_EFFECTS)
+            AddRelationToRSHolder(relation=Relation(left=affected, rtype=RType.EFFECT, rtense=Tense.PRESENT,
+                                                    right=effect, negation=negation), rsholder=affected, rstype=RSType.EXPECTED_EFFECTS)
         ]
         super().__init__(name='add-expected-effect',
                          from_state=[],

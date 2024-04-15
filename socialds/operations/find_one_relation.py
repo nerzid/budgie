@@ -4,13 +4,13 @@ from socialds.enums import Tense
 from socialds.operations.stateoperation import StateOperation
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RelationStorage
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 
 
 class FindOneRelation(StateOperation):
     def __init__(self, rs: RelationStorage | StateOperation, left: any | StateOperation = None,
                  rtype: RType | StateOperation = None, rtense: Tense | StateOperation = None,
-                 right: any | StateOperation = None, negation: bool | StateOperation = None):
+                 right: any | StateOperation = None, negation: Negation = Negation.FALSE):
         """
         Finds the first matching relation
         :param rs:

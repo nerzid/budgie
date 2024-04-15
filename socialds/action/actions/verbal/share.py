@@ -24,6 +24,7 @@ class Share(Action):
                              GainKnowledge(knowledge=information, affected=recipient)
                          ],
                          recipient=recipient,
+                         target_relations=[information],
                          times=times)
 
     def __str__(self):
@@ -37,7 +38,7 @@ class Share(Action):
         return "[done_by] shares [information] with [recipient]"
 
     def equals_with_pronouns(self, other, pronouns):
-        return super().equals_with_pronouns(other, pronouns) and self.information == other.information
+        return super().equals_with_pronouns(other, pronouns)
 
     def insert_pronouns(self):
         self.information.pronouns = self.pronouns

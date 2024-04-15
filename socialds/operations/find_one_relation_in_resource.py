@@ -5,7 +5,7 @@ from socialds.operations.stateoperation import StateOperation
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
 from socialds.socialpractice.context.resource import Resource
-from socialds.states.relation import RType, Relation
+from socialds.states.relation import RType, Relation, Negation
 
 
 class FindOneRelationInResource(StateOperation):
@@ -13,7 +13,7 @@ class FindOneRelationInResource(StateOperation):
                  left: any | StateOperation = None,
                  rtype: RType | StateOperation = None,
                  rtense: Tense | StateOperation = None, right: any | StateOperation = None,
-                 negation: bool | StateOperation = None):
+                 negation: Negation = Negation.FALSE):
         super().__init__('find-one-relation-in-agent')
         self.resource = resource
         self.rstype = rstype

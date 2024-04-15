@@ -12,7 +12,7 @@ from socialds.operations.modify_relation_tense import ModifyRelationTense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
 from socialds.socialpractice.context.place import Place
-from socialds.states.relation import RType, Relation
+from socialds.states.relation import RType, Relation, Negation
 
 
 class ChangePlace(Effect):
@@ -28,16 +28,10 @@ class ChangePlace(Effect):
                     rtype=RType.IS_AT,
                     rtense=Tense.PRESENT,
                     right=from_place,
-                    negation=False
+                    negation=Negation.FALSE
                 ), rtense=Tense.PAST),
             AddRelationToRSHolder(
-                relation=Relation(
-                    left=affected,
-                    rtype=RType.IS_AT,
-                    rtense=Tense.PRESENT,
-                    right=to_place,
-                    negation=False
-                ), rsholder=affected, rstype=RSType.PLACES)
+                relation=Relation(left=affected, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=to_place), rsholder=affected, rstype=RSType.PLACES)
         ]
         super().__init__(name='change-location',
                          from_state=[

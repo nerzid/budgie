@@ -11,13 +11,8 @@ class AddExpectedEffectOptions(Effect):
         self.effects = effects
         self.negation = negation
         op_seq = [
-            AddRelationToRSHolder(relation=Relation(
-                left=affected,
-                rtype=RType.EFFECT,
-                rtense=Tense.PRESENT,
-                right=effects,
-                negation=negation
-            ), rsholder=affected, rstype=RSType.EXPECTED_EFFECTS)
+            AddRelationToRSHolder(relation=Relation(left=affected, rtype=RType.EFFECT, rtense=Tense.PRESENT,
+                                                    right=effects, negation=negation), rsholder=affected, rstype=RSType.EXPECTED_EFFECTS)
         ]
         super().__init__(name='add-expected-effect-options',
                          from_state=[],

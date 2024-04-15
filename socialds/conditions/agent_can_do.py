@@ -10,13 +10,13 @@ import socialds.agent as a
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.relationstorage import RelationNotFoundError, RSType
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 from socialds.enums import Tense
 
 
 class AgentCanDo(Condition):
     def __init__(self, agent: a.Agent | DSTPronoun, action, tense: Tense, times: List[ActionHappenedAtTime] = None,
-                 negation=False):
+                 negation: Negation = Negation.FALSE):
         super().__init__(tense, times, negation)
         self.agent = agent
         self.action = action
@@ -33,17 +33,17 @@ class AgentCanDo(Condition):
 
         rel = Relation(left=copied_action.done_by, rtype=RType.ACTION, rtense=Tense.PAST, right=copied_action)
 
-        if self.negation:
+        if self.negation == Negation.TRUE:
             return not agent.relation_storages[RSType.COMPETENCES].contains(rel, checker.pronouns)
-        else:
+        elif self.negation == Negation.FALSE or self.negation == Negation.ANY:
             return agent.relation_storages[RSType.COMPETENCES].contains(rel, checker.pronouns)
 
     def __str__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.CAN][not self.negation][self.tense]
+        tense_str = Relation.relation_types_with_tenses[RType.CAN][self.negation][self.tense]
         return "%s %s %s %s" % (self.agent, tense_str, self.action, self.get_times_str())
 
     def __repr__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.CAN][not self.negation][self.tense]
+        tense_str = Relation.relation_types_with_tenses[RType.CAN][self.negation][self.tense]
         return "%r %s %r %s" % (self.agent, tense_str, self.action, self.get_times_str())
 
     def insert_pronouns(self, pronouns):

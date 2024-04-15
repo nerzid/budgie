@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from socialds.operations.modify_relation import ModifyRelation
 from socialds.operations.stateoperation import StateOperation
-from socialds.states.relation import Relation
+from socialds.states.relation import Relation, Negation
 
 
 class ModifyRelationNegation(ModifyRelation):
-    def __init__(self, relation: Relation | StateOperation, negation: bool | StateOperation):
+    def __init__(self, relation: Relation | StateOperation, negation: Negation = Negation.FALSE):
         super().__init__('modify-relation-negation')
         self.relation = relation
         self.negation = negation

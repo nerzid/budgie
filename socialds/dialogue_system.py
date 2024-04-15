@@ -10,6 +10,7 @@ from socialds.other.dst_pronouns import DSTPronoun
 from socialds.other.event_listener import EventListener
 from socialds.relationstorage import RelationStorage
 from socialds.states.relation import Relation, RType
+from socialds.utterance import Utterance
 
 
 class DialogueSystem:
@@ -38,12 +39,15 @@ class DialogueSystem:
     def run_auto_agent(self):
         eventlet.sleep(self.auto_reaction_time)
         plan = self.agent.planner.plan()
-        # try:
-        selected_utt, solution = self.agent.planner.get_the_best_matching_utterance_with_solution(plan)
-        self.choose_utterance(selected_utt)
-        # except NoMatchingUtteranceFound:
-
-
+        try:
+            selected_utt, solution = self.agent.planner.get_the_best_matching_utterance_with_solution(plan)
+            self.choose_utterance(selected_utt)
+        except NoMatchingUtteranceFound:
+            actions = self.agent.planner.get_actions_from_plans(plan)
+            if len(actions) > 0:
+                self.choose_actions([actions[0]])
+            else:
+                self.do_nothing()
 
     def choose_utterance(self, utterance):
         self.on_agent_chose_utterance.invoke(agent=self.agent, utterance=utterance)
@@ -81,10 +85,7 @@ class DialogueSystem:
         self.on_agent_executed_all_actions_from_utterance.invoke(self.agent, actions)
 
     def add_action_to_action_history(self, agent, action):
-        self.action_history.add(Relation(left=agent,
-                                         rtype=RType.ACTION,
-                                         rtense=Tense.PAST,
-                                         right=action))
+        self.action_history.add(Relation(left=agent, rtype=RType.ACTION, rtense=Tense.PAST, right=action))
 
     def get_planned_utterances(self):
         utts_str = []
@@ -96,3 +97,6 @@ class DialogueSystem:
                                                 ds_action_by=DSActionByType.DIALOGUE_SYSTEM.value,
                                                 ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
                                                 message=utts_str))
+
+    def do_nothing(self):
+        self.choose_utterance(Utterance("<i>Does nothing</i>", []))

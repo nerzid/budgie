@@ -72,7 +72,7 @@ from socialds.socialpractice.context.place import Place
 from socialds.socialpractice.context.resource import Resource
 from socialds.socialpractice.expectation.norm import Norm
 from socialds.states.property import Property
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 from socialds.states.value import Value
 from socialds.utterance import Utterance
 
@@ -145,8 +145,7 @@ def sp_main(dm_id):
         Information(left=Information(left=p_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_pain), rtype=RType.IS,
                     rtense=Tense.PRESENT, right=p_symptom),
         Information(left=Information(left=p_eye, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_inflammation),
-                    rtype=RType.IS,
-                    rtense=Tense.PRESENT, right=p_symptom)
+                    rtype=RType.IS, rtense=Tense.PRESENT, right=p_symptom)
     ])
 
     # VALUES
@@ -181,7 +180,7 @@ def sp_main(dm_id):
                                                        act_type=ActionObjType.ANY, recipient=DSTPronoun.YOU,
                                                        target_resource=AnyResource(),
                                                        base_effects=[
-                                                           AddExpectedEffect(effect=AnyEffect(), negation=False,
+                                                           AddExpectedEffect(effect=AnyEffect(),
                                                                              affected=AnyAgent())]))
     ])
 
@@ -218,8 +217,7 @@ def sp_main(dm_id):
                               AgentDoesAction(DSTPronoun.I, Examine(), tense=Tense.PAST)]))
 
     info_patients_left_eye_has_inflammation = Information(left=p_patients_left_eye, rtype=RType.HAS,
-                                                          rtense=Tense.PRESENT,
-                                                          right=p_inflammation)
+                                                          rtense=Tense.PRESENT, right=p_inflammation)
     info_patients_left_eye_has_inflammation.relation_storages[RSType.REQUIREMENTS].add_multi([
         Requirement(
             required_for=GainKnowledge(knowledge=info_patients_left_eye_has_inflammation, affected=DSTPronoun.I),
@@ -243,8 +241,7 @@ def sp_main(dm_id):
                                                                     rtense=Tense.PRESENT,
                                                                     right=p_bacterial_conjunctivitis)
 
-    info_patients_left_eye_has_swelling = Information(left=p_patients_left_eye, rtype=RType.HAS,
-                                                      rtense=Tense.PRESENT,
+    info_patients_left_eye_has_swelling = Information(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
                                                       right=p_swelling)
 
     p_veins_in_left_eye.relation_storages[RSType.PROPERTIES].add(info_patients_veins_in_left_eye_is_red)
@@ -301,18 +298,24 @@ def sp_main(dm_id):
                                                                                   to_place=places_office,
                                                                                   affected=DSTPronoun.YOU),
                                                                               permit_given_to=DSTPronoun.YOU,
-                                                                              r_tense=Tense.ANY,
-                                                                              negation=False)))
+                                                                              r_tense=Tense.ANY)))
     agent2.relation_storages[RSType.COMPETENCES].add(Competence(name='doctor can examine eyes',
-                                                                action=Examine(),
-                                                                negation=False))
+                                                                action=Examine()))
     agent2.relation_storages[RSType.COMPETENCES].add_from_rs(basic_competences)
     agent2.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(common_knowledge)
-    agent2.relation_storages[RSType.PERMITS].add(
-        Relation(left=agent2, rtype=RType.IS_PERMITTED_TO, rtense=Tense.ANY, negation=False,
-                 right=ChangePlace(from_place=any_place,
-                                   to_place=places_office,
-                                   affected=DSTPronoun.YOU)))
+    agent2.relation_storages[RSType.PERMITS].add_multi([
+        Relation(left=agent2, rtype=RType.IS_PERMITTED_TO, rtense=Tense.ANY, right=ChangePlace(from_place=any_place,
+                                                                                               to_place=places_office,
+                                                                                               affected=DSTPronoun.YOU)),
+        Relation(left=agent2, rtype=RType.IS_PERMITTED_TO, rtense=Tense.ANY, right=Permit(
+            done_by=DSTPronoun.I,
+            permit_given_to=DSTPronoun.YOU,
+            permitted=ChangePlace(from_place=any_place,
+                                  to_place=places_office,
+                                  affected=DSTPronoun.YOU),
+            r_tense=Tense.PRESENT
+        ))
+    ])
 
     agent2.relation_storages[RSType.PLACES].add_multi([
         # Relation(left=agent2, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=any_place),
@@ -324,7 +327,7 @@ def sp_main(dm_id):
 
     # Utterances
     utterances = [
-        Utterance("---Do nothing---", []),
+        Utterance("<i>Does nothing</i>", []),
 
         Utterance("Hi!", [
             Greet()
@@ -337,7 +340,7 @@ def sp_main(dm_id):
                                   moved=DSTPronoun.YOU,
                                   from_place=any_place,
                                   to_place=places_office),
-                   r_tense=Tense.PRESENT, negation=False, permit_given_to=DSTPronoun.YOU)
+                   r_tense=Tense.PRESENT, permit_given_to=DSTPronoun.YOU)
         ]),
         Utterance("Can I come in?", [
             RequestAction(done_by=DSTPronoun.I,
@@ -346,7 +349,7 @@ def sp_main(dm_id):
                                                           moved=DSTPronoun.I,
                                                           from_place=any_place,
                                                           to_place=places_office),
-                                           r_tense=Tense.PRESENT, negation=False, permit_given_to=DSTPronoun.I))
+                                           r_tense=Tense.PRESENT, permit_given_to=DSTPronoun.I))
         ]),
         Utterance("Yes, please.", [
             Permit(done_by=DSTPronoun.I,
@@ -354,7 +357,7 @@ def sp_main(dm_id):
                                   moved=DSTPronoun.YOU,
                                   from_place=any_place,
                                   to_place=places_office),
-                   r_tense=Tense.PRESENT, negation=False, permit_given_to=DSTPronoun.YOU)
+                   r_tense=Tense.PRESENT, permit_given_to=DSTPronoun.YOU)
         ]),
         Utterance("Thank you. (Moves to doctor's office)", [
             Thank(),
@@ -365,9 +368,7 @@ def sp_main(dm_id):
                  to_place=places_office)
         ]),
         Utterance("So, what brings you here today?", [
-            RequestInfo(asked=info_problem_description_is_any,
-                        negation=False,
-                        tense=Tense.PRESENT)
+            RequestInfo(asked=info_problem_description_is_any, tense=Tense.PRESENT)
         ]),
         Utterance("My left eye has been red since this morning.", [
             Share(information=info_problem_description_is_any)
@@ -383,22 +384,20 @@ def sp_main(dm_id):
             Backchannel()
         ]),
         Utterance("and it hurts a lot.", [
-            Share(information=Information(
-                left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT, negation=False,
-                right=p_pain
-            ))
+            Share(
+                information=Information(left=p_patients_left_eye, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_pain))
         ]),
         Utterance("Did you take any medicine to ease your pain?", [
-            Check(r_tense=Tense.PRESENT, checked=Relation(
-                left=DSTPronoun.YOU, rtense=Tense.PAST, rtype=RType.ACTION, negation=False,
-                right=Take(taken=p_medicine, done_by=DSTPronoun.YOU, r_tense=Tense.PRESENT, negation=False)
-            ), negation=False, recipient=DSTPronoun.YOU)
+            Check(r_tense=Tense.PRESENT, checked=Relation(left=DSTPronoun.YOU, rtype=RType.ACTION, rtense=Tense.PAST,
+                                                          right=Take(taken=p_medicine, done_by=DSTPronoun.YOU,
+                                                                     r_tense=Tense.PRESENT, negation=False))
+                  , recipient=DSTPronoun.YOU)
         ]),
         Utterance("No, I was worried that would make it worse.", [
-            Feel(done_by=DSTPronoun.I, felt=p_worry, about=Relation(
-                left=DSTPronoun.I, rtense=Tense.PRESENT, rtype=RType.ACTION, negation=False,
-                right=Take(r_tense=Tense.PRESENT, taken=p_medicine, done_by=DSTPronoun.I, negation=False)
-            ),
+            Feel(done_by=DSTPronoun.I, felt=p_worry, about=Relation(left=DSTPronoun.I, rtype=RType.ACTION,
+                                                                    rtense=Tense.PRESENT,
+                                                                    right=Take(r_tense=Tense.PRESENT, taken=p_medicine,
+                                                                               done_by=DSTPronoun.I)),
                  r_tense=Tense.PAST)
         ]),
         Utterance("I see.", [
@@ -430,37 +429,30 @@ def sp_main(dm_id):
             Affirm(affirmed=action_examine)
         ]),
         Utterance("Will it hurt?", [
-            Check(r_tense=Tense.PRESENT, negation=False,
-                  checked=Information(left=Information(left=DSTPronoun.YOU, rtype=RType.ACTION, rtense=Tense.PRESENT,
-                                                       right=Examine()),
-                                      rtype=RType.IS, rtense=Tense.PRESENT,
-                                      right=p_painful
-                                      ),
+            Check(r_tense=Tense.PRESENT,
+                  checked=Information(
+                      left=Information(left=DSTPronoun.YOU, rtype=RType.ACTION, rtense=Tense.PRESENT, right=Examine()),
+                      rtype=RType.IS, rtense=Tense.PRESENT, right=p_painful),
                   recipient=DSTPronoun.YOU)
         ]),
         Utterance("No, you will just feel mild pressure in your eye, but it shouldn't hurt.", [
             # Deny(),
             And(),
-            Share(information=Information(left=Information(left=DSTPronoun.I, rtype=RType.ACTION, rtense=Tense.PRESENT,
-                                                           right=Examine()),
-                                          rtype=RType.IS, rtense=Tense.PRESENT,
-                                          negation=True,
-                                          right=p_painful
-                                          ))
+            Share(information=Information(
+                left=Information(left=DSTPronoun.I, rtype=RType.ACTION, rtense=Tense.PRESENT, right=Examine()),
+                rtype=RType.IS, rtense=Tense.PRESENT, right=p_painful, negation=Negation.TRUE))
         ]),
         Utterance("You can tell me if it hurts or you just feel uncomfortable.", [
             When(action=Notify(recipient=DSTPronoun.I,
                                notified_about=Feel(felt=p_pain, done_by=DSTPronoun.YOU, r_tense=Tense.PRESENT,
                                                    about=Relation(left=DSTPronoun.I, rtype=RType.ACTION,
-                                                                  rtense=Tense.PRESENT,
-                                                                  right=Examine()))
+                                                                  rtense=Tense.PRESENT, right=Examine()))
                                , done_by=DSTPronoun.I),
                  conditions=[
                      AgentDoesAction(agent=DSTPronoun.YOU, tense=Tense.PRESENT,
                                      action=Feel(done_by=DSTPronoun.YOU, felt=p_pain, r_tense=Tense.PRESENT,
                                                  about=Relation(left=DSTPronoun.I, rtype=RType.ACTION,
-                                                                rtense=Tense.PRESENT,
-                                                                right=Examine())))
+                                                                rtense=Tense.PRESENT, right=Examine())))
                  ], )
         ]),
         Utterance("Okay doctor, thank you.", [
@@ -516,15 +508,13 @@ def sp_main(dm_id):
         Utterance("Yes, is that why?", [
             Affirm(affirmed=info_patient_had_cold),
             And(),
-            Share(information=Information(
-                left=DSTPronoun.I, rtense=Tense.PAST, rtype=RType.HAS, right=p_cold
-            ))
+            Share(information=Information(left=DSTPronoun.I, rtype=RType.HAS, rtense=Tense.PAST, right=p_cold))
         ]),
         Utterance("Yeah, it is pretty common to get bacterial conjunctivitis after having a cold.", [
-            Share(information=Information(left=Information(left=p_eye, rtype=RType.HAS, rtense=Tense.PRESENT,
-                                                           right=p_bacterial_conjunctivitis), rtype=RType.IS,
-                                          rtense=Tense.PRESENT,
-                                          right=p_common, times=[After(after=Have(done_by=any_agent, target=p_cold))]))
+            Share(information=Information(
+                left=Information(left=p_eye, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_bacterial_conjunctivitis),
+                rtype=RType.IS, rtense=Tense.PRESENT, right=p_common,
+                times=[After(after=Have(done_by=any_agent, target=p_cold))]))
         ]),
         Utterance("Oh...", [
             Acknowledge()
@@ -547,13 +537,11 @@ def sp_main(dm_id):
         Utterance("If it doesn't heal in a week, you can come again.", [
             When(conditions=[
                 ActionOnResourceHappens(resource=p_patients_left_eye, tense=Tense.PRESENT,
-                                        action=Heal(healed=p_patients_left_eye, negation=True, times=[InWeek(num=1)]))
+                                        action=Heal(healed=p_patients_left_eye, negation=Negation.TRUE,
+                                                    times=[InWeek(num=1)]))
             ],
                 action=Move(done_by=DSTPronoun.YOU, moved=DSTPronoun.YOU, from_place=any_place, to_place=places_office)
             )
-        ]),
-        Utterance("Thank you.", [
-            Thank()
         ])
     ]
 
@@ -570,7 +558,7 @@ def sp_main(dm_id):
         ExpectationStep(action=Greet(), unique=True), ExpectationStep(action=Greet(), unique=True)
     ],
                          skipping_conditions=[
-                             AgentCanDo(agent=DSTPronoun.I, action=Greet(), tense=Tense.ANY, negation=True)
+                             AgentCanDo(agent=DSTPronoun.I, action=Greet(), tense=Tense.ANY, negation=Negation.TRUE)
                          ],
                          completion_effects=[PromoteValue(affected=DSTPronoun.EVERYONE, value=value_politeness)],
                          violation_effects=[DemoteValue(affected=DSTPronoun.I, value=value_politeness)])
@@ -578,7 +566,7 @@ def sp_main(dm_id):
     goodbye_norm = Norm(name='People said goodbye to each other', steps=[
         ExpectationStep(action=Bye(), unique=True), ExpectationStep(action=Bye(), unique=True)
     ], skipping_conditions=[
-        AgentCanDo(agent=DSTPronoun.I, action=Bye(), tense=Tense.ANY, negation=True)
+        AgentCanDo(agent=DSTPronoun.I, action=Bye(), tense=Tense.ANY, negation=Negation.TRUE)
     ], completion_effects=[],
                         violation_effects=[]
                         )
@@ -628,9 +616,13 @@ def sp_main(dm_id):
                                               name='Doctor asked all the necessary questions before physical examination',
                                               conditions=[
                                                   AgentKnows(agent=agent2, tense=Tense.PRESENT,
-                                                             knows=info_patients_left_eye_is_teary),
+                                                             knows=Information(left=p_patients_left_eye, rtype=RType.IS,
+                                                                               rtense=Tense.PRESENT, right=p_teary,
+                                                                               negation=Negation.ANY)),
                                                   AgentKnows(agent=agent2, tense=Tense.PRESENT,
-                                                             knows=info_patients_vision_is_blurry)
+                                                             knows=Information(left=p_vision, rtype=RType.IS,
+                                                                               rtense=Tense.PRESENT, right=p_blurry,
+                                                                               negation=Negation.ANY))
                                               ])
                                      ])
 

@@ -25,7 +25,7 @@ from socialds.socialpractice.context.information import Information
 from socialds.socialpractice.context.place import Place
 from socialds.socialpractice.context.resource import Resource
 from socialds.states.property import Property
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 from socialds.states.value import Value
 from socialds.strategies.turntaking.turntaking import TurnTaking
 from socialds.utterance import Utterance
@@ -44,7 +44,7 @@ class DialogueManager:
                  values: List[Value],
                  dialogue_history: RelationStorage = None,
                  session_manager: SessionManager = None,
-                 allow_duplicate_utterances=False):
+                 allow_duplicate_utterances=True):
         self.dm_id = dm_id
         self.actions = actions
         self.effects = effects
@@ -311,6 +311,13 @@ class DialogueManager:
                             'value': Tense.PRESENT.value},
                            {'type': val,
                             'value': Tense.FUTURE.value}])
+        elif val == Negation.__name__:
+            params.extend([{'type': val,
+                            'value': Negation.ANY.value},
+                           {'type': val,
+                            'value': Negation.TRUE.value},
+                           {'type': val,
+                            'value': Negation.FALSE.value}])
         elif val == 'boolean':
             params.extend([{'type': 'boolean',
                             'value': False},
@@ -418,6 +425,13 @@ class DialogueManager:
                 attr_instance = Tense.PRESENT
             if attr_value == Tense.FUTURE.value:
                 attr_instance = Tense.FUTURE
+        if attr_type == 'Negation':
+            if attr_value == Negation.ANY.value:
+                attr_instance = Negation.ANY
+            if attr_value == Negation.FALSE.value:
+                attr_instance = Negation.FALSE
+            if attr_value == Negation.TRUE.value:
+                attr_instance = Negation.TRUE
         if attr_type == 'boolean':
             if attr_value == 'false':
                 attr_instance = False
@@ -502,10 +516,7 @@ class DialogueManager:
         self.utterances_manager.utterances.remove(utterance)
 
     def add_utterance_to_dialogue_history(self, agent, utterance):
-        self.dialogue_history.add(Relation(left=agent,
-                                           rtype=RType.SAYS,
-                                           rtense=Tense.PAST,
-                                           right=utterance))
+        self.dialogue_history.add(Relation(left=agent, rtype=RType.SAYS, rtense=Tense.PAST, right=utterance))
 
     # def add_utterance_to_dialogue_history(self, utterance):
     #     self.dialogue_history.add()
@@ -513,10 +524,7 @@ class DialogueManager:
     def renew_last_turn_actions(self, agent, actions):
         self.last_turn_actions.remove_all()
         for action in actions:
-            self.last_turn_actions.add(Relation(left=agent,
-                                                rtype=RType.ACTION,
-                                                rtense=Tense.PAST,
-                                                right=action))
+            self.last_turn_actions.add(Relation(left=agent, rtype=RType.ACTION, rtense=Tense.PAST, right=action))
         self.session_manager.update_session_statuses(agent)
 
     def send_session_info(self, agent, actions):

@@ -7,11 +7,12 @@ from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.socialpractice.context.resource import Resource
 from socialds.states.property import Property
+from socialds.states.relation import Negation
 
 
 class Take(Action):
     def __init__(self, taken: Resource, done_by: Agent | DSTPronoun, r_tense: Tense, giver: Agent = None,
-                 negation: bool = False, times=None):
+                 negation: Negation = Negation.FALSE, times=None):
         self.giver = giver
         self.taken = taken
         self.r_tense = r_tense

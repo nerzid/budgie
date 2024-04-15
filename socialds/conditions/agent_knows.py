@@ -7,11 +7,12 @@ from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 
 
 class AgentKnows(Condition):
-    def __init__(self, agent: any, knows: Relation, tense: Tense, times: List[ActionHappenedAtTime] = None, negation=False):
+    def __init__(self, agent: any, knows: Relation, tense: Tense, times: List[ActionHappenedAtTime] = None,
+                 negation: Negation = Negation.FALSE):
         # agent can be either Agent or DSTpronoun. For circular import reasons, the type hinting for agent doesnt use Agent | DSTPronoun
         super().__init__(tense, times, negation)
         self.agent = agent
@@ -27,17 +28,17 @@ class AgentKnows(Condition):
             agent = checker.pronouns[self.agent]
         else:
             agent = self.agent
-        if not self.negation:
+        if self.negation == Negation.FALSE or self.negation == Negation.ANY:
             return agent.relation_storages[RSType.KNOWLEDGEBASE].contains(self.knows, pronouns=checker.pronouns)
         else:
             return not agent.relation_storages[RSType.KNOWLEDGEBASE].contains(self.knows, pronouns=checker.pronouns)
 
     def __str__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][self.tense]
         return "%s %s know %s %s" % (self.agent, tense_str, self.knows, self.get_times_str())
 
     def __repr__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][self.tense]
         return "%r %r know %r %s" % (self.agent, tense_str, self.knows, self.get_times_str())
 
     def insert_pronouns(self, pronouns):

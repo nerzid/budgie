@@ -4,14 +4,14 @@ from socialds.agent import Agent
 from socialds.action.action_obj import ActionObjType
 from socialds.action.action import Action
 from socialds.other.dst_pronouns import DSTPronoun
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 from socialds.states.property import Property
 from socialds.enums import Tense
 
 
 class Feel(Action):
     def __init__(self, done_by: Agent | DSTPronoun, felt: Property, about: Relation, r_tense: Tense,
-                 negation: bool = False):
+                 negation: Negation = Negation.FALSE):
         self.done_by = done_by
         self.felt = felt
         self.about = about

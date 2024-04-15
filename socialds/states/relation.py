@@ -7,7 +7,7 @@ from termcolor import colored
 from socialds.DSTPronounHolder import DSTPronounHolder
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.enums import TermColor, Tense
-from socialds.other.dst_pronouns import DSTPronoun
+from socialds.other.dst_pronouns import DSTPronoun, pronounify
 from socialds.states.state import State
 
 
@@ -24,19 +24,39 @@ class RType(Enum):
     ANY = 'any'
 
 
+class Negation(Enum):
+    TRUE = 'true'
+    FALSE = 'false'
+    ANY = 'any'
+
+    @classmethod
+    def inverse(cls, negation):
+        if negation == Negation.FALSE:
+            return Negation.TRUE
+        elif negation == Negation.TRUE:
+            return Negation.FALSE
+        else:
+            return Negation.ANY
+
+    # def __eq__(self, other):
+    #     if not isinstance(other, Negation):
+    #         return False
+    #     return self.value == other.value or self.value == Negation.ANY or other.value == Negation.ANY
+
+
 # e.g., Eren likes apples -> left: Eren, name: likes, right: apples
 
 
 class Relation(State, DSTPronounHolder):
     relation_types_with_tenses = {
         RType.IS: {
-            True: {
+            Negation.FALSE: {
                 Tense.PAST: 'was',
                 Tense.PRESENT: 'is',
                 Tense.FUTURE: 'will',
                 Tense.ANY: 'is'
             },
-            False: {
+            Negation.TRUE: {
                 Tense.PAST: 'wasn\'t',
                 Tense.PRESENT: 'isn\'t',
                 Tense.FUTURE: 'won\'t',
@@ -44,13 +64,13 @@ class Relation(State, DSTPronounHolder):
             }
         },
         RType.HAS: {
-            True: {
+            Negation.FALSE: {
                 Tense.PAST: 'had',
                 Tense.PRESENT: 'has',
                 Tense.FUTURE: 'will have',
                 Tense.ANY: 'has'
             },
-            False: {
+            Negation.TRUE: {
                 Tense.PAST: 'hadn\'t',
                 Tense.PRESENT: 'hasn\'t',
                 Tense.FUTURE: 'won\'t have',
@@ -58,13 +78,13 @@ class Relation(State, DSTPronounHolder):
             }
         },
         RType.HAS_REQUIREMENTS: {
-            True: {
+            Negation.FALSE: {
                 Tense.PAST: 'had requirements',
                 Tense.PRESENT: 'has requirements',
                 Tense.FUTURE: 'will have requirements',
                 Tense.ANY: 'has requirements'
             },
-            False: {
+            Negation.TRUE: {
                 Tense.PAST: 'didn\'t have requirements',
                 Tense.PRESENT: 'doesn\'t have requirements',
                 Tense.FUTURE: 'won\'t have requirements',
@@ -72,13 +92,13 @@ class Relation(State, DSTPronounHolder):
             }
         },
         RType.CAN: {
-            True: {
+            Negation.FALSE: {
                 Tense.PAST: 'could',
                 Tense.PRESENT: 'can',
                 Tense.FUTURE: 'will be able to',
                 Tense.ANY: 'can'
             },
-            False: {
+            Negation.TRUE: {
                 Tense.PAST: 'couldn\'t',
                 Tense.PRESENT: 'can\'t',
                 Tense.FUTURE: 'won\'t be able to',
@@ -86,13 +106,13 @@ class Relation(State, DSTPronounHolder):
             }
         },
         RType.ACTION: {
-            True: {
+            Negation.FALSE: {
                 Tense.PAST: 'did',
                 Tense.PRESENT: 'does',
                 Tense.FUTURE: 'will do',
                 Tense.ANY: 'does'
             },
-            False: {
+            Negation.TRUE: {
                 Tense.PAST: 'didn\'t',
                 Tense.PRESENT: 'doesn\'t',
                 Tense.FUTURE: 'won\'t do',
@@ -100,13 +120,13 @@ class Relation(State, DSTPronounHolder):
             }
         },
         RType.IS_PERMITTED_TO: {
-            True: {
+            Negation.FALSE: {
                 Tense.PAST: 'was permitted to',
                 Tense.PRESENT: 'is permitted to',
                 Tense.FUTURE: 'will be permitted to',
                 Tense.ANY: 'is permitted to'
             },
-            False: {
+            Negation.TRUE: {
                 Tense.PAST: 'wasn\'t permitted to',
                 Tense.PRESENT: 'isn\'t permitted to',
                 Tense.FUTURE: 'won\'t be permitted to',
@@ -114,13 +134,13 @@ class Relation(State, DSTPronounHolder):
             }
         },
         RType.IS_AT: {
-            True: {
+            Negation.FALSE: {
                 Tense.PAST: 'was at',
                 Tense.PRESENT: 'is at',
                 Tense.FUTURE: 'will be at',
                 Tense.ANY: 'is at'
             },
-            False: {
+            Negation.TRUE: {
                 Tense.PAST: 'wasn\'t at',
                 Tense.PRESENT: 'isn\'t at',
                 Tense.FUTURE: 'won\'t be at',
@@ -128,13 +148,13 @@ class Relation(State, DSTPronounHolder):
             }
         },
         RType.EFFECT: {
-            True: {
+            Negation.FALSE: {
                 Tense.PAST: 'did the effect',
                 Tense.PRESENT: 'does the effect',
                 Tense.FUTURE: 'will do the effect',
                 Tense.ANY: 'does the effect'
             },
-            False: {
+            Negation.TRUE: {
                 Tense.PAST: 'didn\'t do the effect',
                 Tense.PRESENT: 'don\'t do the effect',
                 Tense.FUTURE: 'won\'t do the effect',
@@ -142,13 +162,13 @@ class Relation(State, DSTPronounHolder):
             }
         },
         RType.ANY: {
-            True: {
+            Negation.FALSE: {
                 Tense.PAST: 'was',
                 Tense.PRESENT: 'is',
                 Tense.FUTURE: 'will',
                 Tense.ANY: 'is'
             },
-            False: {
+            Negation.TRUE: {
                 Tense.PAST: 'wasn\'t',
                 Tense.PRESENT: 'isn\'t',
                 Tense.FUTURE: 'won\'t',
@@ -156,13 +176,13 @@ class Relation(State, DSTPronounHolder):
             }
         },
         RType.SAYS: {
-            True: {
+            Negation.FALSE: {
                 Tense.PAST: 'said',
                 Tense.PRESENT: 'says',
                 Tense.FUTURE: 'will say',
                 Tense.ANY: 'says'
             },
-            False: {
+            Negation.TRUE: {
                 Tense.PAST: 'didn\'t say',
                 Tense.PRESENT: 'doesn\'t say',
                 Tense.FUTURE: 'won\'t say',
@@ -171,9 +191,8 @@ class Relation(State, DSTPronounHolder):
         }
     }
 
-    def __init__(self, left, rtype: RType, rtense: Tense, right, negation: bool = False,
-                 times: List[ActionHappenedAtTime] = None
-                 ):
+    def __init__(self, left, rtype: RType, rtense: Tense, right, negation: Negation = Negation.FALSE,
+                 times: List[ActionHappenedAtTime] = None):
         super().__init__()
         self.left = left
         self.rtype = rtype
@@ -201,6 +220,27 @@ class Relation(State, DSTPronounHolder):
                     self.times == other.times)
         return False
 
+    def equals_with_pronouns(self, other, pronouns):
+        relation_left = pronounify(other.left, pronouns)
+        left = pronounify(self.left, pronouns)
+        from socialds.action.action import Action
+        from socialds.action.effects.effect import Effect
+        if isinstance(relation_left, Action) or isinstance(relation_left, Effect):
+            left_equality = relation_left.equals_with_pronouns(left, pronouns)
+        else:
+            left_equality = relation_left == left
+
+        relation_right = pronounify(other.right, pronouns)
+        right = pronounify(self.right, pronouns)
+        if isinstance(relation_right, Action) or isinstance(relation_right, Effect):
+            right_equality = relation_right.equals_with_pronouns(right, pronouns)
+        else:
+            right_equality = relation_right == right
+
+        return left_equality and (other.rtype == self.rtype or other.rtype == RType.ANY or self.rtype == RType.ANY) \
+            and (other.rtense == self.rtense or other.rtense == Tense.ANY or self.rtense == Tense.ANY) \
+            and right_equality and (other.negation == self.negation or self.negation == Negation.ANY or other.negation == Negation.ANY)
+
     def __str__(self):
         left_color = TermColor.LIGHT_BLUE.value
         r_type_color = TermColor.LIGHT_RED.value
@@ -209,13 +249,19 @@ class Relation(State, DSTPronounHolder):
 
         return f'{colored(self.left, left_color)} ' \
                f'{colored("-", TermColor.LIGHT_YELLOW.value)}' \
-               f'{colored(self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense], r_type_color)}' \
+               f'{colored(self.get_pretty_tense(), r_type_color)}' \
                f'{colored("->", TermColor.LIGHT_YELLOW.value)} ' \
                f'{colored(self.right, right_color)}{self.get_times_str()}'
 
     def __repr__(self):
-        tense_str = self.relation_types_with_tenses[self.rtype][not self.negation][self.rtense]
+        tense_str = self.relation_types_with_tenses[self.rtype][self.negation][self.rtense]
         return "%r-%r->%r%r" % (self.left, tense_str, self.right, self.get_times_str())
+
+    def get_pretty_tense(self):
+        neg_str = self.negation
+        if self.negation == Negation.ANY:
+            neg_str = Negation.FALSE
+        return self.relation_types_with_tenses[self.rtype][neg_str][self.rtense]
 
     @staticmethod
     def get_pretty_template():

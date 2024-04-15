@@ -6,7 +6,7 @@ from socialds.operations.stateoperation import StateOperation
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.relationstorage import RSType
 from socialds.rs_holder import RSHolder
-from socialds.states.relation import RType, Relation
+from socialds.states.relation import RType, Relation, Negation
 
 
 class FindOneRelationInRSHolder(StateOperation):
@@ -16,7 +16,7 @@ class FindOneRelationInRSHolder(StateOperation):
                  rtype: RType | StateOperation = None,
                  rtense: Tense | StateOperation = None,
                  right: any | StateOperation = None,
-                 negation: bool | StateOperation = None):
+                 negation: Negation = Negation.FALSE):
         super().__init__('find-one-relation-in-agent')
         self.rsholder = rsholder
         self.rstype = rstype
@@ -66,8 +66,8 @@ class FindOneRelationInRSHolder(StateOperation):
         if relation is None:
             raise OperationFailed("{} doesn't have the relation {} in {}"
                                   .format(self.rsholder,
-                                          Relation(left=self.left, rtype=self.rtype,
-                                                   rtense=self.rtense, right=self.right, negation=self.negation),
+                                          Relation(left=self.left, rtype=self.rtype, rtense=self.rtense,
+                                                   right=self.right, negation=self.negation),
                                           self.rsholder.relation_storages[self.rstype]))
         else:
             return relation

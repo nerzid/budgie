@@ -18,7 +18,7 @@ class Deny(Action):
         self.denied = denied
         super().__init__('deny', done_by=done_by, recipient=recipient, act_type=ActionObjType.VERBAL, base_effects=[
             GainKnowledge(knowledge=denied, affected=recipient)
-        ])
+        ], target_relations=[denied])
 
     @staticmethod
     def get_pretty_template():

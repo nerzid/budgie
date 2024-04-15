@@ -7,7 +7,7 @@ from termcolor import colored
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.any.any_object import AnyObject
 from socialds.enums import TermColor, Tense
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 
 
 class RSType(Enum):
@@ -137,7 +137,7 @@ class RelationStorage:
         del self.relations
         self.relations = []
 
-    def get_one(self, left: any, rtype: RType, rtense: Tense, right: any, pronouns, negation=False,
+    def get_one(self, left: any, rtype: RType, rtense: Tense, right: any, pronouns, negation: Negation = Negation.FALSE,
                 times: List[ActionHappenedAtTime] = None, excluded: List[Relation] = None):
         # if times is not None:
         #     for time in times:
@@ -148,30 +148,8 @@ class RelationStorage:
 
         found = False
         for relation in self.relations:
-            # print(relation)
-            relation_left = pronounify(relation.left, pronouns)
-            left = pronounify(left, pronouns)
-            left_equality = True
-            from socialds.action.action import Action
-            from socialds.action.effects.effect import Effect
-            if isinstance(relation_left, Action) or isinstance(relation_left, Effect):
-                left_equality = relation_left.equals_with_pronouns(left, pronouns)
-            else:
-                left_equality = relation_left == left
-
-            relation_right = pronounify(relation.right, pronouns)
-            right = pronounify(right, pronouns)
-            right_equality = True
-            if isinstance(relation_right, Action) or isinstance(relation_right, Effect):
-                right_equality = relation_right.equals_with_pronouns(right, pronouns)
-            else:
-                right_equality = relation_right == right
-
-
-            if left_equality and (relation.rtype == rtype or relation.rtype == RType.ANY or rtype == RType.ANY) \
-                    and (relation.rtense == rtense or relation.rtense == Tense.ANY or rtense == Tense.ANY) \
-                    and right_equality and relation.negation == negation:
-                found = True
+            found = relation.equals_with_pronouns(
+                Relation(left=left, rtype=rtype, rtense=rtense, right=right, negation=negation), pronouns)
             if found:
                 if excluded is None or len(excluded) == 0:
                     return relation
@@ -185,7 +163,8 @@ class RelationStorage:
         if not found:
             return None
 
-    def get_many(self, left: any, rtype: RType, rtense: Tense, right: any, negation=False, times: [ActionHappenedAtTime] = None):
+    def get_many(self, left: any, rtype: RType, rtense: Tense, right: any, negation: Negation = Negation.FALSE,
+                 times: [ActionHappenedAtTime] = None):
         # if times is not None:
         #     for time in times:
         #         if isinstance(time, NumOfTimes):

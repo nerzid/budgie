@@ -94,7 +94,9 @@ class Planner:
                 continue
             else:
                 # all_conditions.extend(goal.conditions)
-                all_conditions = goal.conditions
+                for condition in goal.conditions:
+                    if not condition.check(self.agent):
+                        all_conditions.append(condition)
                 # break
 
         # from socialds.action.action import Action
@@ -106,6 +108,7 @@ class Planner:
         #     expected_effects.append(expected_effect_relation.right)
 
         condition_solutions = []
+        plans = []
         for condition in all_conditions:
             if condition.check(self.agent):
                 continue
@@ -115,6 +118,7 @@ class Planner:
                                       desc='by performing the specific action',
                                       steps=[condition.action])
                 )
+                plans.append(Plan(steps=[condition.action]))
 
                 action = copy(condition.action)
                 action.switch_done_by_with_recipient_if_not_pronoun()
@@ -123,26 +127,26 @@ class Planner:
                                       desc='by requesting other agent to do it',
                                       steps=[
                                           AddExpectedAction(action=action,
-                                                            negation=False,
                                                             affected=DSTPronoun.YOU)
                                       ])
                 )
+                plans.append(Plan(steps=[AddExpectedAction(action=action,
+                                                           affected=DSTPronoun.YOU)]))
             elif isinstance(condition, AgentDoesOneOfTheActions):
                 condition_solutions.append(
                     ConditionSolution(condition=condition,
                                       desc='by performing one of the actions, starting from the first one',
                                       steps=condition.actions)
                 )
+                plans.append(condition.actions)
             elif isinstance(condition, AgentKnows):
                 if self.agent.equals_with_pronouns(condition.agent, self.agent.pronouns):
                     condition_solutions.append(
                         ConditionSolution(condition=condition,
                                           desc='by learning it',
-                                          steps=[
-                                              GainKnowledge(condition.knows,
-                                                            affected=DSTPronoun.I)])
+                                          steps=[GainKnowledge(condition.knows, affected=DSTPronoun.I)])
                     )
-
+                    plans.append(Plan([GainKnowledge(condition.knows, affected=DSTPronoun.I)]))
                     condition_solutions.append(
                         ConditionSolution(condition=condition,
                                           desc='by remembering it',
@@ -154,7 +158,13 @@ class Planner:
                                                                   RSType.KNOWLEDGEBASE],
                                                               affected=condition.agent)])
                     )
-
+                    plans.append(Plan([
+                        MoveInformation(information=condition.knows,
+                                        from_rs=condition.agent.relation_storages[
+                                            RSType.FORGOTTEN],
+                                        to_rs=condition.agent.relation_storages[
+                                            RSType.KNOWLEDGEBASE],
+                                        affected=condition.agent)]))
                     condition_solutions.append(
                         ConditionSolution(condition=condition,
                                           desc='by learning it from another agent',
@@ -166,6 +176,11 @@ class Planner:
                                           ])
                     )
 
+                    plans.append(Plan([AddExpectedEffect(GainKnowledge(knowledge=condition.knows,
+                                                                       affected=condition.agent),
+                                                         negation=condition.negation,
+                                                         affected=DSTPronoun.YOU)]))
+
                     condition_solutions.append(
                         ConditionSolution(condition=condition,
                                           desc='by confirming it with an agent',
@@ -176,6 +191,10 @@ class Planner:
                                                                   recipient=DSTPronoun.YOU)
                                           ])
                     )
+                    plans.append(Plan([RequestConfirmation(done_by=DSTPronoun.I,
+                                                           asked=condition.knows,
+                                                           tense=Tense.ANY,
+                                                           recipient=DSTPronoun.YOU)]))
                 else:
                     condition_solutions.append(
                         ConditionSolution(condition=condition,
@@ -185,6 +204,8 @@ class Planner:
                                                             affected=condition.agent)
                                           ])
                     )
+                    plans.append(Plan([GainKnowledge(knowledge=condition.knows,
+                                                     affected=condition.agent)]))
             elif isinstance(condition, AgentAtPlace):
                 condition_solutions.append(
                     ConditionSolution(condition=condition,
@@ -195,13 +216,14 @@ class Planner:
                                                       affected=condition.agent)
                                       ])
                 )
-
+                plans.append(Plan([ChangePlace(from_place=AnyPlace(),
+                                               to_place=condition.place,
+                                               affected=condition.agent)]))
                 condition_solutions.append(
                     ConditionSolution(condition=condition,
                                       desc='by giving permit to the agent to change his place',
                                       steps=[
-                                          GainPermit(permit=Relation(left=condition.agent,
-                                                                     rtype=RType.IS_PERMITTED_TO,
+                                          GainPermit(permit=Relation(left=condition.agent, rtype=RType.IS_PERMITTED_TO,
                                                                      rtense=Tense.PRESENT,
                                                                      right=ChangePlace(from_place=AnyPlace(),
                                                                                        to_place=condition.place,
@@ -209,6 +231,12 @@ class Planner:
                                                      affected=condition.agent)
                                       ])
                 )
+                plans.append(Plan([GainPermit(permit=Relation(left=condition.agent, rtype=RType.IS_PERMITTED_TO,
+                                                              rtense=Tense.PRESENT,
+                                                              right=ChangePlace(from_place=AnyPlace(),
+                                                                                to_place=condition.place,
+                                                                                affected=condition.agent)),
+                                              affected=condition.agent)]))
             elif isinstance(condition, ObjectAtPlace):
                 pass
             elif isinstance(condition, ActionOnResourceHappens):
@@ -226,6 +254,7 @@ class Planner:
                                                   steps=[
                                                       action
                                                   ]))
+                            plans.append(Plan([action]))
 
         # print('Removing the impossible solutions')
         solutions = self.filter_solutions_by_steps(condition_solutions)
@@ -237,12 +266,11 @@ class Planner:
         for action in expected_actions:
             from socialds.action.action import Action
             if isinstance(action, Action):
-                condition = AgentDoesAction(agent=action.done_by, action=action, tense=Tense.ANY, negation=False)
+                condition = AgentDoesAction(agent=action.done_by, action=action, tense=Tense.ANY)
                 goals.append(
                     Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=[condition]))
             elif isinstance(action, List):
-                condition = AgentDoesOneOfTheActions(agent=action[0].done_by, actions=action, tense=Tense.ANY,
-                                                     negation=False)
+                condition = AgentDoesOneOfTheActions(agent=action[0].done_by, actions=action, tense=Tense.ANY)
                 goals.append(
                     Goal(owner=self.agent, name='goal for the expected actions %s' % action, conditions=[condition]))
         return goals
@@ -253,15 +281,14 @@ class Planner:
         expected_actions = self.agent.relation_storages[RSType.EXPECTED_ACTIONS]
         expected_effects = self.agent.relation_storages[RSType.EXPECTED_EFFECTS]
         for effect_rel in expected_effects:
-            condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect_rel.right, tense=Tense.ANY, negation=False)
+            condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect_rel.right, tense=Tense.ANY)
             goals.append(
                 Goal(owner=self.agent, name='goal for the expected effect %s' % effect_rel.right,
                      conditions=[condition]))
         for action_rel in expected_actions:
             action = action_rel.right
             if isinstance(action, List):
-                condition = AgentDoesOneOfTheActions(agent=DSTPronoun.I, actions=action, tense=Tense.ANY,
-                                                     negation=False)
+                condition = AgentDoesOneOfTheActions(agent=DSTPronoun.I, actions=action, tense=Tense.ANY)
                 conditions.append(condition)
                 goals.append(
                     Goal(owner=self.agent, name='goal for the expected one of the actions %s' % action,
@@ -270,7 +297,7 @@ class Planner:
                 if not action.specific:
                     effects = action.base_effects + action.extra_effects
                     for effect in effects:
-                        condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect, tense=Tense.ANY, negation=False)
+                        condition = AgentDoesEffect(agent=DSTPronoun.I, effect=effect, tense=Tense.ANY)
                         conditions.append(condition)
                     goals.append(
                         Goal(owner=self.agent, name='goal for the expected action %s' % action, conditions=conditions))
@@ -330,9 +357,10 @@ class Planner:
                         if isinstance(requirement_holder, DSTPronoun):
                             requirement_holder = self.agent.pronouns[requirement_holder]
                         for requirement in requirement_holder.relation_storages[RSType.REQUIREMENTS]:
-                            if not requirement.check(self.agent) and solution not in excluded_solutions:
-                                excluded_solutions.append(solution)
-                                break
+                            if requirement.required_for.equals_with_pronouns(step, self.agent.pronouns):
+                                if not requirement.check(self.agent) and solution not in excluded_solutions:
+                                    excluded_solutions.append(solution)
+                                    break
 
         for excluded_solution in excluded_solutions:
             solutions.remove(excluded_solution)
@@ -386,7 +414,7 @@ class Planner:
                             break
                         # check if the actions in the utterance can be executed by the agent
                         requirement_holders = action.get_requirement_holders()
-                        print(action.name)
+                        # print(action.name)
                         if requirement_holders is not None:
                             for requirement_holder in requirement_holders:
                                 if requirement_holder is None:
@@ -394,9 +422,10 @@ class Planner:
                                 if isinstance(requirement_holder, DSTPronoun):
                                     requirement_holder = self.agent.pronouns[requirement_holder]
                                 for requirement in requirement_holder.relation_storages[RSType.REQUIREMENTS]:
-                                    if not requirement.check(self.agent):
-                                        agent_can_do_all_actions_in_utterance = False
-                                        break
+                                    if requirement.required_for.equals_with_pronouns(action, self.agent.pronouns):
+                                        if not requirement.check(self.agent):
+                                            agent_can_do_all_actions_in_utterance = False
+                                            break
 
                         # if the agent cannot perform an action inside the utterance
                         # then check if there are effects that can be performed instead
@@ -434,10 +463,10 @@ class Planner:
                         possible_utterances_with_solutions.append((utterance, solution))
         if len(possible_utterances_with_solutions) == 0:
             logging.debug(solutions)
-            self.agent.message_streamer.add(Message(ds_action=DSAction.DISPLAY_LOG.value,
-                                                    ds_action_by=self.name,
-                                                    ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                                    message=self.agent.session_manager.get_sessions_info(self.agent)))
+            # self.agent.message_streamer.add(Message(ds_action=DSAction.DISPLAY_LOG.value,
+            #                                         ds_action_by=self.name,
+            #                                         ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+            #                                         message=self.agent.session_manager.get_sessions_info(self.agent)))
             raise NoMatchingUtteranceFound
         else:
             return possible_utterances_with_solutions
@@ -450,30 +479,53 @@ class Planner:
                 if isinstance(step, Action):
                     actions.append(step)
                 elif isinstance(step, Effect):
-                    action = self.from_effect_to_action(step)
+                    action = self.from_effects_to_actions([step])
                     if action is not None:
-                        actions.append(action)
+                        actions.extend(action)
+        return actions
 
     def get_the_best_matching_utterance_with_solution(self, solutions: List[ConditionSolution]):
         utts_with_solutions = self.get_possible_utterances_with_solutions(solutions)
         if len(self.agent.utterances_manager.utterances) > 0:
             return utts_with_solutions[0]
 
-    # def from_effect_to_action(self, effect):
-    #     possible_actions = []
-    #     possible_effects = []
-    #     competences = self.agent.relation_storages[RSType.COMPETENCES].relations
-    #     permits = self.agent.relation_storages[RSType.PERMITS].relations
-    #     for competence in competences:
-    #         possible_actions.append(competence.action)
-    #
-    #     for permit in permits:
-    #         from socialds.action.action import Action
-    #         permitted = permit.right
-    #         if isinstance(permitted, Action):
-    #             possible_actions.append(permitted)
-    #
-    #     for action in possible_actions:
-    #         effects = action.base_effects
-    #         if len(effects) == 1:
-    #             if effects[0].equals_with_pronouns(effect, self.agent.pronouns):
+    def from_effects_to_actions(self, effects):
+        """
+        Returns the actions that have exactly the same list of effects.
+        TODO Atm, it only returns one action,
+        however, a better algorithm would go over each action that would result in the same list of effects and
+        return those actions instead
+        @param effects: @return:
+        """
+        possible_actions = []
+        competences = self.agent.relation_storages[RSType.COMPETENCES].relations
+        permits = self.agent.relation_storages[RSType.PERMITS].relations
+        for competence in competences:
+            possible_actions.append(competence.action)
+
+        for permit in permits:
+            from socialds.action.action import Action
+            permitted = permit.right
+            if isinstance(permitted, Action):
+                possible_actions.append(permitted)
+
+        for action in possible_actions:
+            a_effects = action.base_effects
+            # for c_effect in action.extra_effects:
+            #     if c_effect.condition.check(self.agent):
+            #         pass
+            found_action = True
+            for effect in effects:
+                found_effect = False
+                for a_effect in a_effects:
+                    if effect.equals_with_pronouns(a_effect, self.agent.pronouns):
+                        found_effect = True
+                if not found_effect:
+                    found_action = False
+                    break
+            if found_action:
+                return [action]
+        return None
+
+        # if len(effects) == 1:
+        #     if effects[0].equals_with_pronouns(effect, self.agent.pronouns):

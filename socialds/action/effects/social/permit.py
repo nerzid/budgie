@@ -9,13 +9,13 @@ from socialds.agent import Agent
 from socialds.conditions.has_permit import HasPermit
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.action.action import Action
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 from socialds.enums import Tense
 
 
 class Permit(Action):
     def __init__(self, done_by: Agent | DSTPronoun, permitted: Action | Effect, permit_given_to: Agent | DSTPronoun,
-                 r_tense: Tense, negation: bool):
+                 r_tense: Tense, negation: Negation = Negation.FALSE):
         # self.relation = Relation(permitter, RelationType.IS_PERMITTED_TO, r_tense, permitted, negation)
         self.permitted = permitted
         self.permit_given_to = permit_given_to

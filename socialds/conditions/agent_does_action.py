@@ -6,13 +6,13 @@ from socialds.other.dst_pronouns import DSTPronoun
 import socialds.agent as a
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.conditions.condition import Condition
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 from socialds.enums import Tense
 
 
 class AgentDoesAction(Condition):
     def __init__(self, agent: a.Agent | DSTPronoun, action, tense: Tense, times: List[ActionHappenedAtTime] = None,
-                 negation=False):
+                 negation: Negation = Negation.FALSE):
         super().__init__(tense, times, negation)
         self.agent = agent
         self.action = action
@@ -22,9 +22,9 @@ class AgentDoesAction(Condition):
             agent = checker.pronouns[self.agent]
         else:
             agent = self.agent
-        if self.negation:
+        if self.negation == Negation.TRUE:
             return not agent.dialogue_system.action_history.contains(self.action, checker.pronouns)
-        else:
+        elif self.negation == Negation.FALSE or self.negation == Negation.ANY:
             return agent.dialogue_system.action_history.contains(self.action, checker.pronouns)
 
     # def check(self):
@@ -63,11 +63,11 @@ class AgentDoesAction(Condition):
     #     return len(found) == max_count
 
     def __str__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][self.tense]
         return "%s %s %s %s" % (self.agent, tense_str, self.action, self.get_times_str())
 
     def __repr__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.ACTION][not self.negation][self.tense]
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][self.tense]
         return "%r %r %r %r" % (self.agent, tense_str, self.action, self.get_times_str())
 
     def insert_pronouns(self, pronouns):
