@@ -11,6 +11,7 @@ from socialds.states.relation import Relation, RType, Negation
 
 
 class RSType(Enum):
+    STATES = 'States'
     PERMITS = 'Permits'
     REQUIREMENTS = 'Requirements'
     PROPERTIES = 'Properties'

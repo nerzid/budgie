@@ -1,3 +1,4 @@
+from socialds.action.actions.physical.worry import Worry
 from socialds.action.actions.verbal.bye import Bye
 from socialds.action.actions.verbal.request_confirmation import RequestConfirmation, Affirm, Deny
 from socialds.action.effects.functional.change_place import ChangePlace
@@ -713,7 +714,7 @@ def sp_main(dm_id):
     dm = DialogueManager(dm_id=dm_id, agents=[agent1, agent2], utterances=utterances, places=places,
                          properties=properties, resources=resources, session_manager=session_manager,
                          actions=[Greet, Thank, Move, Share, Permit, RequestAction, RequestInfo, RequestConfirmation,
-                                  Affirm, Deny],
+                                  Affirm, Deny, Worry],
                          effects=[ChangePlace, GainKnowledge, AddExpectedEffect, PromoteValue, DemoteValue],
                          values=values)
     return dm

@@ -9,12 +9,13 @@ from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 import socialds.action.actions.verbal.request_confirmation as rc
 from socialds.socialpractice.context.information import Information
-from socialds.states.relation import Relation, RType
+from socialds.states.relation import Relation, RType, Negation
 
 
 class Deny(Action):
     def __init__(self, denied: Information, done_by: Agent | DSTPronoun = DSTPronoun.I,
                  recipient: Agent | DSTPronoun = DSTPronoun.YOU):
+        denied.negation = Negation.inverse(denied.negation)
         self.denied = denied
         super().__init__('deny', done_by=done_by, recipient=recipient, act_type=ActionObjType.VERBAL, base_effects=[
             GainKnowledge(knowledge=denied, affected=recipient)

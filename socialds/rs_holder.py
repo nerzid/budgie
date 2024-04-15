@@ -29,7 +29,8 @@ class RSHolder:
                     rs.RSType.EXPECTED_ACTIONS: rs.RelationStorage(rsholder_name + '\'s Expected Actions'),
                     rs.RSType.EXPECTED_EFFECTS: rs.RelationStorage(rsholder_name + '\'s Expected Effects'),
                     rs.RSType.VALUES: rs.RelationStorage(rsholder_name + '\'s Values'),
-                    rs.RSType.REQUIREMENTS: rs.RelationStorage(rsholder_name + '\'s Requirements')
+                    rs.RSType.REQUIREMENTS: rs.RelationStorage(rsholder_name + '\'s Requirements'),
+                    rs.RSType.STATES: rs.RelationStorage(rsholder_name + '\'s States')
                 }
             elif rsholder_type is RSHolderType.RESOURCE:
                 self.relation_storages = {

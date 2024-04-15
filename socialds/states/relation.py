@@ -20,6 +20,7 @@ class RType(Enum):
     ACTION = 'action'
     EFFECT = 'effect'
     IS_AT = 'is_at'
+    IS_IN = 'is_in'
     SAYS = 'says'
     ANY = 'any'
 
@@ -145,6 +146,20 @@ class Relation(State, DSTPronounHolder):
                 Tense.PRESENT: 'isn\'t at',
                 Tense.FUTURE: 'won\'t be at',
                 Tense.ANY: 'isn\'t at'
+            }
+        },
+        RType.IS_IN: {
+            Negation.FALSE: {
+                Tense.PAST: 'was in',
+                Tense.PRESENT: 'is in',
+                Tense.FUTURE: 'will be in',
+                Tense.ANY: 'is in'
+            },
+            Negation.TRUE: {
+                Tense.PAST: 'wasn\'t in',
+                Tense.PRESENT: 'isn\'t in',
+                Tense.FUTURE: 'won\'t be in',
+                Tense.ANY: 'isn\'t in'
             }
         },
         RType.EFFECT: {
