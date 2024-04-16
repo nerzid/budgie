@@ -1,13 +1,43 @@
 from typing import List
 
+from nltk import word_tokenize
+
 from socialds.action.action import Action
 from socialds.agent import Agent
 from socialds.utterance import Utterance
+from Levenshtein import ratio
+from sentence_transformers import SentenceTransformer, models
+import nltk
+from nltk.corpus import stopwords
+from scipy.spatial.distance import cosine
+
+model = SentenceTransformer('all-mpnet-base-v2')
+nltk.download('stopwords')
+nltk.download('punkt')
+stop_words = stopwords.words('english') + ['<', '%', ':', '&']
+
+
+def remove_stop_words_from_sentence(sentence):
+    word_tokens = word_tokenize(sentence)
+    # converts the words in word_tokens to lower case and then checks whether
+    # they are present in stop_words or not
+    filtered_sentence = [w for w in word_tokens if not w.lower() in stop_words]
+    # with no lower case conversion
+    filtered_sentence = ''
+
+    for w in word_tokens:
+        if w not in stop_words:
+            filtered_sentence += w + ' '
+    return filtered_sentence[:-1]
 
 
 class UtterancesManager:
+
     def __init__(self, utterances: List[Utterance]):
         self.utterances = utterances
+        self.utts_with_embs = []
+        for utt in self.utterances:
+            self.utts_with_embs.append((utt, model.encode(remove_stop_words_from_sentence(utt.text))))
 
     def get_utterance_by_action(self, actions, checker: Agent):
         for utt in self.utterances:
@@ -33,3 +63,24 @@ class UtterancesManager:
             if utt_match:
                 return utt
         return None
+
+    def get_utterance_by_string_match(self, input: str, checker: Agent):
+        if len(self.utterances) == 0:
+            return
+        best_match = (self.utterances[0], 0)
+        for utt in self.utterances:
+            ratio_score = ratio(input, utt.text)
+            if ratio_score > best_match[1]:
+                best_match = (utt, ratio_score)
+        return best_match[0]
+
+    def get_utterance_by_smart_string_match(self, input: str, checker: Agent):
+        if len(self.utterances) == 0:
+            return
+        input_emb = model.encode(remove_stop_words_from_sentence(input))
+        best_match = (self.utterances[0], 0)
+        for utt_with_emb in self.utts_with_embs:
+            score = cosine(input_emb, utt_with_emb[1])
+            if score > best_match[1]:
+                best_match = (utt_with_emb[0], score)
+        return best_match[0]

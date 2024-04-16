@@ -5,3 +5,6 @@ Flask_SocketIO==5.3.6
 schedule~=1.2.1
 termcolor~=2.3.0
 PyYAML~=6.0.1
+Levenshtein~=0.25.1
+nltk~=3.8.1
+scipy~=1.11.3

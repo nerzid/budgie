@@ -328,7 +328,7 @@ def sp_main(dm_id):
 
     # Utterances
     utterances = [
-        Utterance("<i>Does nothing</i>", []),
+        Utterance("Does nothing", []),
 
         Utterance("Hi!", [
             Greet()

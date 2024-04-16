@@ -99,4 +99,4 @@ class DialogueSystem:
                                                 message=utts_str))
 
     def do_nothing(self):
-        self.choose_utterance(Utterance("<i>Does nothing</i>", []))
+        self.choose_utterance(Utterance("Does nothing", []))
