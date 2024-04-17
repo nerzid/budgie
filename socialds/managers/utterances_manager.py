@@ -4,6 +4,7 @@ from nltk import word_tokenize
 
 from socialds.action.action import Action
 from socialds.agent import Agent
+from socialds.managers.utterance_matcher import get_relation_from_text
 from socialds.utterance import Utterance
 from Levenshtein import ratio
 from sentence_transformers import SentenceTransformer, models
@@ -15,7 +16,7 @@ import spacy
 from rdflib import Graph, URIRef, Literal, RDF, RDFS
 
 # Load English language model in spaCy
-nlp = spacy.load("en_core_web_sm")
+nlp = spacy.load("en_core_web_lg")
 model = SentenceTransformer('all-mpnet-base-v2')
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -149,3 +150,12 @@ class UtterancesManager:
             if score > best_match[1]:
                 best_match = (utt_with_emb[0], score)
         return best_match[0]
+
+    def get_utterance_by_relation_match(self, input: str, checker: Agent):
+        relation = get_relation_from_text(input)
+        if relation is not None:
+            action_name = relation['action_name']
+            del relation['action_name']
+
+        else:
+            return self.get_utterance_by_smart_string_match(input, checker)
