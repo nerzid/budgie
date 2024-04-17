@@ -8,3 +8,5 @@ PyYAML~=6.0.1
 Levenshtein~=0.25.1
 nltk~=3.8.1
 scipy~=1.11.3
+spacy~=3.5.2
+rdflib~=7.0.0

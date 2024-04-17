@@ -11,6 +11,11 @@ import nltk
 from nltk.corpus import stopwords
 from scipy.spatial.distance import cosine
 
+import spacy
+from rdflib import Graph, URIRef, Literal, RDF, RDFS
+
+# Load English language model in spaCy
+nlp = spacy.load("en_core_web_sm")
 model = SentenceTransformer('all-mpnet-base-v2')
 nltk.download('stopwords')
 nltk.download('punkt')
@@ -29,6 +34,65 @@ def remove_stop_words_from_sentence(sentence):
         if w not in stop_words:
             filtered_sentence += w + ' '
     return filtered_sentence[:-1]
+
+
+def print_ontology(input):
+    # Extract concepts and relationships
+    concepts, relationships = extract_concepts_and_relationships(input)
+
+    # Convert concepts and relationships to RDF triples
+    graph = concepts_and_relationships_to_rdf(concepts, relationships)
+    # Serialize RDF graph to a file
+    graph.serialize("ontology.ttl", format="turtle")
+
+
+# Define a function to extract concepts and relationships from text
+def extract_concepts_and_relationships(text):
+    doc = nlp(text)
+    concepts = set()
+    relationships = []
+
+    for token in doc:
+        if token.pos_ == "NOUN" or token.pos_ == "PROPN":
+            concepts.add(token.text)
+
+    for ent in doc.ents:
+        concepts.add(ent.text)
+
+    for token in doc:
+        if token.dep_ == "ROOT":
+            subject = None
+            for child in token.children:
+                if child.pos_ == "NOUN" or child.pos_ == "PROPN" or child.dep_ == "compound":
+                    subject = child.text
+                    break
+            if subject is None:
+                continue
+
+            for child in token.children:
+                if child.pos_ == "ADJ":
+                    relationships.append((subject, token.text, child.text))
+                    break
+
+    return concepts, relationships
+
+
+# Define a function to convert concepts and relationships to RDF triples
+def concepts_and_relationships_to_rdf(concepts, relationships):
+    graph = Graph()
+
+    for concept in concepts:
+        graph.add((URIRef(concept), RDF.type, RDFS.Resource))
+        graph.add((URIRef(concept), RDFS.label, Literal(concept)))
+
+    for subject, predicate, obj in relationships:
+        subject_uri = URIRef(subject)
+        predicate_uri = URIRef(predicate)
+        obj_uri = URIRef(obj)
+
+        graph.add((subject_uri, predicate_uri, obj_uri))
+
+    return graph
 
 
 class UtterancesManager:
@@ -75,6 +139,7 @@ class UtterancesManager:
         return best_match[0]
 
     def get_utterance_by_smart_string_match(self, input: str, checker: Agent):
+        print_ontology(input)
         if len(self.utterances) == 0:
             return
         input_emb = model.encode(remove_stop_words_from_sentence(input))
