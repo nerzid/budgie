@@ -115,12 +115,12 @@ def send_message():
         receiver_agent = dm.get_agent_by_id(receiver_agent_id)
         sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
         receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
-        dm.utterances_manager.get_utterance_by_smart_string_match(input_text, sender_agent)
+        dm.utterances_manager.get_utterance_by_string_match(input_text, sender_agent)
         dm.utterances_manager.get_utterance_by_relation_match(input_text, sender_agent)
         dm.message_streamer.add(
             message=Message(ds_action=DSAction.SEND_UTTERANCE_BY_ACTION.value, ds_action_by="Dialogue Manager",
                             ds_action_by_type=DSActionByType.DIALOGUE_MANAGER.value,
-                            message=dm.utterances_manager.get_utterance_by_smart_string_match(input_text, sender_agent).text))
+                            message=dm.utterances_manager.get_utterance_by_string_match(input_text, sender_agent).text))
     else:
         return {"status": "no ds action present in the response"}
     return {"status": "Message received"}

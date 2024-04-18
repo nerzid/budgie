@@ -6,6 +6,9 @@ from spacy import displacy
 nlp = spacy.load("en_core_web_lg")
 matcher = DependencyMatcher(nlp.vocab)
 
+question_starters = ['is', 'are', 'was', 'were', 'will', 'do', 'did', 'does',
+                     'what', 'when', 'where', 'who', 'why', 'how', 'can', 'would', 'should']
+
 statement_pattern = [
     {
         "RIGHT_ID": "rtype",
@@ -162,13 +165,28 @@ request_information2_with_negation_pattern = [
     },
 ]
 
-patterns = {
-    'Share$with_negation': statement_with_negation_pattern,
-    'Share$': statement_pattern,
+action_names_to_intjs = {
+    'Greet': ['hi', 'hey', 'hello', 'hej'],
+    'Thank': ['thank'],
+    'Backchannel': ['hmm'],
+    'Affirm': ['yes', 'yeah', 'yeup', 'yup'],
+    'Deny': ['no', 'nah', 'nej', 'nope']
+}
+
+question_patterns = {
     'RequestInfo$_pattern_with_negation': request_information_with_negation_pattern,
     'RequestInfo$_pattern': request_information_pattern,
     'RequestInfo$2_pattern_with_negation': request_information2_with_negation_pattern,
-    'RequestInfo$2_pattern': request_information2_pattern
+    'RequestInfo$2_pattern': request_information2_pattern,
+}
+
+general_patterns = {
+    'Share$with_negation': statement_with_negation_pattern,
+    'Share$': statement_pattern,
+}
+
+patterns = {
+
 }
 
 
@@ -182,6 +200,24 @@ def _merge_phrases(doc_input):
             }
             retokenizer.merge(np, attrs=attrs)
     return doc_input
+
+
+def _is_question(text: str):
+    _ = text.lower()
+    for q_starter in question_starters:
+        if _.startswith(q_starter):
+            return True
+    return False
+
+
+def _get_matching_action_names_by_intj(text: str):
+    matched_actions = []
+    _ = text.lower()
+    for action_name, intjs in action_names_to_intjs.items():
+        for intj in intjs:
+            if intj in _:
+                matched_actions.append(action_name)
+    return matched_actions
 
 
 def _get_tense_name_from_postag(postag):
@@ -234,22 +270,42 @@ def _get_match(pattern_key, doc):
         return matches[0]
 
 
-def get_relation_from_text(text):
+def get_relations_from_text(text):
+    global patterns
     doc = nlp(text)
     doc = _merge_phrases(doc)
+    patterns = {}
+
+    if _is_question(text):
+        patterns.update(question_patterns)
+    else:
+        patterns.update(general_patterns)
+
+    relations = []
+
+    matched_intj_action_names = _get_matching_action_names_by_intj(text)
+    for action_name in matched_intj_action_names:
+        relations.append({'left': 'I',
+                          'rtype': 'action',
+                          'tense': 'present',
+                          'object': 'YOU',
+                          'negation': 'false',
+                          'action_name': action_name
+                          })
 
     for pattern_key, pattern in patterns.items():
         match = _get_match(pattern_key, doc)
         if match:
-            return _get_relation(match, pattern, doc, pattern_key.split('$')[0])
-    return None
+            relations.append(_get_relation(match, pattern, doc, pattern_key.split('$')[0]))
+    return relations
 
 
 if __name__ == '__main__':
-    sentence = 'Is your beautiful vision blurry?'
+    sentence = 'Is your eye teary?'
 
-    print(get_relation_from_text(sentence))
+    doc2 = nlp(sentence)
+    doc2 = _merge_phrases(doc2)
+    print(get_relations_from_text(sentence))
 
-    doc = nlp(sentence)
-    doc = _merge_phrases(doc)
-# displacy.serve(doc, style='dep', options={'collapse_phrases': True, 'collapse_punct': False, 'add_lemma': True})
+    # displacy.serve(doc, style='dep', options={'collapse_phrases': True, 'collapse_punct': False, 'add_lemma': True},
+    #                host='[REDACTED_IP]', port=5001)

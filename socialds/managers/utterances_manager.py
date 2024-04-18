@@ -4,9 +4,9 @@ from nltk import word_tokenize
 
 from socialds.action.action import Action
 from socialds.agent import Agent
-from socialds.managers.utterance_matcher import get_relation_from_text
+from socialds.managers.utterance_matcher import get_relations_from_text
 from socialds.utterance import Utterance
-from Levenshtein import ratio
+from Levenshtein import ratio, jaro_winkler
 from sentence_transformers import SentenceTransformer, models
 import nltk
 from nltk.corpus import stopwords
@@ -134,9 +134,10 @@ class UtterancesManager:
             return
         best_match = (self.utterances[0], 0)
         for utt in self.utterances:
-            ratio_score = ratio(input, utt.text)
+            ratio_score = jaro_winkler(input.lower(), utt.text.lower())
             if ratio_score > best_match[1]:
                 best_match = (utt, ratio_score)
+        print(best_match)
         return best_match[0]
 
     def get_utterance_by_smart_string_match(self, input: str, checker: Agent):
@@ -152,10 +153,11 @@ class UtterancesManager:
         return best_match[0]
 
     def get_utterance_by_relation_match(self, input: str, checker: Agent):
-        relation = get_relation_from_text(input)
-        if relation is not None:
-            action_name = relation['action_name']
-            del relation['action_name']
+        relations = get_relations_from_text(input)
+        for relation in relations:
+            if relation is not None:
+                action_name = relation['action_name']
+                del relation['action_name']
 
         else:
             return self.get_utterance_by_smart_string_match(input, checker)

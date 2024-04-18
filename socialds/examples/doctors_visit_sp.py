@@ -391,7 +391,7 @@ def sp_main(dm_id):
         Utterance("Did you take any medicine to ease your pain?", [
             Check(r_tense=Tense.PRESENT, checked=Relation(left=DSTPronoun.YOU, rtype=RType.ACTION, rtense=Tense.PAST,
                                                           right=Take(taken=p_medicine, done_by=DSTPronoun.YOU,
-                                                                     r_tense=Tense.PRESENT, negation=False))
+                                                                     r_tense=Tense.PRESENT))
                   , recipient=DSTPronoun.YOU)
         ]),
         Utterance("No, I was worried that would make it worse.", [
