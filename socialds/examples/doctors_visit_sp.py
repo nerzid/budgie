@@ -101,7 +101,7 @@ def sp_main(dm_id):
     actor1 = Actor(name="Joe", knowledgebase=RelationStorage('Actor Joe\'s Knowledgebase'))
 
     # RESOURCES
-    p_patients_problem = Resource("patient's problem")
+    p_patients_problem = Resource(actor1.name + "'s problem")
     p_patients_left_eye = Resource("left eye")
     p_patients_right_eye = Resource("right eye")
     p_patients_both_eyes = Resource('both eyes')
@@ -370,7 +370,7 @@ def sp_main(dm_id):
         ]),
         Utterance("So, what brings you here today?", [
             RequestInfo(asked=info_problem_description_is_any, tense=Tense.PRESENT)
-        ]),
+        ], alternatives=['What brings you here?', 'Tell me about your problem, please.', 'What do you have?']),
         Utterance("My left eye has been red since this morning.", [
             Share(information=info_problem_description_is_any)
         ]),
