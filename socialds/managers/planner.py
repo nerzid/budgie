@@ -2,6 +2,7 @@ from copy import copy, deepcopy
 from typing import List
 import logging
 
+
 from socialds.action.effects.effect import Effect
 from socialds.action.effects.functional.add_expected_action import AddExpectedAction
 from socialds.action.effects.functional.add_expected_effect import AddExpectedEffect
@@ -202,6 +203,28 @@ class Planner:
                                           steps=[
                                               GainKnowledge(knowledge=condition.knows,
                                                             affected=condition.agent)
+                                          ])
+                    )
+
+                    from socialds.action.actions.verbal.affirm import Affirm
+                    condition_solutions.append(
+                        ConditionSolution(condition=condition,
+                                          desc='by confirming it',
+                                          steps=[
+                                              Affirm(affirmed=condition.knows,
+                                                     done_by=self.agent,
+                                                     recipient=condition.agent)
+                                          ])
+                    )
+
+                    from socialds.action.actions.verbal.deny import Deny
+                    condition_solutions.append(
+                        ConditionSolution(condition=condition,
+                                          desc='by denying it',
+                                          steps=[
+                                              Deny(denied=condition.knows,
+                                                   done_by=self.agent,
+                                                   recipient=condition.agent)
                                           ])
                     )
                     plans.append(Plan([GainKnowledge(knowledge=condition.knows,

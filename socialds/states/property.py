@@ -11,4 +11,7 @@ class Property(State):
         return self.name
 
     def __eq__(self, other):
-        return self.name == other.name
+        if isinstance(other, Property):
+            return self.name == other.name
+        else:
+            return False

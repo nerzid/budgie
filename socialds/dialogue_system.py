@@ -51,10 +51,11 @@ class DialogueSystem:
 
     def choose_utterance(self, utterance):
         self.on_agent_chose_utterance.invoke(agent=self.agent, utterance=utterance)
-        self.agent.message_streamer.add(Message(ds_action_by_type=DSActionByType.AGENT.value,
-                                                ds_action_by=self.agent.name,
-                                                message=utterance.text,
-                                                ds_action=DSAction.DISPLAY_UTTERANCE.value))
+        if self.agent.auto:
+            self.agent.message_streamer.add(Message(ds_action_by_type=DSActionByType.AGENT.value,
+                                                    ds_action_by=self.agent.name,
+                                                    message=utterance.text,
+                                                    ds_action=DSAction.DISPLAY_UTTERANCE.value))
         copied_utt = copy.deepcopy(utterance)
         eventlet.spawn(self.execute_actions, copied_utt.actions)
 

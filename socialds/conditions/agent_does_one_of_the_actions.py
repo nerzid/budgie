@@ -22,7 +22,9 @@ class AgentDoesOneOfTheActions(Condition):
             # if the negation is true, then we expect that none of the actions are executed in self.actions
             res = True
             for action in self.actions:
-                res = res and not checker.dialogue_system.action_history.contains(action, checker.pronouns)
+                res = res and not checker.dialogue_system.action_history.contains(
+                    Relation(left=self.agent, rtype=RType.ACTION, rtense=self.tense, right=action,
+                             negation=self.negation), checker.pronouns)
             return res
         else:
             # if the negation is false, then we expect that one of the actions are executed in self.actions

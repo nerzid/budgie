@@ -82,8 +82,6 @@ class DialogueManager:
         #     age.pronouns = pronouns
 
     def run(self):
-        self.session_manager.update_session_statuses(self.agents[0])
-
         on_user_choose_utterance_list = []
         on_user_executed_all_actions_list = []
         on_auto_choose_utterance_list = []
@@ -136,6 +134,7 @@ class DialogueManager:
             agent.dialogue_system.action_history = self.action_history
             agent.dialogue_system.dialogue_history = self.dialogue_history
             agent.dialogue_system.last_turn_actions = self.last_turn_actions
+        self.session_manager.update_session_statuses(self.agents[0])
 
     def choose_menu_option(self, agent, menu_option, receiver):
         if menu_option == 'All Utterances':

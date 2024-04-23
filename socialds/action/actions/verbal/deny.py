@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from copy import deepcopy
+
 from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.effects.functional.change_property import GainKnowledge
@@ -15,6 +17,7 @@ from socialds.states.relation import Relation, RType, Negation
 class Deny(Action):
     def __init__(self, denied: Information, done_by: Agent | DSTPronoun = DSTPronoun.I,
                  recipient: Agent | DSTPronoun = DSTPronoun.YOU):
+        denied = deepcopy(denied)
         denied.negation = Negation.inverse(denied.negation)
         self.denied = denied
         super().__init__('deny', done_by=done_by, recipient=recipient, act_type=ActionObjType.VERBAL, base_effects=[

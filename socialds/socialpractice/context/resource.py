@@ -12,6 +12,9 @@ class Resource(Object, RSHolder):
         self.name = name
 
     def __eq__(self, other):
+        from socialds.any.any_object import AnyObject
+        if isinstance(other, AnyObject):
+            return True
         if isinstance(other, Resource):
             return self.name == other.name  # TODO needs more strict equality check here
         return False
