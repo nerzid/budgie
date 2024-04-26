@@ -22,4 +22,4 @@ EXPOSE [REDACTED_PORT]
 ENV FLASK_APP=app.py
 
 # Run app.py when the container launches
-CMD ["flask", "run", "--host=[REDACTED_IP]"]
+CMD ["python", "api.py"]
