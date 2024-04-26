@@ -56,7 +56,7 @@ class DialogueManager:
         if session_manager is None:
             self.session_manager = SessionManager()
         self.agents = agents
-        self.utterances_manager = UtterancesManager(utterances)
+        self.utterances_manager = UtterancesManager(utterances, resources=resources, properties=properties)
         self.dialogue_history = dialogue_history
         if self.dialogue_history is None:
             self.dialogue_history = RelationStorage('Dialogue History')
