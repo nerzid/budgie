@@ -39,7 +39,7 @@ from Levenshtein import ratio, jaro_winkler
 
 class UtterancesManager:
 
-    def __init__(self, utterances: List[Utterance]):
+    def __init__(self, utterances: List[Utterance], resources, properties):
         self.utterances = utterances
         self.utts_with_embs = []
         # for utt in self.utterances:

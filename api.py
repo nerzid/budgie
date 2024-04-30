@@ -13,7 +13,7 @@ from flask import Flask, request, jsonify
 from flask_cors import cross_origin, CORS
 from flask_socketio import SocketIO
 from datetime import datetime
-from socialds.examples.doctors_visit_sp import custom_sp_main
+from socialds.examples.doctors_visit_sp import custom_sp_main, sp_main
 from socialds.enums import DSAction, DSActionByType
 
 app = Flask(__name__)
@@ -33,16 +33,16 @@ session_timeout = 3600
 def send_message():
     message = request.json
     print(message)
-    # if "session_id" in message:
-    #     dm = get_dm(message["session_id"])
-    # else:
-    #     dm = get_dm()
+    if "session_id" in message:
+        dm = get_dm(message["session_id"])
+    else:
+        dm = get_dm()
     # dm.last_time_dm_used_at = datetime.now()
-    dm = None
+    # dm = None
     if "session_id" in message:
         dm = get_dm(message["session_id"])
     if message.get('ds_action') == DSAction.START_DIALOGUE.value:
-        dm = create_dm(message['message'])
+        # dm = create_dm(message['message'])
         dm.last_time_dm_used_at = datetime.now()
         # print("SESSION ID")
         print(dm.dm_id)
@@ -52,8 +52,8 @@ def send_message():
                                         ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
                                         message='Session is sent',
                                         session_id=dm.dm_id,
-                                        sender_agent_id=str(dm.agents[1].agent_id),
-                                        receiver_agent_id=str(dm.agents[0].agent_id)))
+                                        sender_agent_id=str(dm.agents[0].agent_id),
+                                        receiver_agent_id=str(dm.agents[1].agent_id)))
         dm.message_streamer.add(message=Message(ds_action=DSAction.SESSIONS_INFO.value, ds_action_by="Dialogue Manager",
                                                 ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
                                                 message=dm.session_manager.get_sessions_info_dict(dm.agents[0])))
@@ -132,8 +132,8 @@ def send_message():
         receiver_agent = dm.get_agent_by_id(receiver_agent_id)
         sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
         receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
-        dm.utterances_manager.get_utterance_by_string_match(input_text, sender_agent)
-        dm.utterances_manager.get_utterance_by_relation_match(input_text, sender_agent)
+        # dm.utterances_manager.get_utterance_by_string_match(input_text, sender_agent)
+        # dm.utterances_manager.get_utterance_by_relation_match(input_text, sender_agent)
         dm.message_streamer.add(
             message=Message(ds_action=DSAction.SEND_UTTERANCE_BY_ACTION.value, ds_action_by="Dialogue Manager",
                             ds_action_by_type=DSActionByType.DIALOGUE_MANAGER.value,
@@ -157,15 +157,15 @@ def create_dm(data):
 def get_dm(session_id=None):
     if session_id in dialogue_managers:
         return dialogue_managers[session_id]
-    # else:
-    #     session_id = str(uuid.uuid4())
-    #     dm = sp_main(session_id)
-    #     dm.run()
-    #     dialogue_managers[session_id] = dm
-    #     dm.message_streamer.on_message_added.subscribe(start_streaming_data, dm.message_streamer)
-    #     message_streamers[session_id] = dm.message_streamer
-    #     session_managers[session_id] = dm.session_manager
-    #     return dm
+    else:
+        session_id = str(uuid.uuid4())
+        dm = sp_main(session_id)
+        dm.run()
+        dialogue_managers[session_id] = dm
+        dm.message_streamer.on_message_added.subscribe(start_streaming_data, dm.message_streamer)
+        message_streamers[session_id] = dm.message_streamer
+        session_managers[session_id] = dm.session_manager
+        return dm
 
 
 def remove_timed_out_dm_sessions():
