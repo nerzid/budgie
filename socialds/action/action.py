@@ -1,4 +1,5 @@
 from __future__ import annotations
+import uuid
 
 import eventlet
 
@@ -7,6 +8,7 @@ from enum import Enum
 from typing import List
 
 from socialds.DSTPronounHolder import DSTPronounHolder
+
 # import asyncio
 
 
@@ -35,11 +37,12 @@ class ActionFailed(Exception):
 # when it is finished before duration, it is skipped. Effects may not play. If effect of action already happened,
 # then the effect won't be executed
 
+
 class ExecutionTimeStatus(Enum):
-    NOT_STARTED = 'not-started'
-    ONGOING = 'ongoing'
-    COMPLETED = 'completed'
-    SKIPPED = 'skipped'
+    NOT_STARTED = "not-started"
+    ONGOING = "ongoing"
+    COMPLETED = "completed"
+    SKIPPED = "skipped"
 
 
 class ExecutionTime:
@@ -50,16 +53,21 @@ class ExecutionTime:
 
 class Action(ActionObj):
 
-    def __init__(self, name, done_by: a.Agent | DSTPronoun,
-                 act_type: ActionObjType,
-                 base_effects: List[Effect],
-                 extra_effects: List[Effect] = None,
-                 recipient: a.Agent | DSTPronoun | AnyAgent = None,
-                 target_resource: Resource | AnyResource = None,
-                 target_relations: List[Relation] = None,
-                 execution_time=ExecutionTime(),
-                 times: List[ActionHappenedAtTime] = None,
-                 specific=False):
+    def __init__(
+        self,
+        name,
+        done_by: a.Agent | DSTPronoun,
+        act_type: ActionObjType,
+        base_effects: List[Effect],
+        extra_effects: List[Effect] = None,
+        recipient: a.Agent | DSTPronoun | AnyAgent = None,
+        target_resource: Resource | AnyResource = None,
+        target_relations: List[Relation] = None,
+        execution_time=ExecutionTime(),
+        times: List[ActionHappenedAtTime] = None,
+        specific=False,
+    ):
+        self.id = str(uuid.uuid4())
         self.done_by = done_by
         self.recipient = recipient
         self.target_resource = target_resource
@@ -82,14 +90,28 @@ class Action(ActionObj):
 
     def __eq__(self, other):
         if isinstance(other, Action):
-            return ((self.name == other.name)
-                    and (self.done_by == other.done_by or isinstance(other.done_by, AnyAgent) or isinstance(
-                        self.done_by, AnyAgent))
-                    and (self.act_type == other.act_type or other.act_type == ActionObjType.ANY)
-                    and (self.recipient == other.recipient or isinstance(other.recipient, AnyAgent))
-                    and (self.target_resource == other.target_resource or isinstance(self.target_resource, AnyResource))
-                    and (self.base_effects == other.base_effects)
-                    and (self.extra_effects == other.extra_effects))
+            return (
+                (self.name == other.name)
+                and (
+                    self.done_by == other.done_by
+                    or isinstance(other.done_by, AnyAgent)
+                    or isinstance(self.done_by, AnyAgent)
+                )
+                and (
+                    self.act_type == other.act_type
+                    or other.act_type == ActionObjType.ANY
+                )
+                and (
+                    self.recipient == other.recipient
+                    or isinstance(other.recipient, AnyAgent)
+                )
+                and (
+                    self.target_resource == other.target_resource
+                    or isinstance(self.target_resource, AnyResource)
+                )
+                and (self.base_effects == other.base_effects)
+                and (self.extra_effects == other.extra_effects)
+            )
         elif isinstance(other, Effect):
             # this uses the __eq__ in Effect class. This code exist to cop&paste the same code in the Effect class
             return other == self
@@ -102,6 +124,7 @@ class Action(ActionObj):
     def equals_with_pronouns(self, other, pronouns):
         if isinstance(other, Action):
             from socialds.any.any_action import AnyAction
+
             if isinstance(other, AnyAction):
                 return True
             self_done_by = get_agent(self.done_by, pronouns)
@@ -111,8 +134,11 @@ class Action(ActionObj):
 
             recipient_equality = True
             if self_recipient is not None:
-                recipient_equality = (self_recipient.equals_with_pronouns(other_recipient, pronouns)
-                                      or isinstance(other.recipient, AnyAgent) or isinstance(self_recipient, AnyAgent))
+                recipient_equality = (
+                    self_recipient.equals_with_pronouns(other_recipient, pronouns)
+                    or isinstance(other.recipient, AnyAgent)
+                    or isinstance(self_recipient, AnyAgent)
+                )
             for e1 in self.base_effects:
                 found = False
                 for e2 in other.base_effects:
@@ -136,17 +162,29 @@ class Action(ActionObj):
                 if not found:
                     return False
 
-            return ((self.name == other.name)
-                    and (self_done_by.equals_with_pronouns(other_done_by, pronouns)
-                         or isinstance(other_done_by, AnyAgent) or isinstance(self_done_by, AnyAgent))
-                    and (self.act_type == other.act_type or other.act_type == ActionObjType.ANY)
-                    and recipient_equality
-                    and (self.target_resource == other.target_resource or isinstance(self.target_resource,
-                                                                                     AnyResource)))
+            return (
+                (self.name == other.name)
+                and (
+                    self_done_by.equals_with_pronouns(other_done_by, pronouns)
+                    or isinstance(other_done_by, AnyAgent)
+                    or isinstance(self_done_by, AnyAgent)
+                )
+                and (
+                    self.act_type == other.act_type
+                    or other.act_type == ActionObjType.ANY
+                )
+                and recipient_equality
+                and (
+                    self.target_resource == other.target_resource
+                    or isinstance(self.target_resource, AnyResource)
+                )
+            )
         elif isinstance(other, Effect):
             # this uses the __eq__ in Effect class. This code exist to cop&paste the same code in the Effect class
             if len(self.base_effects + self.extra_effects) == 1:
-                return (self.base_effects + self.extra_effects)[0].equals_with_pronouns(other, pronouns)
+                return (self.base_effects + self.extra_effects)[0].equals_with_pronouns(
+                    other, pronouns
+                )
         return False
 
     @staticmethod
@@ -172,18 +210,18 @@ class Action(ActionObj):
         All subclasses should implement this method
         """
         requirement_holders = []
-        for effect in self.base_effects + self. extra_effects:
+        for effect in self.base_effects + self.extra_effects:
             requirement_holders.extend(effect.get_requirement_holders())
         return requirement_holders
 
     def get_times_str(self):
         if self.times is None:
-            return ''
-        times_str = ''
+            return ""
+        times_str = ""
         for time in self.times:
-            times_str += str(time) + ' AND '
+            times_str += str(time) + " AND "
         if len(self.times) > 0:
-            times_str = ' ' + times_str[:-5]
+            times_str = " " + times_str[:-5]
         return times_str
 
     def insert_pronouns(self):
@@ -207,31 +245,47 @@ class Action(ActionObj):
     def execute(self, agent, **kwargs):
         self.pronouns = agent.pronouns
         self.insert_pronouns()
-        print('Executing {} for {} seconds with pronouns {}'.format(self.name, self.execution_time.duration,
-                                                                    self.pronouns))
-        agent.message_streamer.add(Message(ds_action=DSAction.LOG_ACTION_START.value,
-                                           ds_action_by=self.done_by.name,
-                                           ds_action_by_type=DSActionByType.AGENT.value,
-                                           message='Executing {} for {} seconds'.format(self.name,
-                                                                                        self.execution_time.duration),
-                                           duration=self.execution_time.duration))
+        print(
+            "Executing {} for {} seconds with pronouns {}".format(
+                self.name, self.execution_time.duration, self.pronouns
+            )
+        )
+        agent.message_streamer.add(
+            Message(
+                ds_action=DSAction.LOG_ACTION_START.value,
+                ds_action_by=self.done_by.name,
+                ds_action_by_type=DSActionByType.AGENT.value,
+                message="Executing {} for {} seconds".format(
+                    self.name, self.execution_time.duration
+                ),
+                duration=self.execution_time.duration,
+            )
+        )
         # action_manager.ongoing_actions.append(self)
 
         eventlet.sleep(self.execution_time.duration)
         try:
             super().execute(agent)
 
-            agent.message_streamer.add(Message(ds_action=DSAction.LOG_ACTION_COMPLETED.value,
-                                               ds_action_by=self.done_by.name,
-                                               ds_action_by_type=DSActionByType.AGENT.value,
-                                               message='Execution of {} is completed'.format(self.name),
-                                               duration=self.execution_time.duration))
+            agent.message_streamer.add(
+                Message(
+                    ds_action=DSAction.LOG_ACTION_COMPLETED.value,
+                    ds_action_by=self.done_by.name,
+                    ds_action_by_type=DSActionByType.AGENT.value,
+                    message="Execution of {} is completed".format(self.name),
+                    duration=self.execution_time.duration,
+                )
+            )
         except Exception as e:
-            agent.message_streamer.add(Message(ds_action=DSAction.LOG_ACTION_FAILED.value,
-                                               ds_action_by=self.done_by.name,
-                                               ds_action_by_type=DSActionByType.AGENT.value,
-                                               message='Execution of {} is failed'.format(self.name),
-                                               reason='Reason: {}'.format(repr(e))))
+            agent.message_streamer.add(
+                Message(
+                    ds_action=DSAction.LOG_ACTION_FAILED.value,
+                    ds_action_by=self.done_by.name,
+                    ds_action_by_type=DSActionByType.AGENT.value,
+                    message="Execution of {} is failed".format(self.name),
+                    reason="Reason: {}".format(repr(e)),
+                )
+            )
         finally:
             # action_manager.remove_action(self, agent)
             self.on_action_finished_executing.invoke(agent=agent, action=self)
@@ -246,14 +300,20 @@ class Action(ActionObj):
     def switch_done_by_with_recipient(self):
         # if there is no recipient, then we only need to change done_by
         if self.recipient is None:
-            self.done_by = DSTPronoun.YOU if self.done_by == DSTPronoun.I else DSTPronoun.I
+            self.done_by = (
+                DSTPronoun.YOU if self.done_by == DSTPronoun.I else DSTPronoun.I
+            )
         else:
             temp = self.done_by
             self.done_by = self.recipient
             self.recipient = temp
 
     def switch_done_by_with_recipient_if_not_pronoun(self):
-        if self.recipient is None or isinstance(self.done_by, DSTPronoun) or isinstance(self.recipient, DSTPronoun):
+        if (
+            self.recipient is None
+            or isinstance(self.done_by, DSTPronoun)
+            or isinstance(self.recipient, DSTPronoun)
+        ):
             pass
         else:
             temp = self.done_by

@@ -2,7 +2,7 @@ from socialds.enums import DSAction, DSActionByType
 
 
 class Message:
-    def __init__(self, ds_action: DSAction, ds_action_by, ds_action_by_type: DSActionByType, message: any, **kwargs):
+    def __init__(self, ds_action, ds_action_by, ds_action_by_type, message, **kwargs):
         self.ds_action = ds_action
         self.ds_action_by = ds_action_by
         self.ds_action_by_type = ds_action_by_type

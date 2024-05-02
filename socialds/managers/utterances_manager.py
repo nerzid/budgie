@@ -4,9 +4,12 @@ from typing import List
 
 from socialds.action.action import Action
 from socialds.agent import Agent
-from socialds.managers.utterance_matcher import get_relations_from_text
+
+# from socialds.managers.utterance_matcher import get_relations_from_text
+from socialds.scenarios.scenario import Scenario
 from socialds.utterance import Utterance
 from Levenshtein import ratio, jaro_winkler
+
 # # from sentence_transformers import SentenceTransformer, models
 # import nltk
 # from nltk.corpus import stopwords
@@ -39,8 +42,8 @@ from Levenshtein import ratio, jaro_winkler
 
 class UtterancesManager:
 
-    def __init__(self, utterances: List[Utterance], resources, properties):
-        self.utterances = utterances
+    def __init__(self, scenario: Scenario):
+        self.utterances = scenario.utterances
         self.utts_with_embs = []
         # for utt in self.utterances:
         #     self.utts_with_embs.append((utt, model.encode(remove_stop_words_from_sentence(utt.text))))

@@ -1,3 +1,4 @@
+import uuid
 from socialds.states.state import State
 
 
@@ -6,6 +7,7 @@ class Property(State):
     def __init__(self, name: str):
         super().__init__()
         self.name = name
+        self.id = str(uuid.uuid4())
 
     def __repr__(self):
         return self.name

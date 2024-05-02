@@ -1,4 +1,5 @@
 from typing import List
+import uuid
 
 from socialds.relationstorage import RelationStorage
 from socialds.rs_holder import RSHolder, RSHolderType
@@ -6,19 +7,20 @@ from socialds.rs_holder import RSHolder, RSHolderType
 
 class Place(RSHolder):
     def __init__(self, name, resources: RelationStorage = None, places_inside=None):
-        RSHolder.__init__(self, rsholder_name=name,
-                          rsholder_type=RSHolderType.PLACE)
+        RSHolder.__init__(self, rsholder_name=name, rsholder_type=RSHolderType.PLACE)
         if places_inside is None:
             places_inside = []
         self.places_inside = places_inside
         if resources is None:
-            self.resources = RelationStorage(f'Resources at {name}')
+            self.resources = RelationStorage(f"Resources at {name}")
         else:
             self.resources = resources
         self.name = name
+        self.id = str(uuid.uuid4())
 
     def __eq__(self, other):
         from socialds.any.any_place import AnyPlace
+
         # print('this: {}, other: {}'.format(self, other))
         if isinstance(other, AnyPlace):
             return True

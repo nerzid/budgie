@@ -1,15 +1,23 @@
 from copy import deepcopy
 from typing import List
+import uuid
 
 from socialds.action.action_obj import ActionObj
 
 
 class Utterance:
-    def __init__(self, text: str, actions: List[ActionObj], pronouns=None, alternatives=None,):
+    def __init__(
+        self,
+        text: str,
+        actions: List[ActionObj],
+        pronouns=None,
+        alternatives=None,
+    ):
         if pronouns is None:
             pronouns = []
         if alternatives is None:
             alternatives = []
+        self.id = str(uuid.uuid4())
         self.pronouns = pronouns
         self.text = text
         self.actions = actions
@@ -24,7 +32,7 @@ class Utterance:
         return text_with_alternatives
 
     def __repr__(self):
-        action_str = ''
+        action_str = ""
         for action in self.actions:
             action_str += "%s " % action
         action_str = action_str[:-1].replace("'", "")
