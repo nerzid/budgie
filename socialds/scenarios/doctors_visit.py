@@ -1095,7 +1095,6 @@ def sp_main():
 
     # vars.expectations.append(greeting_norm)
 
-    session_manager = SessionManager()
     session_greeting = Session(
         name="Greeting",
         start_conditions=[
@@ -1296,8 +1295,7 @@ def sp_main():
             )
         ],
     )
-    session_manager.add_multi_sessions(
-        [
+    sessions = [
             session_global,
             session_greeting,
             session_problem_presentation,
@@ -1307,14 +1305,12 @@ def sp_main():
             session_treatment,
             session_closing,
         ]
-    )
-    # import logging
-
-    # logging.basicConfig(level=logging.INFO)
+    
     return Scenario(
         name="Doctors visit",
         agents=[agent1, agent2],
         utterances=utterances,
+        sessions=sessions,
         actions=[
             Greet,
             Thank,

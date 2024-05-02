@@ -6,6 +6,8 @@ from typing import List, Type
 from uuid import UUID
 import uuid
 
+from flask import session
+
 from socialds.action.action import Action
 from socialds.action.actions.physical.move import Move
 from socialds.action.actions.verbal.greet import Greet
@@ -16,6 +18,7 @@ from socialds.any.any_place import AnyPlace
 from socialds.any.any_property import AnyProperty
 from socialds.any.any_resource import AnyResource
 from socialds.enums import DSAction, DSActionByType, Tense
+from socialds.managers import session_manager
 from socialds.managers.session_manager import SessionManager
 from socialds.managers.utterances_manager import UtterancesManager
 from socialds.message import Message
@@ -40,15 +43,12 @@ class DialogueManager:
         scenario: Scenario,
         dialogue_history: RelationStorage = None,
         message_streamer: MessageStreamer = None,
-        session_manager: SessionManager = None,
         allow_duplicate_utterances=True,
     ):
         self.id = str(uuid.uuid4())
         self.scenario = deepcopy(scenario)
 
         self.last_time_dm_used_at = datetime.datetime.now()
-        if session_manager is None:
-            session_manager = SessionManager()
         self.utterances_manager = UtterancesManager(scenario)
         self.dialogue_history = dialogue_history
         if self.dialogue_history is None:
@@ -56,8 +56,9 @@ class DialogueManager:
         self.action_history = RelationStorage("Action History")
         self.allow_duplicate_utterances = allow_duplicate_utterances
         self.message_streamer = message_streamer
-        self.session_manager = session_manager
-        session_manager.message_streamer = self.message_streamer
+        self.session_manager = SessionManager()
+        self.session_manager.add_multi_sessions(scenario.sessions)
+        self.session_manager.message_streamer = self.message_streamer
         self.turntaking_strategy = TurnTaking.AfterUserExecutedAllActions
         self.last_turn_actions = RelationStorage("Last Turn Actions")
 
@@ -498,9 +499,9 @@ class DialogueManager:
 
     def get_agent_by_id(self, agent_id) -> Agent:
         for agent in self.scenario.agents:
-            if agent.id == agent_id:
+            if str(agent.id) == str(agent_id):
                 return agent
-    
+
     def get_other_agent(self, agent_id) -> Agent:
         for agent in self.scenario.agents:
             if agent.id != agent_id:
@@ -569,7 +570,7 @@ class DialogueManager:
                 ds_action=DSAction.SESSIONS_INFO.value,
                 ds_action_by="Dialogue Manager",
                 ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                message=self.session_manager.get_sessions_info_dict(agent),
+                message=self.session_manager.get_sessions_info_dict(),
             )
         )
 

@@ -6,6 +6,7 @@ from socialds.action.effects.effect import Effect
 from socialds.agent import Agent
 from socialds.managers.session_manager import SessionManager
 from socialds.relationstorage import RelationStorage
+from socialds.session import Session
 from socialds.socialpractice.context.place import Place
 from socialds.socialpractice.context.resource import Resource
 from socialds.states.property import Property
@@ -19,6 +20,7 @@ class Scenario:
         name: str,
         agents: List[Agent],
         utterances: List[Utterance],
+        sessions: List[Session],
         actions: List[Type[Action]],
         effects: List[Type[Effect]],
         places: List[Place],
@@ -30,6 +32,7 @@ class Scenario:
         self.name = name
         self.agents = agents
         self.utterances = utterances
+        self.sessions = sessions
         self.actions = actions
         self.effects = effects
         self.places = places

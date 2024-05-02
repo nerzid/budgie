@@ -1,4 +1,6 @@
 import eventlet
+
+eventlet.monkey_patch()
 import uuid
 import schedule
 
@@ -10,7 +12,6 @@ from socialds.message_streamer import MessageStreamer
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.scenarios import doctors_visit
 
-eventlet.monkey_patch()
 
 from flask import Flask, request, session, sessions
 import json
@@ -53,6 +54,7 @@ def send_message():
         user_chose_scenario(session_id, scenario_id)
     elif ds_action == DSAction.USER_CHOSE_AGENT.value:
         agent_id = message.get("message").get("agent_id")
+        print(agent_id)
         dm = dialogue_managers[session_id]
         user_chose_agent(agent_id, dm)
         start_dialogue(dm)
@@ -73,10 +75,9 @@ def send_message():
     #     )
     elif ds_action == DSAction.USER_SENT_UTTERANCE.value:
         user_text = message.get("message")
-        sender_agent_id = message.get("sender_agent_id")
-        receiver_agent_id = message.get("receiver_agent_id")
+        sender_agent_id = message.get("ds_action_by")
         sender_agent = dm.get_agent_by_id(sender_agent_id)
-        receiver_agent = dm.get_agent_by_id(receiver_agent_id)
+        receiver_agent = dm.get_other_agent(sender_agent_id)
         sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
         receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
         matched_utterance = dm.utterances_manager.get_utterance_by_string_match(
@@ -88,11 +89,13 @@ def send_message():
     elif ds_action == DSAction.USER_CHOSE_UTTERANCE.value:
         utterance_str = message.get("message")
         sender_agent_id = message.get("sender_agent_id")
-        receiver_agent_id = message.get("receiver_agent_id")
         utterance = dm.get_utterance_from_string(utterance_str)
         # agent_name = message.get('ds_action_by')
+        sender_agent_id = message.get("ds_action_by")
         sender_agent = dm.get_agent_by_id(sender_agent_id)
-        receiver_agent = dm.get_agent_by_id(receiver_agent_id)
+        receiver_agent = dm.get_other_agent(sender_agent_id)
+        sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
+        receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
         dm.communicate(sender=sender_agent, receiver=receiver_agent, message=utterance)
         dm.message_streamer.add(
             message=Message(
@@ -105,10 +108,9 @@ def send_message():
         dm.get_menu_options()
     elif ds_action == DSAction.USER_CHOSE_ACTIONS.value:
         actions_attrs = message.get("message")
-        sender_agent_id = message.get("sender_agent_id")
-        receiver_agent_id = message.get("receiver_agent_id")
+        sender_agent_id = message.get("ds_action_by")
         sender_agent = dm.get_agent_by_id(sender_agent_id)
-        receiver_agent = dm.get_agent_by_id(receiver_agent_id)
+        receiver_agent = dm.get_other_agent(sender_agent_id)
         sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
         receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
         dm.communicate_with_actions(
@@ -127,10 +129,9 @@ def send_message():
         # dm.get_menu_options()
     elif ds_action == DSAction.REQUEST_UTTERANCE_BY_ACTION.value:
         action_attrs = message.get("message")
-        sender_agent_id = message.get("sender_agent_id")
-        receiver_agent_id = message.get("receiver_agent_id")
+        sender_agent_id = message.get("ds_action_by")
         sender_agent = dm.get_agent_by_id(sender_agent_id)
-        receiver_agent = dm.get_agent_by_id(receiver_agent_id)
+        receiver_agent = dm.get_other_agent(sender_agent_id)
         sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
         receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
         dm.message_streamer.add(
@@ -155,7 +156,7 @@ def send_message():
         # dm.utterances_manager.get_utterance_by_relation_match(input_text, sender_agent)
         dm.message_streamer.add(
             message=Message(
-                ds_action=DSAction.SEND_UTTERANCE_BY_ACTION.value,
+                ds_action=DSAction.SEND_UTTERANCE_BY_STRING_MATCH.value,
                 ds_action_by="Dialogue Manager",
                 ds_action_by_type=DSActionByType.DIALOGUE_MANAGER.value,
                 message=dm.utterances_manager.get_utterance_by_string_match(
@@ -224,12 +225,13 @@ def user_chose_agent(agent_id, dm):
 
 
 def start_dialogue(dm):
+    dm.run()
     dm.message_streamer.add(
         Message(
             ds_action=DSAction.DIALOGUE_STARTED.value,
             ds_action_by="Dialogue Manager",
             ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-            message="Session is sent",
+            message="Dialogue has started!",
         )
     )
     dm.message_streamer.add(
