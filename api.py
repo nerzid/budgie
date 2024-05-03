@@ -54,9 +54,10 @@ def send_message():
         user_chose_scenario(session_id, scenario_id)
     elif ds_action == DSAction.USER_CHOSE_AGENT.value:
         agent_id = message.get("message").get("agent_id")
-        print(agent_id)
         dm = dialogue_managers[session_id]
         user_chose_agent(agent_id, dm)
+    elif ds_action == DSAction.START_DIALOGUE.value:
+        dm = dialogue_managers[session_id]
         start_dialogue(dm)
     # elif ds_action == DSAction.USER_CHOSE_MENU_OPTION.value:
     #     menu_option = message.get("message")
