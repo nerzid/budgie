@@ -304,9 +304,7 @@ class Relation(State, DSTPronounHolder):
         #        f'{colored(self.right, right_color)}{self.get_times_str()}'
 
     def __repr__(self):
-        tense_str = self.relation_types_with_tenses[self.rtype][self.negation][
-            self.rtense
-        ]
+        tense_str = self.get_pretty_tense()
         return "%r-%r->%r%r" % (self.left, tense_str, self.right, self.get_times_str())
 
     def get_pretty_tense(self):

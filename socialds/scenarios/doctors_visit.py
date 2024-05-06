@@ -1,3 +1,4 @@
+from flask import request
 from socialds.action.actions.physical.worry import Worry
 from socialds.action.actions.verbal.bye import Bye
 from socialds.action.actions.verbal.request_confirmation import (
@@ -83,7 +84,7 @@ from socialds.states.relation import Relation, RType, Negation
 from socialds.states.value import Value
 from socialds.utterance import Utterance
 
-SP_NAME = "Doctor's"
+SP_NAME = "Doctor's Visit"
 
 
 def sp_main():
@@ -298,7 +299,7 @@ def sp_main():
                 Check(checked=AnyRelation(), r_tense=Tense.ANY, recipient=AnyAgent()),
             ),
             Competence(
-                "Add expected effect",
+                "Add expected action",
                 SimpleAction(
                     name="doesnt matter",
                     done_by=DSTPronoun.I,
@@ -308,6 +309,19 @@ def sp_main():
                     base_effects=[
                         AddExpectedEffect(effect=AnyEffect(), affected=AnyAgent())
                     ],
+                ),
+            ),
+            Competence(
+                "asd",
+                RequestAction(
+                    done_by=DSTPronoun.I,
+                    recipient=DSTPronoun.YOU,
+                    requested=Permit(
+                        done_by=DSTPronoun.YOU,
+                        permit_given_to=DSTPronoun.I,
+                        permitted=AnyAction(),
+                        r_tense=Tense.ANY,
+                    ),
                 ),
             ),
         ]
@@ -1092,12 +1106,13 @@ def sp_main():
             ExpectationStep(
                 action=Bye(),
                 done_by=AgentPlaceholder(symbol=PlaceholderSymbol.X),
-                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.Y),),
+                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.Y),
+            ),
             ExpectationStep(
                 action=Bye(),
                 done_by=AgentPlaceholder(symbol=PlaceholderSymbol.Y),
-                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.X)
-                ),
+                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.X),
+            ),
         ],
         skipping_conditions=[
             AgentCanDo(
