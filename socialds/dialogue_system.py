@@ -18,8 +18,8 @@ class DialogueSystem:
         self.agent = agent
         self.auto_reaction_time = auto_reaction_time  # in seconds
 
-        self.action_history = RelationStorage('Action History')
-        self.dialogue_history = RelationStorage('Dialogue History')
+        self.action_history = RelationStorage("Action History")
+        self.dialogue_history = RelationStorage("Dialogue History")
         self.last_turn_actions = None
 
         self.on_agent_chose_utterance = EventListener()
@@ -40,7 +40,9 @@ class DialogueSystem:
         eventlet.sleep(self.auto_reaction_time)
         plan = self.agent.planner.plan()
         try:
-            selected_utt, solution = self.agent.planner.get_the_best_matching_utterance_with_solution(plan)
+            selected_utt, solution = (
+                self.agent.planner.get_the_best_matching_utterance_with_solution(plan)
+            )
             self.choose_utterance(selected_utt)
         except NoMatchingUtteranceFound:
             actions = self.agent.planner.get_actions_from_plans(plan)
@@ -52,22 +54,30 @@ class DialogueSystem:
     def choose_utterance(self, utterance):
         self.on_agent_chose_utterance.invoke(agent=self.agent, utterance=utterance)
         if self.agent.auto:
-            self.agent.message_streamer.add(Message(ds_action_by_type=DSActionByType.AGENT.value,
-                                                    ds_action_by=self.agent.name,
-                                                    message=utterance.text,
-                                                    ds_action=DSAction.DISPLAY_UTTERANCE.value))
+            self.agent.message_streamer.add(
+                Message(
+                    ds_action_by_type=DSActionByType.AGENT.value,
+                    ds_action_by=self.agent.name,
+                    message=utterance.text,
+                    ds_action=DSAction.DISPLAY_UTTERANCE.value,
+                )
+            )
         copied_utt = copy.deepcopy(utterance)
         eventlet.spawn(self.execute_actions, copied_utt.actions)
 
     def choose_actions(self, actions):
-        action_pretty_string = ''
+        action_pretty_string = ""
         for action in actions:
-            action_pretty_string += str(action) + '\n'
-        action_pretty_string = '<i>' + action_pretty_string + '</i>'
-        self.agent.message_streamer.add(Message(ds_action_by_type=DSActionByType.AGENT.value,
-                                                ds_action_by=self.agent.name,
-                                                message=action_pretty_string,
-                                                ds_action=DSAction.DISPLAY_UTTERANCE.value))
+            action_pretty_string += str(action) + "\n"
+        action_pretty_string = "<i>" + action_pretty_string + "</i>"
+        self.agent.message_streamer.add(
+            Message(
+                ds_action_by_type=DSActionByType.AGENT.value,
+                ds_action_by=self.agent.name,
+                message=action_pretty_string,
+                ds_action=DSAction.DISPLAY_UTTERANCE.value,
+            )
+        )
         eventlet.spawn(self.execute_actions, actions)
 
     def execute_actions(self, actions):
@@ -79,25 +89,42 @@ class DialogueSystem:
             if isinstance(action, ActionOperator):
                 continue
             # executed_actions.append(action)
-            action.on_action_finished_executing.subscribe(self.add_action_to_action_history)
+            action.on_action_finished_executing.subscribe(
+                self.add_action_to_action_history
+            )
             pool.spawn(action.execute, self.agent)
 
         pool.waitall()
         self.on_agent_executed_all_actions_from_utterance.invoke(self.agent, actions)
 
     def add_action_to_action_history(self, agent, action):
-        self.action_history.add(Relation(left=agent, rtype=RType.ACTION, rtense=Tense.PAST, right=action))
+        self.action_history.add(
+            Relation(left=agent, rtype=RType.ACTION, rtense=Tense.PAST, right=action)
+        )
 
     def get_planned_utterances(self):
         utts_str = []
-        possible_utterances_with_solutions = self.agent.planner.get_possible_utterances_with_solutions(
-            self.agent.planner.plan())
+        possible_utterances_with_solutions = (
+            self.agent.planner.get_possible_utterances_with_solutions(
+                self.agent.planner.plan()
+            )
+        )
         for utt in possible_utterances_with_solutions:
             utts_str.append(str(utt[0]))
-        self.agent.message_streamer.add(Message(ds_action=DSAction.REQUEST_USER_CHOOSE_UTTERANCE.value,
-                                                ds_action_by=DSActionByType.DIALOGUE_SYSTEM.value,
-                                                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                                message=utts_str))
+        self.agent.message_streamer.add(
+            Message(
+                ds_action=DSAction.REQUEST_USER_CHOOSE_UTTERANCE.value,
+                ds_action_by=DSActionByType.DIALOGUE_SYSTEM.value,
+                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                message=utts_str,
+            )
+        )
 
     def do_nothing(self):
         self.choose_utterance(Utterance("Does nothing", []))
+
+    def clear_listeners(self):
+        self.on_agent_chose_utterance.unsubscribe_all()
+        self.on_agent_executed_action.unsubscribe_all()
+        self.on_agent_executed_all_actions_from_utterance.unsubscribe_all()
+        self.on_agent_executed_last_action_from_utterance.unsubscribe_all()

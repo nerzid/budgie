@@ -114,3 +114,11 @@ class DSActionByType(Enum):
     DIALOGUE_SYSTEM = "DIALOGUE_SYSTEM"
     DIALOGUE_MANAGER = "DIALOGUE_MANAGER"
     WORLD = "WORLD"
+
+
+class PlaceholderSymbol(Enum):
+    X = "x"
+    Y = "y"
+    Z = "z"
+    ALL = "ALL"
+    ANY = "ANY"

@@ -6,7 +6,14 @@ class EventListener:
         self.listeners.append((listener_function, args, kwargs))
 
     def unsubscribe(self, listener_function):
-        self.listeners = [(func, args, kwargs) for func, args, kwargs in self.listeners if func != listener_function]
+        self.listeners = [
+            (func, args, kwargs)
+            for func, args, kwargs in self.listeners
+            if func != listener_function
+        ]
+
+    def unsubscribe_all(self):
+        self.listeners.clear()
 
     def invoke(self, *args, **kwargs):
         for listener_function, listener_args, listener_kwargs in self.listeners:

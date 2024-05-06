@@ -47,7 +47,7 @@ class Agent(Object, RSHolder):
         """
         Do not use this method! Therefore, don't use agent in some_agent_list either.
         In order for the pronouns to be inserted correctly, it needs to receiver pronouns
-        from outside. Specifically, it should use the pronouns who executes the action/effect
+        from outside. Specifically, it should use the pronoun who executes the action/effect
         @param other:
         @return:
         """
@@ -77,13 +77,7 @@ class Agent(Object, RSHolder):
             _other = other
 
         if isinstance(other, Agent):
-            return (
-                _self.name == _other.name
-                and _self.actor == _other.actor
-                and _self.roles == _other.roles
-                and _self.relation_storages == _other.relation_storages
-                and _self.auto == _other.auto
-            )
+            return _self.id == _other.id
         return False
 
     def __repr__(self):

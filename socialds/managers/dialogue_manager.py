@@ -46,7 +46,7 @@ class DialogueManager:
         allow_duplicate_utterances=True,
     ):
         self.id = str(uuid.uuid4())
-        self.scenario = deepcopy(scenario)
+        self.scenario = scenario
 
         self.last_time_dm_used_at = datetime.datetime.now()
         self.utterances_manager = UtterancesManager(scenario)
@@ -76,6 +76,23 @@ class DialogueManager:
         #     age.pronouns = pronouns
 
     def run(self):
+        self.clear_all_listeners()
+        self.set_all_listeners()
+        self.session_manager.update_session_statuses(self.scenario.agents[0])
+
+    def renew_callback_listeners(self):
+        self.clear_all_listeners()
+        self.set_all_listeners()
+
+    def clear_all_listeners(self):
+        self.on_user_chose_utterance.unsubscribe_all()
+        self.on_user_executed_all_actions_from_utterance.unsubscribe_all()
+        self.on_auto_executed_all_actions_from_utterance.unsubscribe_all()
+
+        for agent in self.scenario.agents:
+            agent.dialogue_system.clear_listeners()
+
+    def set_all_listeners(self):
         on_user_choose_utterance_list = []
         on_user_executed_all_actions_list = []
         on_auto_choose_utterance_list = []
@@ -147,7 +164,6 @@ class DialogueManager:
             agent.dialogue_system.action_history = self.action_history
             agent.dialogue_system.dialogue_history = self.dialogue_history
             agent.dialogue_system.last_turn_actions = self.last_turn_actions
-        self.session_manager.update_session_statuses(self.scenario.agents[0])
 
     def choose_menu_option(self, agent, menu_option, receiver):
         if menu_option == "All Utterances":

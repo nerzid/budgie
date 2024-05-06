@@ -31,7 +31,7 @@ session_managers = {}
 message_streamers = {}
 
 active_sessions = {}
-scenarios = {}
+scenario_functs = {}
 
 session_timeout = 3600
 
@@ -108,7 +108,8 @@ def send_message():
         )
         dm.get_menu_options()
     elif ds_action == DSAction.USER_CHOSE_ACTIONS.value:
-        actions_attrs = message.get("message")
+        actions_attrs_str = message.get("message")
+        actions_attrs = json.loads(actions_attrs_str)
         sender_agent_id = message.get("ds_action_by")
         sender_agent = dm.get_agent_by_id(sender_agent_id)
         receiver_agent = dm.get_other_agent(sender_agent_id)
@@ -124,25 +125,36 @@ def send_message():
                 ds_action=DSAction.SESSIONS_INFO.value,
                 ds_action_by="Dialogue Manager",
                 ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                message=dm.session_manager.get_sessions_info_dict(sender_agent),
+                message=dm.session_manager.get_sessions_info_dict(),
             )
         )
         # dm.get_menu_options()
     elif ds_action == DSAction.REQUEST_UTTERANCE_BY_ACTION.value:
-        action_attrs = message.get("message")
+        action_attrs_str = message.get("message")
+        action_attrs = json.loads(action_attrs_str)
         sender_agent_id = message.get("ds_action_by")
         sender_agent = dm.get_agent_by_id(sender_agent_id)
         receiver_agent = dm.get_other_agent(sender_agent_id)
         sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
         receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
+        actions = dm.get_actions_from_actions_attrs(action_attrs)
+        matched_utt = dm.utterances_manager.get_utterance_by_action(
+            actions, sender_agent
+        )
+        if matched_utt is not None:
+            response_text = matched_utt.text
+        else:
+            response_text = "["
+            for action in actions:
+                response_text += str(action) + " "
+            response_text = response_text[:-1]
+            response_text += "]"
         dm.message_streamer.add(
             message=Message(
                 ds_action=DSAction.SEND_UTTERANCE_BY_ACTION.value,
                 ds_action_by="Dialogue Manager",
                 ds_action_by_type=DSActionByType.DIALOGUE_MANAGER.value,
-                message=dm.utterances_manager.get_utterance_by_action(
-                    dm.get_actions_from_actions_attrs(action_attrs), sender_agent
-                ).text,
+                message=response_text,
             )
         )
     elif ds_action == DSAction.REQUEST_UTTERANCE_BY_STRING_MATCH.value:
@@ -170,8 +182,8 @@ def send_message():
     return {"status": "Message received"}
 
 
-def add_scenario(scenario):
-    scenarios[scenario.id] = scenario
+def add_scenario(scenario_func_dict_id, scenario_func_dict):
+    scenario_functs[scenario_func_dict_id] = scenario_func_dict
 
 
 def init_session():
@@ -180,8 +192,10 @@ def init_session():
     active_sessions[session_id] = {"id": session_id, "message_streamer": ms}
 
     scenarios_ids_w_name = {}
-    for k, v in scenarios.items():
-        scenarios_ids_w_name[k] = v.name
+    for k, v in scenario_functs.items():
+        print(k)
+        print(v)
+        scenarios_ids_w_name[k] = v["name"]
 
     ms.add(
         Message(
@@ -196,9 +210,8 @@ def init_session():
 
 
 def user_chose_scenario(session_id, scenario_id):
-    print(scenarios)
-    print(scenario_id)
-    scenario = scenarios[scenario_id]
+    scenario_funct = scenario_functs[scenario_id]["funct"]
+    scenario = scenario_funct()
     ms = active_sessions[session_id]["message_streamer"]
     dialogue_managers[session_id] = DialogueManager(scenario, message_streamer=ms)
 
@@ -217,12 +230,13 @@ def user_chose_scenario(session_id, scenario_id):
     stream_data(ms)
 
 
-def user_chose_agent(agent_id, dm):
+def user_chose_agent(agent_id, dm: DialogueManager):
     chosen_agent = dm.get_agent_by_id(agent_id)
     chosen_agent.auto = False
     for agent in dm.scenario.agents:
         if agent != chosen_agent:
             agent.auto = True
+    dm.renew_callback_listeners()
 
 
 def start_dialogue(dm):
@@ -314,8 +328,15 @@ def start_streaming_data(message_streamer):
 
 
 def add_scenarios():
-    doctors_visit_sp = doctors_visit.sp_main()
-    add_scenario(doctors_visit_sp)
+    doctors_visit_id = str(uuid.uuid4())
+    add_scenario(
+        doctors_visit_id,
+        {
+            "name": doctors_visit.SP_NAME,
+            "id": doctors_visit_id,
+            "funct": doctors_visit.sp_main,
+        },
+    )
 
 
 if __name__ == "__main__":

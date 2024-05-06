@@ -7,6 +7,7 @@ from socialds.action.actions.verbal.request_confirmation import (
 )
 from socialds.action.effects.functional.change_place import ChangePlace
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
+from socialds.agent_placeholder import AgentPlaceholder
 from socialds.any.any_information import AnyInformation
 from socialds.conditions.has_permit import HasPermit
 from socialds.conditions.session_status_is import SessionStatusIs
@@ -64,7 +65,7 @@ from socialds.conditions.agent_can_do import AgentCanDo
 from socialds.conditions.agent_does_action import AgentDoesAction
 from socialds.conditions.agent_knows import AgentKnows
 from socialds.conditions.expectation_status_is import ExpectationStatusIs
-from socialds.enums import Tense
+from socialds.enums import PlaceholderSymbol, Tense
 from socialds.expectation import ExpectationStatus
 from socialds.goal import Goal
 from socialds.other.dst_pronouns import DSTPronoun
@@ -81,6 +82,8 @@ from socialds.states.property import Property
 from socialds.states.relation import Relation, RType, Negation
 from socialds.states.value import Value
 from socialds.utterance import Utterance
+
+SP_NAME = "Doctor's"
 
 
 def sp_main():
@@ -1058,8 +1061,16 @@ def sp_main():
     greeting_norm = Norm(
         name="People greet each other",
         steps=[
-            ExpectationStep(action=Greet(), unique=True),
-            ExpectationStep(action=Greet(), unique=True),
+            ExpectationStep(
+                action=Greet(),
+                done_by=AgentPlaceholder(symbol=PlaceholderSymbol.X),
+                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.Y),
+            ),
+            ExpectationStep(
+                action=Greet(),
+                done_by=AgentPlaceholder(symbol=PlaceholderSymbol.Y),
+                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.X),
+            ),
         ],
         skipping_conditions=[
             AgentCanDo(
@@ -1078,8 +1089,15 @@ def sp_main():
     goodbye_norm = Norm(
         name="People said goodbye to each other",
         steps=[
-            ExpectationStep(action=Bye(), unique=True),
-            ExpectationStep(action=Bye(), unique=True),
+            ExpectationStep(
+                action=Bye(),
+                done_by=AgentPlaceholder(symbol=PlaceholderSymbol.X),
+                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.Y),),
+            ExpectationStep(
+                action=Bye(),
+                done_by=AgentPlaceholder(symbol=PlaceholderSymbol.Y),
+                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.X)
+                ),
         ],
         skipping_conditions=[
             AgentCanDo(
@@ -1296,16 +1314,16 @@ def sp_main():
         ],
     )
     sessions = [
-            session_global,
-            session_greeting,
-            session_problem_presentation,
-            session_history_taking,
-            session_physical_examination,
-            session_diagnosis,
-            session_treatment,
-            session_closing,
-        ]
-    
+        session_global,
+        session_greeting,
+        session_problem_presentation,
+        session_history_taking,
+        session_physical_examination,
+        session_diagnosis,
+        session_treatment,
+        session_closing,
+    ]
+
     return Scenario(
         name="Doctors visit",
         agents=[agent1, agent2],
