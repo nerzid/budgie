@@ -66,6 +66,7 @@ class Action(ActionObj):
         execution_time=ExecutionTime(),
         times: List[ActionHappenedAtTime] = None,
         specific=False,
+        is_any=False,
     ):
         self.id = str(uuid.uuid4())
         self.done_by = done_by
@@ -86,6 +87,7 @@ class Action(ActionObj):
         self.target_relations = target_relations
         self.times = times
         self.name = name
+        self.is_any = is_any
         super().__init__(name, act_type, base_effects, extra_effects)
 
     def __eq__(self, other):
@@ -126,6 +128,8 @@ class Action(ActionObj):
             from socialds.any.any_action import AnyAction
 
             if isinstance(other, AnyAction):
+                return True
+            if self.name == other.name and (self.is_any or other.is_any):
                 return True
             self_done_by = get_agent(self.done_by, pronouns)
             other_done_by = get_agent(other.done_by, pronouns)

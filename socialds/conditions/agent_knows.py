@@ -11,8 +11,14 @@ from socialds.states.relation import Relation, RType, Negation
 
 
 class AgentKnows(Condition):
-    def __init__(self, agent: any, knows: Relation, tense: Tense, times: List[ActionHappenedAtTime] = None,
-                 negation: Negation = Negation.FALSE):
+    def __init__(
+        self,
+        agent: any,
+        knows: Relation,
+        tense: Tense,
+        times: List[ActionHappenedAtTime] = None,
+        negation: Negation = Negation.FALSE,
+    ):
         # agent can be either Agent or DSTpronoun. For circular import reasons, the type hinting for agent doesnt use Agent | DSTPronoun
         super().__init__(tense, times, negation)
         self.agent = agent
@@ -29,17 +35,35 @@ class AgentKnows(Condition):
         else:
             agent = self.agent
         if self.negation == Negation.FALSE or self.negation == Negation.ANY:
-            return agent.relation_storages[RSType.KNOWLEDGEBASE].contains(self.knows, pronouns=checker.pronouns)
+            return agent.relation_storages[RSType.KNOWLEDGEBASE].contains(
+                self.knows, pronouns=checker.pronouns
+            )
         else:
-            return not agent.relation_storages[RSType.KNOWLEDGEBASE].contains(self.knows, pronouns=checker.pronouns)
+            return not agent.relation_storages[RSType.KNOWLEDGEBASE].contains(
+                self.knows, pronouns=checker.pronouns
+            )
 
     def __str__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][self.tense]
-        return "%s %s know %s %s" % (self.agent, tense_str, self.knows, self.get_times_str())
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][
+            self.tense
+        ]
+        return "%s %s know %s %s" % (
+            self.agent,
+            tense_str,
+            self.knows,
+            self.get_times_str(),
+        )
 
     def __repr__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][self.tense]
-        return "%r %r know %r %s" % (self.agent, tense_str, self.knows, self.get_times_str())
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][
+            self.tense
+        ]
+        return "%r %r know %r %s" % (
+            self.agent,
+            tense_str,
+            self.knows,
+            self.get_times_str(),
+        )
 
     def insert_pronouns(self, pronouns):
         if isinstance(self.agent, DSTPronoun):
@@ -47,6 +71,7 @@ class AgentKnows(Condition):
         self.knows.pronouns = pronouns
         self.knows.insert_pronouns()
         super().insert_pronouns(pronouns)
+
 
 # to satisfy the condition of agent knows, there are a few options
 # the first choice is observing the knowledgebase of the places that the agent is at.

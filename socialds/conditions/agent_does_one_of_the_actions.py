@@ -11,28 +11,48 @@ from socialds.enums import Tense
 
 
 class AgentDoesOneOfTheActions(Condition):
-    def __init__(self, agent: a.Agent | DSTPronoun, actions, tense: Tense, times: List[ActionHappenedAtTime] = None,
-                 negation: Negation = Negation.FALSE):
+    def __init__(
+        self,
+        agent: a.Agent | DSTPronoun,
+        actions,
+        tense: Tense,
+        times: List[ActionHappenedAtTime] = None,
+        negation: Negation = Negation.FALSE,
+    ):
         super().__init__(tense, times, negation)
         self.agent = agent
         self.actions = actions
 
     def check(self, checker=None):
-        if self.negation:
-            # if the negation is true, then we expect that none of the actions are executed in self.actions
-            res = True
-            for action in self.actions:
-                res = res and not checker.dialogue_system.action_history.contains(
-                    Relation(left=self.agent, rtype=RType.ACTION, rtense=self.tense, right=action,
-                             negation=self.negation), checker.pronouns)
-            return res
-        else:
+        if self.negation == Negation.FALSE or self.negation == Negation.ANY:
             # if the negation is false, then we expect that one of the actions are executed in self.actions
             # at the moment, this doesn't enforce only one action of the list, rather it checks if at least one action is executed
             for action in self.actions:
                 return checker.dialogue_system.action_history.contains(
-                    Relation(left=self.agent, rtype=RType.ACTION, rtense=self.tense, right=action,
-                             negation=self.negation), checker.pronouns)
+                    Relation(
+                        left=self.agent,
+                        rtype=RType.ACTION,
+                        rtense=self.tense,
+                        right=action,
+                        negation=self.negation,
+                    ),
+                    checker.pronouns,
+                )
+        else:
+            # if the negation is true, then we expect that none of the actions are executed in self.actions
+            res = True
+            for action in self.actions:
+                res = res and not checker.dialogue_system.action_history.contains(
+                    Relation(
+                        left=self.agent,
+                        rtype=RType.ACTION,
+                        rtense=self.tense,
+                        right=action,
+                        negation=self.negation,
+                    ),
+                    checker.pronouns,
+                )
+            return res
 
     # def check(self):
     #     max_count = 1
@@ -70,12 +90,26 @@ class AgentDoesOneOfTheActions(Condition):
     #     return len(found) == max_count
 
     def __str__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][self.tense]
-        return "%s %s %s %s" % (self.agent, tense_str, self.actions, self.get_times_str())
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][
+            self.tense
+        ]
+        return "%s %s %s %s" % (
+            self.agent,
+            tense_str,
+            self.actions,
+            self.get_times_str(),
+        )
 
     def __repr__(self):
-        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][self.tense]
-        return "%r %r %r %r" % (self.agent, tense_str, self.actions, self.get_times_str())
+        tense_str = Relation.relation_types_with_tenses[RType.ACTION][self.negation][
+            self.tense
+        ]
+        return "%r %r %r %r" % (
+            self.agent,
+            tense_str,
+            self.actions,
+            self.get_times_str(),
+        )
 
     def insert_pronouns(self, pronouns):
         if isinstance(self.agent, DSTPronoun):
@@ -85,6 +119,7 @@ class AgentDoesOneOfTheActions(Condition):
             action.insert_pronouns()
 
         super().insert_pronouns(pronouns)
+
 
 # to satisfy the condition agent does, there are few options
 # first option is, if the agent can do it, he does it.

@@ -9,6 +9,7 @@ from socialds.action.effects.social.gain_permit import GainPermit
 from socialds.action.effects.social.permit import Permit
 from socialds.agent import Agent
 from socialds.conditions.agent_does_action import AgentDoesAction
+from socialds.conditions.agent_knows import AgentKnows
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 import socialds.action.actions.verbal.request_confirmation as rc
@@ -69,6 +70,13 @@ class Affirm(Action):
         super_check = super().check_preconditions(checker)
 
         if isinstance(self.affirmed, Information):
+            if not AgentKnows(
+                agent=self.done_by,
+                knows=self.affirmed,
+                tense=self.affirmed.rtense,
+                negation=self.affirmed.rtense,
+            ):
+                return False
             return super_check and AgentDoesAction(
                 agent=DSTPronoun.YOU,
                 tense=Tense.PAST,

@@ -75,7 +75,7 @@ class Planner:
         """
         ongoing_sessions = self.agent.session_manager.get_all_ongoing_sessions()
 
-        all_goals = []
+        all_goals: List[Goal] = []
 
         all_goals.extend(self.create_goals_from_expected_effects())
         all_goals.extend(self.create_goals_from_expected_actions())
@@ -97,6 +97,8 @@ class Planner:
         # all_goals = all_goals + self.create_goals_from_expected_actions() + self.create_goals_from_expected_effects()
         for goal in all_goals:
             if goal.is_reached(self.agent):
+                continue
+            elif self.agent not in goal.known_by:
                 continue
             else:
                 # all_conditions.extend(goal.conditions)
@@ -147,11 +149,15 @@ class Planner:
                     )
                 )
             elif isinstance(condition, AgentDoesOneOfTheActions):
+                actions = []
+                for action in condition.actions:
+                    if action.check_preconditions(self.agent):
+                        actions.append(action)
                 condition_solutions.append(
                     ConditionSolution(
                         condition=condition,
                         desc="by performing one of the actions, starting from the first one",
-                        steps=condition.actions,
+                        steps=actions,
                     )
                 )
                 plans.append(condition.actions)
@@ -458,6 +464,7 @@ class Planner:
                         owner=self.agent,
                         name="goal for the expected action %s" % action,
                         conditions=[condition],
+                        known_by=[self.agent],
                     )
                 )
             elif isinstance(action, List):
@@ -469,6 +476,7 @@ class Planner:
                         owner=self.agent,
                         name="goal for the expected actions %s" % action,
                         conditions=[condition],
+                        known_by=[self.agent],
                     )
                 )
         return goals
@@ -487,6 +495,7 @@ class Planner:
                     owner=self.agent,
                     name="goal for the expected effect %s" % effect_rel.right,
                     conditions=[condition],
+                    known_by=[self.agent],
                 )
             )
         for action_rel in expected_actions:
@@ -501,6 +510,7 @@ class Planner:
                         owner=self.agent,
                         name="goal for the expected one of the actions %s" % action,
                         conditions=conditions,
+                        known_by=[self.agent],
                     )
                 )
             else:
@@ -516,6 +526,7 @@ class Planner:
                             owner=self.agent,
                             name="goal for the expected action %s" % action,
                             conditions=conditions,
+                            known_by=[self.agent],
                         )
                     )
         return goals

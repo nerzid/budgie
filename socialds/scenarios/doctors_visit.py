@@ -114,7 +114,7 @@ def sp_main():
 
     places = [places_office, place_waiting_room]
 
-    actor1 = Actor(
+    actor_patient = Actor(
         name="Joe", knowledgebase=RelationStorage("Actor Joe's Knowledgebase")
     )
 
@@ -251,6 +251,8 @@ def sp_main():
                     asked=AnyInformation(),
                     tense=Tense.ANY,
                     recipient=DSTPronoun.YOU,
+                    negation=Negation.ANY,
+                    is_any=True,
                 ),
             ),
             Competence(
@@ -328,15 +330,23 @@ def sp_main():
     )
 
     # Agent 1's initialization
-    agent1 = Agent(name="Joe(patient)", actor=actor1, roles=[], auto=False)
+    agent_patient = Agent(
+        name="Joe(patient)", actor=actor_patient, roles=[], auto=False
+    )
     info_patient_is_sick = Information(
-        left=actor1, rtype=RType.IS, rtense=Tense.PRESENT, right=p_sick
+        left=actor_patient, rtype=RType.IS, rtense=Tense.PRESENT, right=p_sick
     )
     info_patient_has_left_eye = Information(
-        left=actor1, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_patients_left_eye
+        left=actor_patient,
+        rtype=RType.HAS,
+        rtense=Tense.PRESENT,
+        right=p_patients_left_eye,
     )
     info_patient_has_right_eye = Information(
-        left=actor1, rtype=RType.HAS, rtense=Tense.PRESENT, right=p_patients_right_eye
+        left=actor_patient,
+        rtype=RType.HAS,
+        rtense=Tense.PRESENT,
+        right=p_patients_right_eye,
     )
     info_patients_left_eye_is_teary = Information(
         left=p_patients_left_eye, rtype=RType.IS, rtense=Tense.PRESENT, right=p_teary
@@ -506,7 +516,7 @@ def sp_main():
         left=DSTPronoun.YOU, rtype=RType.HAS, rtense=Tense.PAST, right=p_cold
     )
 
-    agent1.relation_storages[RSType.KNOWLEDGEBASE].add_multi(
+    agent_patient.relation_storages[RSType.KNOWLEDGEBASE].add_multi(
         [
             info_patient_is_sick,
             info_patient_has_left_eye,
@@ -523,29 +533,29 @@ def sp_main():
             info_problem_description_is_any,
         ]
     )
-    agent1.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(common_knowledge)
-    agent1.relation_storages[RSType.PLACES].add_multi(
+    agent_patient.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(common_knowledge)
+    agent_patient.relation_storages[RSType.PLACES].add_multi(
         [
             # Relation(left=agent1, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=any_place),
             Relation(
-                left=agent1,
+                left=agent_patient,
                 rtype=RType.IS_AT,
                 rtense=Tense.PRESENT,
                 right=place_waiting_room,
             )
         ]
     )
-    agent1.relation_storages[RSType.COMPETENCES].add_from_rs(basic_competences)
+    agent_patient.relation_storages[RSType.COMPETENCES].add_from_rs(basic_competences)
 
-    actor2 = Actor(
+    actor_doctor = Actor(
         name="Jane", knowledgebase=RelationStorage("Actor Jane's Knowledgebase ")
     )
-    agent2_permits = RelationStorage(actor2.name + " Permits")
+    agent2_permits = RelationStorage(actor_doctor.name + " Permits")
 
     # Agent 2's initialization
-    agent2 = Agent(name="Jane(doctor)", actor=actor2, roles=[], auto=True)
+    agent_doctor = Agent(name="Jane(doctor)", actor=actor_doctor, roles=[], auto=True)
 
-    agent2.relation_storages[RSType.COMPETENCES].add(
+    agent_doctor.relation_storages[RSType.COMPETENCES].add(
         Competence(
             name="doctor can let patients in his office",
             action=Permit(
@@ -560,15 +570,15 @@ def sp_main():
             ),
         )
     )
-    agent2.relation_storages[RSType.COMPETENCES].add(
+    agent_doctor.relation_storages[RSType.COMPETENCES].add(
         Competence(name="doctor can examine eyes", action=Examine())
     )
-    agent2.relation_storages[RSType.COMPETENCES].add_from_rs(basic_competences)
-    agent2.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(common_knowledge)
-    agent2.relation_storages[RSType.PERMITS].add_multi(
+    agent_doctor.relation_storages[RSType.COMPETENCES].add_from_rs(basic_competences)
+    agent_doctor.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(common_knowledge)
+    agent_doctor.relation_storages[RSType.PERMITS].add_multi(
         [
             Relation(
-                left=agent2,
+                left=agent_doctor,
                 rtype=RType.IS_PERMITTED_TO,
                 rtense=Tense.ANY,
                 right=ChangePlace(
@@ -578,7 +588,7 @@ def sp_main():
                 ),
             ),
             Relation(
-                left=agent2,
+                left=agent_doctor,
                 rtype=RType.IS_PERMITTED_TO,
                 rtense=Tense.ANY,
                 right=Permit(
@@ -595,11 +605,11 @@ def sp_main():
         ]
     )
 
-    agent2.relation_storages[RSType.PLACES].add_multi(
+    agent_doctor.relation_storages[RSType.PLACES].add_multi(
         [
             # Relation(left=agent2, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=any_place),
             Relation(
-                left=agent2,
+                left=agent_doctor,
                 rtype=RType.IS_AT,
                 rtense=Tense.PRESENT,
                 right=places_office,
@@ -1131,8 +1141,10 @@ def sp_main():
     session_greeting = Session(
         name="Greeting",
         start_conditions=[
-            AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=place_waiting_room),
-            AgentAtPlace(agent=agent2, tense=Tense.PRESENT, place=places_office),
+            AgentAtPlace(
+                agent=agent_patient, tense=Tense.PRESENT, place=place_waiting_room
+            ),
+            AgentAtPlace(agent=agent_doctor, tense=Tense.PRESENT, place=places_office),
         ],
         expectations=[greeting_norm],
         end_goals=[
@@ -1146,9 +1158,10 @@ def sp_main():
                         expectation_status=ExpectationStatus.COMPLETED,
                     ),
                     AgentAtPlace(
-                        agent=agent1, tense=Tense.PRESENT, place=places_office
+                        agent=agent_patient, tense=Tense.PRESENT, place=places_office
                     ),
                 ],
+                known_by=[agent_patient, agent_doctor],
             )
         ],
     )
@@ -1159,7 +1172,7 @@ def sp_main():
                 expectation=greeting_norm,
                 expectation_status=ExpectationStatus.COMPLETED,
             ),
-            AgentAtPlace(agent=agent1, tense=Tense.PRESENT, place=places_office),
+            AgentAtPlace(agent=agent_patient, tense=Tense.PRESENT, place=places_office),
         ],
         end_goals=[
             Goal(
@@ -1167,11 +1180,12 @@ def sp_main():
                 name="Patient explained the problem",
                 conditions=[
                     AgentKnows(
-                        agent=agent2,
+                        agent=agent_doctor,
                         tense=Tense.PRESENT,
                         knows=info_problem_description_is_any,
                     )
                 ],
+                known_by=[agent_patient, agent_doctor],
             )
         ],
     )
@@ -1179,7 +1193,9 @@ def sp_main():
         name="History Taking",
         start_conditions=[
             AgentKnows(
-                agent=agent2, tense=Tense.PRESENT, knows=info_problem_description_is_any
+                agent=agent_doctor,
+                tense=Tense.PRESENT,
+                knows=info_problem_description_is_any,
             )
         ],
         end_goals=[
@@ -1188,18 +1204,18 @@ def sp_main():
                 name="Doctor asked all the necessary questions before physical examination",
                 conditions=[
                     AgentKnows(
-                        agent=agent2,
+                        agent=agent_doctor,
                         tense=Tense.PRESENT,
                         knows=Information(
                             left=p_patients_left_eye,
                             rtype=RType.IS,
                             rtense=Tense.PRESENT,
                             right=p_teary,
-                            negation=Negation.ANY,
+                            negation=Negation.TRUE,
                         ),
                     ),
                     AgentKnows(
-                        agent=agent2,
+                        agent=agent_doctor,
                         tense=Tense.PRESENT,
                         knows=Information(
                             left=p_vision,
@@ -1210,6 +1226,7 @@ def sp_main():
                         ),
                     ),
                 ],
+                known_by=[agent_doctor],
             )
         ],
     )
@@ -1228,16 +1245,17 @@ def sp_main():
                 name="Doctor learnt all of the necessary symptoms from the examination",
                 conditions=[
                     AgentKnows(
-                        agent=agent2,
+                        agent=agent_doctor,
                         tense=Tense.PRESENT,
                         knows=info_patients_left_eye_has_inflammation,
                     ),
                     AgentKnows(
-                        agent=agent2,
+                        agent=agent_doctor,
                         tense=Tense.PRESENT,
                         knows=info_patients_left_eye_has_swelling,
                     ),
                 ],
+                known_by=[agent_doctor],
             )
         ],
     )
@@ -1257,11 +1275,12 @@ def sp_main():
                 name="Patient knows the name of the problem",
                 conditions=[
                     AgentKnows(
-                        agent=agent1,
+                        agent=agent_patient,
                         knows=info_patients_problem_is_bacterial_conjunctivitis,
                         tense=Tense.PRESENT,
                     )
                 ],
+                known_by=[agent_patient, agent_doctor],
             )
         ],
     )
@@ -1280,11 +1299,12 @@ def sp_main():
                 name="Patient knows the treatment",
                 conditions=[
                     AgentKnows(
-                        agent=agent1,
+                        agent=agent_patient,
                         knows=info_patients_problem_is_bacterial_conjunctivitis,
                         tense=Tense.PRESENT,
                     )
                 ],
+                known_by=[agent_patient, agent_doctor],
             )
         ],
     )
@@ -1307,6 +1327,7 @@ def sp_main():
                         expectation_status=ExpectationStatus.COMPLETED,
                     )
                 ],
+                known_by=[agent_patient, agent_doctor],
             )
         ],
     )
@@ -1325,6 +1346,7 @@ def sp_main():
                         session_status=SessionStatus.COMPLETED,
                     )
                 ],
+                known_by=[agent_patient, agent_doctor],
             )
         ],
     )
@@ -1341,7 +1363,7 @@ def sp_main():
 
     return Scenario(
         name="Doctors visit",
-        agents=[agent1, agent2],
+        agents=[agent_patient, agent_doctor],
         utterances=utterances,
         sessions=sessions,
         actions=[

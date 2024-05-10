@@ -9,6 +9,7 @@ from socialds.action.effects.social.gain_permit import GainPermit
 from socialds.action.effects.social.permit import Permit
 from socialds.agent import Agent
 from socialds.conditions.agent_does_action import AgentDoesAction
+from socialds.conditions.agent_knows import AgentKnows
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 import socialds.action.actions.verbal.request_confirmation as rc
@@ -24,21 +25,36 @@ class Deny(Action):
         done_by: Agent | DSTPronoun = DSTPronoun.I,
         recipient: Agent | DSTPronoun = DSTPronoun.YOU,
     ):
-        denied = deepcopy(
-            denied
-        )  # BUG here. It gives error when the denied object is of Action. Deepcopy cannot serialize a 'Greenthread' object.
-        denied.negation = Negation.inverse(denied.negation)
-        self.denied = denied
+        # denied = deepcopy(
+        #     denied
+        # )  # BUG here. It gives error when the denied object is of Action. Deepcopy cannot serialize a 'Greenthread' object.
         if isinstance(denied, Information):
+            if denied.negation == Negation.FALSE or denied.negation == Negation.ANY:
+                self.denied = Information(
+                    left=denied.left,
+                    rtype=denied.rtype,
+                    rtense=denied.rtense,
+                    right=denied.right,
+                    negation=Negation.TRUE,
+                )
+            else:
+                self.denied = Information(
+                    left=denied.left,
+                    rtype=denied.rtype,
+                    rtense=denied.rtense,
+                    right=denied.right,
+                    negation=Negation.FALSE,
+                )
             super().__init__(
                 "deny",
                 done_by=done_by,
                 recipient=recipient,
                 act_type=ActionObjType.VERBAL,
-                base_effects=[GainKnowledge(knowledge=denied, affected=recipient)],
-                target_relations=[denied],
+                base_effects=[GainKnowledge(knowledge=self.denied, affected=recipient)],
+                target_relations=[self.denied],
             )
         elif isinstance(denied, Action):
+            self.denied = denied
             if isinstance(denied, Permit):
                 relation = denied.relation
                 permit_given_to = denied.permit_given_to
@@ -73,6 +89,14 @@ class Deny(Action):
         super_check = super().check_preconditions(checker)
 
         if isinstance(self.denied, Information):
+            if not AgentKnows(
+                agent=self.done_by,
+                knows=self.denied,
+                tense=self.denied.rtense,
+                negation=self.denied.rtense,
+            ):
+                return False
+
             return super_check and AgentDoesAction(
                 agent=DSTPronoun.YOU,
                 tense=Tense.PAST,

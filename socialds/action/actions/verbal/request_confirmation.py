@@ -6,7 +6,9 @@ from socialds.action.action import Action
 from socialds.action.action_obj import ActionObjType
 from socialds.action.actions.verbal.affirm import Affirm
 from socialds.action.actions.verbal.deny import Deny
-from socialds.action.effects.functional.add_expected_action_options import AddExpectedActionOptions
+from socialds.action.effects.functional.add_expected_action_options import (
+    AddExpectedActionOptions,
+)
 from socialds.agent import Agent
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
@@ -15,15 +17,41 @@ from socialds.states.relation import Relation, RType, Negation
 
 
 class RequestConfirmation(Action):
-    def __init__(self, asked: Information, done_by: Agent | DSTPronoun = DSTPronoun.I,
-                 recipient: Agent | DSTPronoun = DSTPronoun.YOU,
-                 tense: Tense = Tense.ANY,
-                 negation: Negation = Negation.FALSE):
+    def __init__(
+        self,
+        asked: Information,
+        done_by: Agent | DSTPronoun = DSTPronoun.I,
+        recipient: Agent | DSTPronoun = DSTPronoun.YOU,
+        tense: Tense = Tense.ANY,
+        negation: Negation = Negation.FALSE,
+        is_any=False,
+    ):
         self.relation = Information(done_by, RType.ACTION, tense, asked, negation)
         self.asked = asked
-        super().__init__("request-confirmation", done_by=done_by, act_type=ActionObjType.VERBAL, base_effects=[
-            AddExpectedActionOptions(actions=[Affirm(asked), Deny(asked)], negation=negation, affected=recipient)
-        ], recipient=recipient)
+        if negation == Negation.ANY:
+            base_effects = [
+                AddExpectedActionOptions(
+                    actions=[Affirm(asked), Deny(asked)],
+                    negation=negation,
+                    affected=recipient,
+                )
+            ]
+        else:
+            base_effects = [
+                AddExpectedActionOptions(
+                    actions=[Affirm(asked), Deny(asked)],
+                    negation=negation,
+                    affected=recipient,
+                )
+            ]
+        super().__init__(
+            "request-confirmation",
+            done_by=done_by,
+            act_type=ActionObjType.VERBAL,
+            base_effects=base_effects,
+            recipient=recipient,
+            is_any=is_any,
+        )
 
     def __str__(self):
         return "%s asks confirmation for %s" % (self.done_by.name, self.asked)
@@ -33,9 +61,13 @@ class RequestConfirmation(Action):
 
     @staticmethod
     def get_pretty_template():
-        return "[done_by] asks confirmation for [asked] to [recipient]([tense][negation])"
+        return (
+            "[done_by] asks confirmation for [asked] to [recipient]([tense][negation])"
+        )
 
-    def insert_pronouns(self, ):
+    def insert_pronouns(
+        self,
+    ):
         self.relation.pronouns = self.pronouns
         self.asked.pronouns = self.pronouns
         self.relation.insert_pronouns()
