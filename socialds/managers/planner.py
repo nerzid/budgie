@@ -165,18 +165,18 @@ class Planner:
                 if self.agent.equals_with_pronouns(
                     condition.agent, self.agent.pronouns
                 ):
-                    condition_solutions.append(
-                        ConditionSolution(
-                            condition=condition,
-                            desc="by learning it",
-                            steps=[
-                                GainKnowledge(condition.knows, affected=DSTPronoun.I)
-                            ],
-                        )
-                    )
-                    plans.append(
-                        Plan([GainKnowledge(condition.knows, affected=DSTPronoun.I)])
-                    )
+                    # condition_solutions.append(
+                    #     ConditionSolution(
+                    #         condition=condition,
+                    #         desc="by learning it",
+                    #         steps=[
+                    #             GainKnowledge(condition.knows, affected=DSTPronoun.I)
+                    #         ],
+                    #     )
+                    # )
+                    # plans.append(
+                    #     Plan([GainKnowledge(condition.knows, affected=DSTPronoun.I)])
+                    # )
                     condition_solutions.append(
                         ConditionSolution(
                             condition=condition,
