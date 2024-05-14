@@ -3,7 +3,6 @@ from typing import List
 
 from termcolor import colored
 
-from socialds.any.any_agent import AnyAgent
 from socialds.conditions.condition import Condition
 from socialds.enums import TermColor, DSAction, DSActionByType
 from socialds.exceptions.no_ongoing_session_found_error import (
@@ -111,6 +110,8 @@ class SessionManager:
                     )
 
     def get_sessions_info_dict(self):
+        from socialds.any.any_agent import AnyAgent
+
         agent = AnyAgent()
         result = []
         for session in self.sessions:

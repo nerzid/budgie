@@ -24,9 +24,13 @@ class Affirm(Action):
         self,
         affirmed: Information | Action,
         done_by: Agent | DSTPronoun = DSTPronoun.I,
+        tense: Tense = Tense.ANY,
+        negation: Negation = Negation.FALSE,
         recipient: Agent | DSTPronoun = DSTPronoun.YOU,
     ):
         self.affirmed = affirmed
+        self.tense = tense
+        self.negation = negation
         if isinstance(affirmed, Information):
             super().__init__(
                 "affirm",
@@ -54,6 +58,33 @@ class Affirm(Action):
     @staticmethod
     def get_pretty_template():
         return "[done_by] affirms [affirmed]"
+
+    @staticmethod
+    def build_instance_from_effects(done_by, recipient, tense, negation, effects):
+        """
+        Follows the same order of the self.base_effects
+
+        Args:
+            effects (_type_): _description_
+        """
+        if len(effects) != 1:
+            return None
+        if isinstance(effects[0], GainKnowledge):
+            gain_knowledge_effect: GainKnowledge = effects[0]
+            affirmed = gain_knowledge_effect.knowledge
+            return Affirm(
+                affirmed=affirmed,
+                done_by=done_by,
+                recipient=recipient,
+            )
+        elif isinstance(effects[0], GainPermit):
+            gain_permit_effect: GainPermit = effects[0]
+            permit = gain_permit_effect.permit
+            return Affirm(
+                affirmed=permit,
+                done_by=done_by,
+                recipient=recipient,
+            )
 
     def __str__(self):
         return "%s affirms %s for %s" % (self.done_by, self.affirmed, self.recipient)

@@ -2,6 +2,8 @@ from copy import copy, deepcopy
 from typing import List
 import logging
 
+from numpy import isin
+
 
 from socialds.action.effects.effect import Effect
 from socialds.action.effects.functional.add_expected_action import AddExpectedAction
@@ -10,6 +12,7 @@ from socialds.action.effects.functional.change_place import ChangePlace
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.action.effects.functional.move_knowledge import MoveInformation
 from socialds.action.effects.social.gain_permit import GainPermit
+from socialds.any.any_object import AnyObject
 from socialds.any.any_place import AnyPlace
 from socialds.conditions.IsRelationInRelationStorage import IsRelationInRelationStorage
 from socialds.conditions.action_on_property_happens import ActionOnResourceHappens
@@ -44,25 +47,6 @@ class Planner:
         self.name = "{}'s Planner".format(self.agent)
         self.solutions = None
         self.active_plans: List[Plan] = []
-
-    # def plan(self, goal: Goal) -> Plan:
-    #     """
-    #
-    #     Based on a goal or list of goals, plan chooses and initializes series of actions that can
-    #     reach the goal. Since a goal is composed of list of conditions, the purpose of the plan method
-    #     is to come up with a series of actions that will satisfy all the conditions of the goal.
-    #     In other words, all the conditions of the goal must be satisfied (hold true) after the plan
-    #     is executed
-    #
-    #     :param: goal: Goal to be satisfied using the returned plan
-    #     :rtype: Plan returns the plan needed to satisfy the condition of the given goal
-    #     """
-    #     conditions = goal.conditions
-    #     actions = []
-    #     plan = Plan(goal=goal)
-    #     for condition in conditions:
-    #         pass
-    #     print(managers.session_manager.get_sessions_info())
 
     def plan(self):
         from socialds.action.actions.verbal.request_confirmation import (
@@ -211,64 +195,71 @@ class Planner:
                             ]
                         )
                     )
-                    condition_solutions.append(
-                        ConditionSolution(
-                            condition=condition,
-                            desc="by learning it from another agent",
-                            steps=[
-                                AddExpectedEffect(
-                                    GainKnowledge(
-                                        knowledge=condition.knows,
-                                        affected=condition.agent,
-                                    ),
-                                    negation=condition.negation,
-                                    affected=DSTPronoun.YOU,
-                                )
-                            ],
+                    if isinstance(condition.knows.right, AnyObject):
+                        # This condition checks if the information has a specific subject.
+                        # E.g., if the agent wants to know whether the patient's eye is teary or not
+                        # then the subject here is "teary", therefore the question should a requestconfirmation
+                        # if the subject is an instance of anyobject such as anyproperty, the question can be
+                        # asked with requestinfo e.g., if eye has something "eye -is-> any_property" or
+                        # "eye -has-> any_property"
+                        condition_solutions.append(
+                            ConditionSolution(
+                                condition=condition,
+                                desc="by learning it from another agent",
+                                steps=[
+                                    AddExpectedEffect(
+                                        GainKnowledge(
+                                            knowledge=condition.knows,
+                                            affected=condition.agent,
+                                        ),
+                                        negation=condition.negation,
+                                        affected=DSTPronoun.YOU,
+                                    )
+                                ],
+                            )
                         )
-                    )
 
-                    plans.append(
-                        Plan(
-                            [
-                                AddExpectedEffect(
-                                    GainKnowledge(
-                                        knowledge=condition.knows,
-                                        affected=condition.agent,
-                                    ),
-                                    negation=condition.negation,
-                                    affected=DSTPronoun.YOU,
-                                )
-                            ]
+                        plans.append(
+                            Plan(
+                                [
+                                    AddExpectedEffect(
+                                        GainKnowledge(
+                                            knowledge=condition.knows,
+                                            affected=condition.agent,
+                                        ),
+                                        negation=condition.negation,
+                                        affected=DSTPronoun.YOU,
+                                    )
+                                ]
+                            )
                         )
-                    )
-
-                    condition_solutions.append(
-                        ConditionSolution(
-                            condition=condition,
-                            desc="by confirming it with an agent",
-                            steps=[
-                                RequestConfirmation(
-                                    done_by=DSTPronoun.I,
-                                    asked=condition.knows,
-                                    tense=Tense.ANY,
-                                    recipient=DSTPronoun.YOU,
-                                )
-                            ],
+                    else:
+                        condition_solutions.append(
+                            ConditionSolution(
+                                condition=condition,
+                                desc="by confirming it with an agent",
+                                steps=[
+                                    RequestConfirmation(
+                                        done_by=DSTPronoun.I,
+                                        asked=condition.knows,
+                                        tense=Tense.ANY,
+                                        recipient=DSTPronoun.YOU,
+                                    )
+                                ],
+                            )
                         )
-                    )
-                    plans.append(
-                        Plan(
-                            [
-                                RequestConfirmation(
-                                    done_by=DSTPronoun.I,
-                                    asked=condition.knows,
-                                    tense=Tense.ANY,
-                                    recipient=DSTPronoun.YOU,
-                                )
-                            ]
+                        plans.append(
+                            Plan(
+                                [
+                                    RequestConfirmation(
+                                        done_by=DSTPronoun.I,
+                                        asked=condition.knows,
+                                        tense=Tense.ANY,
+                                        recipient=DSTPronoun.YOU,
+                                    )
+                                ]
+                            )
                         )
-                    )
                 else:
                     condition_solutions.append(
                         ConditionSolution(
@@ -479,6 +470,8 @@ class Planner:
                         known_by=[self.agent],
                     )
                 )
+        self.agent.relation_storages[RSType.GOALS].add_multi(goals)
+        self.clear_expected_actions()
         return goals
 
     def create_goals_from_expected_effects(self):
@@ -529,6 +522,8 @@ class Planner:
                             known_by=[self.agent],
                         )
                     )
+        self.agent.relation_storages[RSType.GOALS].add_multi(goals)
+        self.clear_expected_effects()
         return goals
 
     def filter_solutions_by_steps(self, solutions: List[ConditionSolution]):
@@ -692,11 +687,16 @@ class Planner:
 
                         # if the agent cannot perform an action inside the utterance
                         # then check if there are effects that can be performed instead
-                        copied_action = deepcopy(action)
-                        actions.append(copied_action)
-                        effects.extend(copied_action.base_effects)
-                        effects.extend(copied_action.extra_effects)
-                        if not copied_action.is_action_in_list(
+                        # copied_action = deepcopy(action)
+                        # actions.append(copied_action)
+                        # effects.extend(copied_action.base_effects)
+                        # effects.extend(copied_action.extra_effects)
+
+                        # might cause bugs
+                        actions.append(action)
+                        effects.extend(action.base_effects)
+                        effects.extend(action.extra_effects)
+                        if not action.is_action_in_list(
                             possible_actions, self.agent.pronouns
                         ):
                             for effect in effects:
@@ -745,6 +745,12 @@ class Planner:
             raise NoMatchingUtteranceFound
         else:
             return possible_utterances_with_solutions
+
+    def clear_expected_actions(self):
+        self.agent.relation_storages[RSType.EXPECTED_ACTIONS].remove_all()
+
+    def clear_expected_effects(self):
+        self.agent.relation_storages[RSType.EXPECTED_EFFECTS].remove_all()
 
     def get_actions_from_plans(self, plans: List[ConditionSolution]):
         actions = []
@@ -803,17 +809,15 @@ class Planner:
                     found_action = False
                     break
             if found_action:
-                action_classname = action.name
-                action_attrs = {}
-                return [
-                    action.__class__.build_instance_from_effects(
-                        done_by=action.done_by,
-                        recipient=action.recipient,
-                        tense=action.tense,
-                        negation=action.negation,
-                        effects=effects,
-                    )
-                ]
+                possible_action = action.__class__.build_instance_from_effects(
+                    done_by=action.done_by,
+                    recipient=action.recipient,
+                    tense=action.tense,
+                    negation=action.negation,
+                    effects=effects,
+                )
+                if possible_action.check_preconditions(checker=self.agent):
+                    return [possible_action]
         return None
 
         # if len(effects) == 1:

@@ -24,6 +24,7 @@ class Goal:
         Checks if the goal is reached
         :return: True if all the conditions yield true
         """
+
         reached = True
         for condition in self.conditions:
             # print(condition)
@@ -33,7 +34,10 @@ class Goal:
             from socialds.enums import DSAction
             from socialds.enums import DSActionByType
 
-            checker.message_streamer.add(
+            ms = checker.message_streamer
+            if checker.message_streamer is None:
+                ms = self.owner.message_streamer
+            ms.add(
                 Message(
                     ds_action=DSAction.DISPLAY_LOG.value,
                     ds_action_by="Dialogue System",

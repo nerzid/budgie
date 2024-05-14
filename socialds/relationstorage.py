@@ -11,20 +11,21 @@ from socialds.states.relation import Relation, RType, Negation
 
 
 class RSType(Enum):
-    STATES = 'States'
-    PERMITS = 'Permits'
-    REQUIREMENTS = 'Requirements'
-    PROPERTIES = 'Properties'
-    KNOWLEDGEBASE = 'Knowledgebase'
-    PLACES = 'Places'
-    RESOURCES = 'Resources'
-    COMPETENCES = 'Competences'
-    FORGOTTEN = 'Forgotten'
-    ACTIVE_ACTIONS = 'Active Actions'
-    EXPECTED_ACTIONS = 'Expected Actions'
-    EXPECTED_EFFECTS = 'Expected Effects'
-    VALUES = 'Values'
-    ANY = 'Any RS'
+    STATES = "States"
+    PERMITS = "Permits"
+    REQUIREMENTS = "Requirements"
+    PROPERTIES = "Properties"
+    KNOWLEDGEBASE = "Knowledgebase"
+    PLACES = "Places"
+    RESOURCES = "Resources"
+    COMPETENCES = "Competences"
+    FORGOTTEN = "Forgotten"
+    ACTIVE_ACTIONS = "Active Actions"
+    EXPECTED_ACTIONS = "Expected Actions"
+    EXPECTED_EFFECTS = "Expected Effects"
+    VALUES = "Values"
+    GOALS = "Goals"
+    ANY = "Any RS"
 
 
 class RelationNotFoundError(Exception):
@@ -64,16 +65,27 @@ class RelationStorage:
         self.relations = relations
 
     def __repr__(self):
-        rs_info = colored(text=self.name, on_color=TermColor.ON_RED.value) \
-                  + (colored(text='(public)', on_color=TermColor.ON_CYAN.value),
-                     colored(text='(private)', on_color=TermColor.ON_BLUE.value))[self.is_private] + '\n'
-        relations_str = ''
+        rs_info = (
+            colored(text=self.name, on_color=TermColor.ON_RED.value)
+            + (
+                colored(text="(public)", on_color=TermColor.ON_CYAN.value),
+                colored(text="(private)", on_color=TermColor.ON_BLUE.value),
+            )[self.is_private]
+            + "\n"
+        )
+        relations_str = ""
         if len(self.relations) > 0:
             for rel in self.relations:
-                relations_str += str(rel) + '\n'
+                relations_str += str(rel) + "\n"
         else:
-            relations_str += colored(text='Empty', color=TermColor.BLACK.value,
-                                     on_color=TermColor.ON_WHITE.value) + '\n'
+            relations_str += (
+                colored(
+                    text="Empty",
+                    color=TermColor.BLACK.value,
+                    on_color=TermColor.ON_WHITE.value,
+                )
+                + "\n"
+            )
         return (rs_info + relations_str)[:-1]
 
         # def __contains__(self, relation: Relation):
@@ -104,12 +116,14 @@ class RelationStorage:
     # checks for the exact relation based on the values of the relation
     def contains(self, relation: Relation, pronouns):
         try:
-            rel_in_rs = self.get_one(left=relation.left,
-                                     rtype=relation.rtype,
-                                     rtense=relation.rtense,
-                                     right=relation.right,
-                                     negation=relation.negation,
-                                     pronouns=pronouns)
+            rel_in_rs = self.get_one(
+                left=relation.left,
+                rtype=relation.rtype,
+                rtense=relation.rtense,
+                right=relation.right,
+                negation=relation.negation,
+                pronouns=pronouns,
+            )
             if rel_in_rs is not None:
                 return True
             else:
@@ -138,8 +152,17 @@ class RelationStorage:
         del self.relations
         self.relations = []
 
-    def get_one(self, left: any, rtype: RType, rtense: Tense, right: any, pronouns, negation: Negation = Negation.FALSE,
-                times: List[ActionHappenedAtTime] = None, excluded: List[Relation] = None):
+    def get_one(
+        self,
+        left: any,
+        rtype: RType,
+        rtense: Tense,
+        right: any,
+        pronouns,
+        negation: Negation = Negation.FALSE,
+        times: List[ActionHappenedAtTime] = None,
+        excluded: List[Relation] = None,
+    ):
         # if times is not None:
         #     for time in times:
         #         if isinstance(time, NumOfTimes):
@@ -150,7 +173,15 @@ class RelationStorage:
         found = False
         for relation in self.relations:
             found = relation.equals_with_pronouns(
-                Relation(left=left, rtype=rtype, rtense=rtense, right=right, negation=negation), pronouns)
+                Relation(
+                    left=left,
+                    rtype=rtype,
+                    rtense=rtense,
+                    right=right,
+                    negation=negation,
+                ),
+                pronouns,
+            )
             if found:
                 if excluded is None or len(excluded) == 0:
                     return relation
@@ -164,8 +195,15 @@ class RelationStorage:
         if not found:
             return None
 
-    def get_many(self, left: any, rtype: RType, rtense: Tense, right: any, negation: Negation = Negation.FALSE,
-                 times: [ActionHappenedAtTime] = None):
+    def get_many(
+        self,
+        left: any,
+        rtype: RType,
+        rtense: Tense,
+        right: any,
+        negation: Negation = Negation.FALSE,
+        times: [ActionHappenedAtTime] = None,
+    ):
         # if times is not None:
         #     for time in times:
         #         if isinstance(time, NumOfTimes):
@@ -181,9 +219,13 @@ class RelationStorage:
             #     else:
             #         if relation.left == left and relation.rtype == rtype and relation.rtense == rtense and relation.right == right and relation.negation == negation:
             #             found.append(relation)
-            if relation.left == left and (relation.rtype == rtype or rtype == RType.ANY) and \
-                    (relation.rtense == rtense or rtense == Tense.ANY) and relation.right == right \
-                    and relation.negation == negation:
+            if (
+                relation.left == left
+                and (relation.rtype == rtype or rtype == RType.ANY)
+                and (relation.rtense == rtense or rtense == Tense.ANY)
+                and relation.right == right
+                and relation.negation == negation
+            ):
                 found.append(relation)
         # print('time num: ' + str(time_num))
         # print('found rel: ' + str(found_rel))

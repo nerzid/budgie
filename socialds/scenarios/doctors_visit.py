@@ -1276,7 +1276,12 @@ def sp_main():
                 conditions=[
                     AgentKnows(
                         agent=agent_patient,
-                        knows=info_patients_problem_is_bacterial_conjunctivitis,
+                        knows=Information(
+                        left=p_patients_problem,
+                        rtype=RType.IS,
+                        rtense=Tense.PRESENT,
+                        right=AnyProperty(),
+                    ),
                         tense=Tense.PRESENT,
                     )
                 ],

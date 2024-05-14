@@ -159,7 +159,7 @@ def send_message():
         )
     elif ds_action == DSAction.REQUEST_UTTERANCE_BY_STRING_MATCH.value:
         dm = dialogue_managers[session_id]
-        input_text = message.get("message")
+        input_text = message.get("message").replace('"', "")
         sender_agent_id = message.get("ds_action_by")
         sender_agent = dm.get_agent_by_id(sender_agent_id)
         receiver_agent = dm.get_other_agent(sender_agent_id)

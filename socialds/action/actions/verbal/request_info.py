@@ -17,7 +17,7 @@ class RequestInfo(Action):
     def __init__(
         self,
         asked: Information,
-        tense: Tense,
+        tense: Tense = Tense.ANY,
         negation: Negation = Negation.FALSE,
         done_by: Agent | DSTPronoun = DSTPronoun.I,
         recipient: Agent | DSTPronoun = DSTPronoun.YOU,

@@ -55,13 +55,19 @@ class Relation(State, DSTPronounHolder):
                 Tense.PAST: "was",
                 Tense.PRESENT: "is",
                 Tense.FUTURE: "will",
-                Tense.ANY: "is",
+                Tense.ANY: "is-any",
             },
             Negation.TRUE: {
                 Tense.PAST: "wasn't",
                 Tense.PRESENT: "isn't",
                 Tense.FUTURE: "won't",
-                Tense.ANY: "isn't",
+                Tense.ANY: "isn't-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "any-was",
+                Tense.PRESENT: "any-is",
+                Tense.FUTURE: "will",
+                Tense.ANY: "is(any)-any",
             },
         },
         RType.HAS: {
@@ -69,13 +75,19 @@ class Relation(State, DSTPronounHolder):
                 Tense.PAST: "had",
                 Tense.PRESENT: "has",
                 Tense.FUTURE: "will have",
-                Tense.ANY: "has",
+                Tense.ANY: "has-any",
             },
             Negation.TRUE: {
                 Tense.PAST: "hadn't",
                 Tense.PRESENT: "hasn't",
                 Tense.FUTURE: "won't have",
-                Tense.ANY: "hasn't",
+                Tense.ANY: "hasn't-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "had-any",
+                Tense.PRESENT: "has-any",
+                Tense.FUTURE: "will have-any",
+                Tense.ANY: "has(any)-any",
             },
         },
         RType.HAS_REQUIREMENTS: {
@@ -83,13 +95,19 @@ class Relation(State, DSTPronounHolder):
                 Tense.PAST: "had requirements",
                 Tense.PRESENT: "has requirements",
                 Tense.FUTURE: "will have requirements",
-                Tense.ANY: "has requirements",
+                Tense.ANY: "has requirements-any",
             },
             Negation.TRUE: {
                 Tense.PAST: "didn't have requirements",
                 Tense.PRESENT: "doesn't have requirements",
                 Tense.FUTURE: "won't have requirements",
-                Tense.ANY: "doesn't requirements",
+                Tense.ANY: "doesn't have requirements-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "had requirements-any",
+                Tense.PRESENT: "has requirements-any",
+                Tense.FUTURE: "will have requirements-any",
+                Tense.ANY: "has requirements(any)-any",
             },
         },
         RType.CAN: {
@@ -97,13 +115,19 @@ class Relation(State, DSTPronounHolder):
                 Tense.PAST: "could",
                 Tense.PRESENT: "can",
                 Tense.FUTURE: "will be able to",
-                Tense.ANY: "can",
+                Tense.ANY: "can-any",
             },
             Negation.TRUE: {
                 Tense.PAST: "couldn't",
                 Tense.PRESENT: "can't",
                 Tense.FUTURE: "won't be able to",
-                Tense.ANY: "can't",
+                Tense.ANY: "can't-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "could-any",
+                Tense.PRESENT: "can-any",
+                Tense.FUTURE: "will be able to-any",
+                Tense.ANY: "can(any)-any",
             },
         },
         RType.ACTION: {
@@ -111,13 +135,19 @@ class Relation(State, DSTPronounHolder):
                 Tense.PAST: "did",
                 Tense.PRESENT: "does",
                 Tense.FUTURE: "will do",
-                Tense.ANY: "does",
+                Tense.ANY: "does-any",
             },
             Negation.TRUE: {
                 Tense.PAST: "didn't",
                 Tense.PRESENT: "doesn't",
                 Tense.FUTURE: "won't do",
-                Tense.ANY: "doesn't",
+                Tense.ANY: "doesn't-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "did(any)",
+                Tense.PRESENT: "does(any)",
+                Tense.FUTURE: "will do(any)",
+                Tense.ANY: "does(any)-any",
             },
         },
         RType.IS_PERMITTED_TO: {
@@ -125,13 +155,19 @@ class Relation(State, DSTPronounHolder):
                 Tense.PAST: "was permitted to",
                 Tense.PRESENT: "is permitted to",
                 Tense.FUTURE: "will be permitted to",
-                Tense.ANY: "is permitted to",
+                Tense.ANY: "is permitted to-any",
             },
             Negation.TRUE: {
                 Tense.PAST: "wasn't permitted to",
                 Tense.PRESENT: "isn't permitted to",
                 Tense.FUTURE: "won't be permitted to",
-                Tense.ANY: "isn't permitted to",
+                Tense.ANY: "isn't permitted to-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "was permitted to(any)",
+                Tense.PRESENT: "is permitted to(any)",
+                Tense.FUTURE: "will be permitted to(any)",
+                Tense.ANY: "is permitted to(any)-any",
             },
         },
         RType.IS_AT: {
@@ -139,13 +175,19 @@ class Relation(State, DSTPronounHolder):
                 Tense.PAST: "was at",
                 Tense.PRESENT: "is at",
                 Tense.FUTURE: "will be at",
-                Tense.ANY: "is at",
+                Tense.ANY: "is at-any",
             },
             Negation.TRUE: {
                 Tense.PAST: "wasn't at",
                 Tense.PRESENT: "isn't at",
                 Tense.FUTURE: "won't be at",
-                Tense.ANY: "isn't at",
+                Tense.ANY: "isn't at-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "was at-any",
+                Tense.PRESENT: "is at-any",
+                Tense.FUTURE: "will be at-any",
+                Tense.ANY: "is at(any)-any",
             },
         },
         RType.IS_IN: {
@@ -153,13 +195,19 @@ class Relation(State, DSTPronounHolder):
                 Tense.PAST: "was in",
                 Tense.PRESENT: "is in",
                 Tense.FUTURE: "will be in",
-                Tense.ANY: "is in",
+                Tense.ANY: "is in-any",
             },
             Negation.TRUE: {
                 Tense.PAST: "wasn't in",
                 Tense.PRESENT: "isn't in",
                 Tense.FUTURE: "won't be in",
-                Tense.ANY: "isn't in",
+                Tense.ANY: "isn't in-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "was in-any",
+                Tense.PRESENT: "is in-any",
+                Tense.FUTURE: "will be in-any",
+                Tense.ANY: "is in(any)-any",
             },
         },
         RType.EFFECT: {
@@ -167,27 +215,39 @@ class Relation(State, DSTPronounHolder):
                 Tense.PAST: "did the effect",
                 Tense.PRESENT: "does the effect",
                 Tense.FUTURE: "will do the effect",
-                Tense.ANY: "does the effect",
+                Tense.ANY: "does the effect-any",
             },
             Negation.TRUE: {
                 Tense.PAST: "didn't do the effect",
                 Tense.PRESENT: "don't do the effect",
                 Tense.FUTURE: "won't do the effect",
-                Tense.ANY: "don't do the effect",
+                Tense.ANY: "don't do the effect-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "did the effect-any",
+                Tense.PRESENT: "does the effect-any",
+                Tense.FUTURE: "will do the effect-any",
+                Tense.ANY: "does the effect(any)-any",
             },
         },
         RType.ANY: {
             Negation.FALSE: {
-                Tense.PAST: "was",
-                Tense.PRESENT: "is",
-                Tense.FUTURE: "will",
-                Tense.ANY: "is",
+                Tense.PAST: "any(positive)(past)",
+                Tense.PRESENT: "any(positive)(present)",
+                Tense.FUTURE: "any(positive)(future)",
+                Tense.ANY: "any(positive)-any",
             },
             Negation.TRUE: {
-                Tense.PAST: "wasn't",
-                Tense.PRESENT: "isn't",
-                Tense.FUTURE: "won't",
-                Tense.ANY: "isn't",
+                Tense.PAST: "any(negative)(past)",
+                Tense.PRESENT: "any(negative)(present)",
+                Tense.FUTURE: "any(negative)(future)",
+                Tense.ANY: "any(negative)-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "any-(past)-any",
+                Tense.PRESENT: "any-(present)-any",
+                Tense.FUTURE: "any-(future)-any",
+                Tense.ANY: "any-(any)-any",
             },
         },
         RType.SAYS: {
@@ -195,13 +255,19 @@ class Relation(State, DSTPronounHolder):
                 Tense.PAST: "said",
                 Tense.PRESENT: "says",
                 Tense.FUTURE: "will say",
-                Tense.ANY: "says",
+                Tense.ANY: "says-any",
             },
             Negation.TRUE: {
                 Tense.PAST: "didn't say",
                 Tense.PRESENT: "doesn't say",
                 Tense.FUTURE: "won't say",
-                Tense.ANY: "doesn't say",
+                Tense.ANY: "doesn't say-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "said-any",
+                Tense.PRESENT: "says-any",
+                Tense.FUTURE: "will say-any",
+                Tense.ANY: "says-any-any",
             },
         },
     }
@@ -309,8 +375,8 @@ class Relation(State, DSTPronounHolder):
 
     def get_pretty_tense(self):
         neg_str = self.negation
-        if self.negation == Negation.ANY:
-            neg_str = Negation.FALSE
+        # if self.negation == Negation.ANY:
+        #     neg_str = Negation.FALSE
         return self.relation_types_with_tenses[self.rtype][neg_str][self.rtense]
 
     @staticmethod

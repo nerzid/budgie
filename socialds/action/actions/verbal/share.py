@@ -11,7 +11,7 @@ from socialds.conditions.agent_knows import AgentKnows
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.socialpractice.context.information import Information
-from socialds.states.relation import Relation
+from socialds.states.relation import Negation, Relation
 
 
 class Share(Action):
@@ -20,10 +20,14 @@ class Share(Action):
         self,
         information: Information,
         times: List[ActionHappenedAtTime] = None,
+        tense: Tense = Tense.ANY,
+        negation: Negation = Negation.FALSE,
         done_by: Agent | DSTPronoun = DSTPronoun.I,
         recipient: Agent | DSTPronoun = DSTPronoun.YOU,
     ):
         self.information = information
+        self.tense = tense
+        self.negation = negation
         super().__init__(
             name="share",
             done_by=done_by,
@@ -43,6 +47,26 @@ class Share(Action):
     @staticmethod
     def get_pretty_template():
         return "[done_by] shares [information] with [recipient]"
+
+    @staticmethod
+    def build_instance_from_effects(done_by, recipient, tense, negation, effects):
+        """
+        Follows the same order of the self.base_effects
+
+        Args:
+            effects (_type_): _description_
+        """
+        if len(effects) != 1:
+            return None
+        gain_knowledge_effect: GainKnowledge = effects[0]
+        information = gain_knowledge_effect.knowledge
+        return Share(
+            information=information,
+            done_by=done_by,
+            recipient=recipient,
+            tense=tense,
+            negation=negation,
+        )
 
     def equals_with_pronouns(self, other, pronouns):
         return super().equals_with_pronouns(other, pronouns)
