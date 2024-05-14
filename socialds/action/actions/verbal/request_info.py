@@ -14,14 +14,30 @@ from socialds.states.relation import Relation, RType, Negation
 
 
 class RequestInfo(Action):
-    def __init__(self, asked: Information, tense: Tense, negation: Negation = Negation.FALSE,
-                 done_by: Agent | DSTPronoun = DSTPronoun.I, recipient: Agent | DSTPronoun = DSTPronoun.YOU, ):
+    def __init__(
+        self,
+        asked: Information,
+        tense: Tense,
+        negation: Negation = Negation.FALSE,
+        done_by: Agent | DSTPronoun = DSTPronoun.I,
+        recipient: Agent | DSTPronoun = DSTPronoun.YOU,
+    ):
         self.relation = Information(DSTPronoun.I, RType.ACTION, tense, asked, negation)
         self.asked = asked
-        super().__init__("request-info", done_by=done_by, act_type=ActionObjType.VERBAL, base_effects=[
-            AddExpectedEffect(effect=GainKnowledge(affected=done_by, knowledge=asked),
-                              affected=recipient)
-        ], recipient=recipient)
+        self.tense = tense
+        self.negation = negation
+        super().__init__(
+            "request-info",
+            done_by=done_by,
+            act_type=ActionObjType.VERBAL,
+            base_effects=[
+                AddExpectedEffect(
+                    effect=GainKnowledge(affected=done_by, knowledge=asked),
+                    affected=recipient,
+                )
+            ],
+            recipient=recipient,
+        )
 
     def __str__(self):
         return "%s asks what %s" % (self.done_by.name, self.asked)
@@ -33,7 +49,30 @@ class RequestInfo(Action):
     def get_pretty_template():
         return "[done_by] asks what [asked]([tense][negation])"
 
-    def insert_pronouns(self, ):
+    @staticmethod
+    def build_instance_from_effects(done_by, recipient, tense, negation, effects):
+        """
+        Follows the same order of the self.base_effects
+
+        Args:
+            effects (_type_): _description_
+        """
+        if len(effects) != 1:
+            return None
+        add_expected_effect: AddExpectedEffect = effects[0]
+        gain_knowledge_effect: GainKnowledge = add_expected_effect.effect  # type: ignore
+        asked = gain_knowledge_effect.knowledge
+        return RequestInfo(
+            asked=asked,
+            tense=tense,
+            negation=negation,
+            done_by=done_by,
+            recipient=recipient,
+        )
+
+    def insert_pronouns(
+        self,
+    ):
         self.relation.pronouns = self.pronouns
         self.asked.pronouns = self.pronouns
         self.relation.insert_pronouns()
@@ -47,6 +86,8 @@ class RequestInfo(Action):
 
     def get_requirement_holders(self) -> List:
         pass
+
+
 # joe asks color of jane's dress
 # Joe -do-> ask (Jane's dress's color -is-> X)
 

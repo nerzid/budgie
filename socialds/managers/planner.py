@@ -803,7 +803,17 @@ class Planner:
                     found_action = False
                     break
             if found_action:
-                return [action]
+                action_classname = action.name
+                action_attrs = {}
+                return [
+                    action.__class__.build_instance_from_effects(
+                        done_by=action.done_by,
+                        recipient=action.recipient,
+                        tense=action.tense,
+                        negation=action.negation,
+                        effects=effects,
+                    )
+                ]
         return None
 
         # if len(effects) == 1:
