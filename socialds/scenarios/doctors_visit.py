@@ -326,6 +326,7 @@ def sp_main():
                     ),
                 ),
             ),
+            Competence("Bye", Bye()),
         ]
     )
 
@@ -1277,11 +1278,11 @@ def sp_main():
                     AgentKnows(
                         agent=agent_patient,
                         knows=Information(
-                        left=p_patients_problem,
-                        rtype=RType.IS,
-                        rtense=Tense.PRESENT,
-                        right=AnyProperty(),
-                    ),
+                            left=p_patients_problem,
+                            rtype=RType.IS,
+                            rtense=Tense.PRESENT,
+                            right=AnyProperty(),
+                        ),
                         tense=Tense.PRESENT,
                     )
                 ],
@@ -1383,6 +1384,7 @@ def sp_main():
             Affirm,
             Deny,
             Worry,
+            Bye,
         ],
         effects=[
             ChangePlace,
