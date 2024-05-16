@@ -326,7 +326,10 @@ def sp_main():
                     ),
                 ),
             ),
-            Competence("Bye", Bye()),
+            Competence(
+              "Bye",
+              Bye()
+            ),
         ]
     )
 
@@ -1088,13 +1091,13 @@ def sp_main():
         steps=[
             ExpectationStep(
                 action=Greet(),
-                done_by=AgentPlaceholder(symbol=PlaceholderSymbol.X),
-                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.Y),
+                done_by=PlaceholderSymbol.X,
+                recipient=PlaceholderSymbol.Y,
             ),
             ExpectationStep(
                 action=Greet(),
-                done_by=AgentPlaceholder(symbol=PlaceholderSymbol.Y),
-                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.X),
+                done_by=PlaceholderSymbol.Y,
+                recipient=PlaceholderSymbol.X,
             ),
         ],
         skipping_conditions=[
@@ -1116,13 +1119,13 @@ def sp_main():
         steps=[
             ExpectationStep(
                 action=Bye(),
-                done_by=AgentPlaceholder(symbol=PlaceholderSymbol.X),
-                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.Y),
+                done_by=PlaceholderSymbol.X,
+                recipient=PlaceholderSymbol.Y,
             ),
             ExpectationStep(
                 action=Bye(),
-                done_by=AgentPlaceholder(symbol=PlaceholderSymbol.Y),
-                recipient=AgentPlaceholder(symbol=PlaceholderSymbol.X),
+                done_by=PlaceholderSymbol.Y,
+                recipient=PlaceholderSymbol.X,
             ),
         ],
         skipping_conditions=[

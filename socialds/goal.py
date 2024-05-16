@@ -35,16 +35,15 @@ class Goal:
             from socialds.enums import DSActionByType
 
             ms = checker.message_streamer
-            if checker.message_streamer is None:
-                ms = self.owner.message_streamer
-            ms.add(
-                Message(
-                    ds_action=DSAction.DISPLAY_LOG.value,
-                    ds_action_by="Dialogue System",
-                    ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                    message="Goal {} is reached!".format(self.name),
+            if ms is not None:
+                ms.add(
+                    Message(
+                        ds_action=DSAction.DISPLAY_LOG.value,
+                        ds_action_by="Dialogue System",
+                        ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                        message="Goal {} is reached!".format(self.name),
+                    )
                 )
-            )
         return reached
 
     def __str__(self):

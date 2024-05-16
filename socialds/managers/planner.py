@@ -425,6 +425,10 @@ class Planner:
                     or ExpectationStatus.ONGOING
                 ):
                     if desired_status == ExpectationStatus.COMPLETED:
+                        expectation = condition.expectation
+                        next_step = expectation.get_next_step()
+                        next_step_action = next_step.action
+
                         action = condition.expectation.get_next_not_executed_action()
                         if action is not None:
                             condition_solutions.append(
