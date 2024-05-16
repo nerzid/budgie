@@ -1,4 +1,6 @@
+from logging import PlaceHolder
 from flask import request
+from socialds.action.actions.physical.calmdown import CalmDown
 from socialds.action.actions.physical.worry import Worry
 from socialds.action.actions.verbal.bye import Bye
 from socialds.action.actions.verbal.request_confirmation import (
@@ -326,10 +328,7 @@ def sp_main():
                     ),
                 ),
             ),
-            Competence(
-              "Bye",
-              Bye()
-            ),
+            Competence("Bye", Bye()),
         ]
     )
 
@@ -550,6 +549,11 @@ def sp_main():
         ]
     )
     agent_patient.relation_storages[RSType.COMPETENCES].add_from_rs(basic_competences)
+    agent_patient.relation_storages[RSType.COMPETENCES].add(
+        Competence(
+            name="worry", action=Worry(about=AnyInformation()), negation=Negation.FALSE
+        )
+    )
 
     actor_doctor = Actor(
         name="Jane", knowledgebase=RelationStorage("Actor Jane's Knowledgebase ")
@@ -578,6 +582,13 @@ def sp_main():
         Competence(name="doctor can examine eyes", action=Examine())
     )
     agent_doctor.relation_storages[RSType.COMPETENCES].add_from_rs(basic_competences)
+    agent_doctor.relation_storages[RSType.COMPETENCES].add(
+        Competence(
+            name="calms down",
+            action=CalmDown(about=AnyInformation()),
+            negation=Negation.FALSE,
+        )
+    )
     agent_doctor.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(common_knowledge)
     agent_doctor.relation_storages[RSType.PERMITS].add_multi(
         [
@@ -1114,6 +1125,27 @@ def sp_main():
         violation_effects=[DemoteValue(affected=DSTPronoun.I, value=value_politeness)],
     )
 
+    calm_worry_norm = Norm(
+        name="Calm patient when the patient worries",
+        steps=[
+            ExpectationStep(
+                action=Worry(about=AnyInformation()),
+                done_by=PlaceholderSymbol.X,
+                recipient=PlaceholderSymbol.Y,
+            ),
+            ExpectationStep(
+                action=CalmDown(about=AnyInformation()),
+                done_by=PlaceholderSymbol.Y,
+                recipient=PlaceholderSymbol.X,
+            ),
+        ],
+        skipping_conditions=[],
+        skipping_effects=[],
+        violation_conditions=[],
+        violation_effects=[],
+        completion_effects=[],
+    )
+
     goodbye_norm = Norm(
         name="People said goodbye to each other",
         steps=[
@@ -1344,7 +1376,7 @@ def sp_main():
     session_global = Session(
         name="Global",
         start_conditions=[],
-        expectations=[],
+        expectations=[calm_worry_norm],
         end_goals=[
             Goal(
                 owner=any_agent,
@@ -1387,6 +1419,7 @@ def sp_main():
             Affirm,
             Deny,
             Worry,
+            CalmDown,
             Bye,
         ],
         effects=[

@@ -16,7 +16,7 @@ from socialds.states.property import Property
 from socialds.states.relation import Negation, Relation, RType
 
 
-class Worry(Action):
+class CalmDown(Action):
 
     def __init__(
         self,
@@ -30,23 +30,23 @@ class Worry(Action):
         self.tense = tense
         self.negation = negation
         super().__init__(
-            "worry",
+            "calm-down",
             done_by=done_by,
             recipient=recipient,
-            act_type=ActionObjType.VERBAL,
-            base_effects=[SetState(state=Property("worried"), affected=done_by)],
+            act_type=ActionObjType.PHYSICAL,
+            base_effects=[SetState(state=Property("calmed"), affected=recipient)],
             target_relations=[about],
         )
 
     @staticmethod
     def get_pretty_template():
-        return "[done_by] worries about [about]"
+        return "[done_by] calms down [recipient] about [about]"
 
     def __str__(self):
-        return "%s worries about %s" % (self.done_by, self.about)
+        return "%s calms down %s for %s" % (self.done_by, self.recipient, self.about)
 
     def __repr__(self):
-        return "%r worries about %r" % (self.done_by, self.about)
+        return "%r calms down %r for %r" % (self.done_by, self.recipient, self.about)
 
     def insert_pronouns(self):
         self.about.pronouns = self.pronouns
