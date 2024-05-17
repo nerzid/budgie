@@ -25,6 +25,7 @@ class RSType(Enum):
     EXPECTED_EFFECTS = "Expected Effects"
     VALUES = "Values"
     GOALS = "Goals"
+    UPCOMING_ACTIONS = "Upcoming Actions"
     ANY = "Any RS"
 
 
@@ -138,7 +139,7 @@ class RelationStorage:
         self.relations.append(relation)
         return relation
 
-    def add_multi(self, relations: [Relation]):
+    def add_multi(self, relations: List[Relation]):
         for rel in relations:
             self.add(rel)
 
@@ -202,7 +203,7 @@ class RelationStorage:
         rtense: Tense,
         right: any,
         negation: Negation = Negation.FALSE,
-        times: [ActionHappenedAtTime] = None,
+        times: List[ActionHappenedAtTime] = None,
     ):
         # if times is not None:
         #     for time in times:

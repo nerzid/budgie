@@ -49,6 +49,9 @@ class RSHolder:
                         rsholder_name + "'s Requirements"
                     ),
                     rs.RSType.STATES: rs.RelationStorage(rsholder_name + "'s States"),
+                    rs.RSType.UPCOMING_ACTIONS: rs.RelationStorage(
+                        rsholder_name + "'s Upcoming Actions"
+                    ),
                     rs.RSType.GOALS: rs.RelationStorage(rsholder_name + "'s Goals"),
                 }
             elif rsholder_type is RSHolderType.RESOURCE:

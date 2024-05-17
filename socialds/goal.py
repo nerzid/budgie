@@ -1,5 +1,7 @@
+from enum import Enum
 from typing import List
 from socialds.conditions.condition import Condition
+from socialds.enums import Priority
 from socialds.message import Message
 
 
@@ -11,12 +13,14 @@ class Goal:
         conditions: List[Condition],
         known_by: List["Agent"],
         desc: str = "",
+        priority: Priority = Priority.MID,
     ):
         self.name = name
         self.desc = desc
         self.conditions = conditions
         self.owner = owner
         self.known_by = known_by
+        self.priority = priority
         self.is_reached_first_time = False
 
     def is_reached(self, checker):

@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import List
 
-from socialds.enums import Tense
+from socialds.enums import Priority, Tense
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.states.relation import Negation
 
@@ -14,22 +14,29 @@ from socialds.states.relation import Negation
 
 
 class Condition:
-    def __init__(self, tense: Tense, times: List[ActionHappenedAtTime] = None, negation:Negation=Negation.FALSE):
+    def __init__(
+        self,
+        tense: Tense,
+        times: List[ActionHappenedAtTime] = None,
+        negation: Negation = Negation.FALSE,
+        priority: Priority = Priority.MID,
+    ):
         if times is None:
             self.times = []
         else:
             self.times = times
         self.negation = negation
         self.tense = tense
+        self.priority = priority
 
     def get_times_str(self):
         if self.times is None:
-            return ''
-        times_str = ''
+            return ""
+        times_str = ""
         for time in self.times:
-            times_str += str(time) + ' AND '
+            times_str += str(time) + " AND "
         if len(self.times) > 0:
-            times_str = ' ' + times_str[:-5]
+            times_str = " " + times_str[:-5]
         return times_str
 
     def check(self, checker=None):
