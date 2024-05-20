@@ -3,6 +3,7 @@ from typing import List
 import logging
 
 from numpy import isin
+from regex import P
 
 
 from socialds.action.effects.effect import Effect
@@ -24,7 +25,7 @@ from socialds.conditions.agent_knows import AgentKnows
 from socialds.conditions.condition_solution import ConditionSolution
 from socialds.conditions.expectation_status_is import ExpectationStatusIs
 from socialds.conditions.object_at_place import ObjectAtPlace
-from socialds.enums import Tense, DSAction, DSActionByType
+from socialds.enums import Priority, Tense, DSAction, DSActionByType
 from socialds.expectation import ExpectationStatus
 from socialds.goal import Goal
 from socialds.message import Message
@@ -49,11 +50,6 @@ class Planner:
         self.active_plans: List[Plan] = []
 
     def plan(self):
-        from socialds.action.actions.verbal.request_confirmation import (
-            RequestConfirmation,
-        )
-        from socialds.action.actions.verbal.request_action import RequestAction
-
         """
         Creates plans for the available goals
         """
@@ -63,6 +59,7 @@ class Planner:
 
         all_goals.extend(self.create_goals_from_expected_effects())
         all_goals.extend(self.create_goals_from_expected_actions())
+        all_goals.extend(self.create_goals_from_expectations())
 
         # Uncomment below when agent goals are implemented
         # all_goals = self.agent.goals
@@ -72,14 +69,53 @@ class Planner:
             session_goals.extend(session.end_goals)
 
         all_goals.extend(session_goals)
-        all_conditions = []
+        sorted_goals = self.sort_goals_by_priority(all_goals)
+
+        goals = self.get_goals_by_priority(sorted_goals, Priority.HIGH)
+        solutions = self.filter_solutions_by_steps(self.get_plans_from_goals(goals))
+
+        if len(solutions) > 0:
+            return solutions
+
+        goals = self.get_goals_by_priority(sorted_goals, Priority.MID)
+        solutions = self.filter_solutions_by_steps(self.get_plans_from_goals(goals))
+
+        if len(solutions) > 0:
+            return solutions
+
+        goals = self.get_goals_by_priority(sorted_goals, Priority.LOW)
+        solutions = self.filter_solutions_by_steps(self.get_plans_from_goals(goals))
+
+        if len(solutions) > 0:
+            return solutions
 
         # At the moment, this code plans for one goal at a time.
         # Ideally, it should consider all the goals and plan accordingly
         # Instead, this code chooses the next unreached goal and plan for reaching that
         # After the goal is reached, it moves to next goal and plans accordingly
         # all_goals = all_goals + self.create_goals_from_expected_actions() + self.create_goals_from_expected_effects()
-        for goal in all_goals:
+
+        # print('Removing the impossible solutions')
+        return []
+
+    def sort_goals_by_priority(self, goals):
+        return sorted(goals, key=lambda goal: goal.priority.value, reverse=True)
+
+    def get_goals_by_priority(self, goals, priority):
+        goals_w_priority = []
+        for goal in goals:
+            if goal.priority == priority:
+                goals_w_priority.append(goal)
+        return goals_w_priority
+
+    def get_plans_from_goals(self, goals):
+        from socialds.action.actions.verbal.request_confirmation import (
+            RequestConfirmation,
+        )
+        from socialds.action.actions.verbal.request_action import RequestAction
+
+        all_conditions = []
+        for goal in goals:
             if goal.is_reached(self.agent):
                 continue
             elif self.agent not in goal.known_by:
@@ -91,14 +127,6 @@ class Planner:
                         all_conditions.append(condition)
                 # break
 
-        # from socialds.action.action import Action
-        # expected_actions: List[Action] = []
-        # expected_effects: List[Effect] = []
-        # for expected_action_relation in self.agent.relation_storages[RSType.EXPECTED_ACTIONS]:
-        #     expected_actions.append(expected_action_relation.right)
-        # for expected_effect_relation in self.agent.relation_storages[RSType.EXPECTED_EFFECTS]:
-        #     expected_effects.append(expected_effect_relation.right)
-
         condition_solutions = []
         plans = []
         for condition in all_conditions:
@@ -107,6 +135,7 @@ class Planner:
             if isinstance(condition, AgentDoesAction):
                 condition_solutions.append(
                     ConditionSolution(
+                        priority=condition.priority,
                         condition=condition,
                         desc="by performing the specific action",
                         steps=[condition.action],
@@ -118,6 +147,7 @@ class Planner:
                 action.switch_done_by_with_recipient_if_not_pronoun()
                 condition_solutions.append(
                     ConditionSolution(
+                        priority=condition.priority,
                         condition=condition,
                         desc="by requesting other agent to do it",
                         steps=[
@@ -139,6 +169,7 @@ class Planner:
                         actions.append(action)
                 condition_solutions.append(
                     ConditionSolution(
+                        priority=condition.priority,
                         condition=condition,
                         desc="by performing one of the actions, starting from the first one",
                         steps=actions,
@@ -163,6 +194,7 @@ class Planner:
                     # )
                     condition_solutions.append(
                         ConditionSolution(
+                            priority=condition.priority,
                             condition=condition,
                             desc="by remembering it",
                             steps=[
@@ -205,6 +237,7 @@ class Planner:
                         condition_solutions.append(
                             ConditionSolution(
                                 condition=condition,
+                                priority=condition.priority,
                                 desc="by learning it from another agent",
                                 steps=[
                                     AddExpectedEffect(
@@ -236,6 +269,7 @@ class Planner:
                     else:
                         condition_solutions.append(
                             ConditionSolution(
+                                priority=condition.priority,
                                 condition=condition,
                                 desc="by confirming it with an agent",
                                 steps=[
@@ -263,6 +297,7 @@ class Planner:
                 else:
                     condition_solutions.append(
                         ConditionSolution(
+                            priority=condition.priority,
                             condition=condition,
                             desc="by teaching it",
                             steps=[
@@ -277,6 +312,7 @@ class Planner:
 
                     condition_solutions.append(
                         ConditionSolution(
+                            priority=condition.priority,
                             condition=condition,
                             desc="by confirming it",
                             steps=[
@@ -293,6 +329,7 @@ class Planner:
 
                     condition_solutions.append(
                         ConditionSolution(
+                            priority=condition.priority,
                             condition=condition,
                             desc="by denying it",
                             steps=[
@@ -316,6 +353,7 @@ class Planner:
             elif isinstance(condition, AgentAtPlace):
                 condition_solutions.append(
                     ConditionSolution(
+                        priority=condition.priority,
                         condition=condition,
                         desc="by moving to the place",
                         steps=[
@@ -340,6 +378,7 @@ class Planner:
                 )
                 condition_solutions.append(
                     ConditionSolution(
+                        priority=condition.priority,
                         condition=condition,
                         desc="by asking for the permit to move to the place",
                         steps=[
@@ -375,6 +414,7 @@ class Planner:
                 )
                 condition_solutions.append(
                     ConditionSolution(
+                        priority=condition.priority,
                         condition=condition,
                         desc="by giving permit to the agent to change his place",
                         steps=[
@@ -433,16 +473,14 @@ class Planner:
                         if action is not None:
                             condition_solutions.append(
                                 ConditionSolution(
+                                    priority=condition.priority,
                                     condition=condition,
                                     desc="by performing the actions in the sequence",
                                     steps=[action],
                                 )
                             )
                             plans.append(Plan([action]))
-
-        # print('Removing the impossible solutions')
-        solutions = self.filter_solutions_by_steps(condition_solutions)
-        return solutions
+        return condition_solutions
 
     def create_goals_from_expected_actions(self):
         goals = []
@@ -528,6 +566,36 @@ class Planner:
                     )
         self.agent.relation_storages[RSType.GOALS].add_multi(goals)
         self.clear_expected_effects()
+        return goals
+
+    def create_goals_from_expectations(self):
+        from socialds.session import Session
+
+        ongoing_sessions: List[Session] = (
+            self.agent.session_manager.get_all_ongoing_sessions()
+        )
+        goals: List[Goal] = []
+        for ongoing_session in ongoing_sessions:
+            expectations = ongoing_session.expectations
+            for expectation in expectations:
+                if expectation.status == ExpectationStatus.ONGOING:
+                    action = expectation.get_next_step().action
+                    if action.done_by == self.agent:
+                        goals.append(
+                            Goal(
+                                owner=self.agent,
+                                name="created goal from the expectation {}".format(
+                                    expectation
+                                ),
+                                conditions=[
+                                    AgentDoesAction(
+                                        agent=self.agent, action=action, tense=Tense.ANY
+                                    )
+                                ],
+                                known_by=[self.agent],
+                                priority=Priority.HIGH,
+                            )
+                        )
         return goals
 
     def filter_solutions_by_steps(self, solutions: List[ConditionSolution]):

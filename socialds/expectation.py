@@ -3,7 +3,7 @@ from enum import Enum
 from typing import List
 
 from socialds.action.action_obj import ActionObj
-from socialds.enums import Tense, DSAction, DSActionByType
+from socialds.enums import Priority, Tense, DSAction, DSActionByType
 from socialds.expectation_step import ExpectationStep
 from socialds.message import Message
 from socialds.other.dst_pronouns import DSTPronoun
@@ -29,6 +29,7 @@ class Expectation:
         status: ExpectationStatus,
         steps: List[ExpectationStep],
         repeatable=False,
+        priority: Priority = Priority.MID,
     ):
         """
         Creates an expectation of an action sequence that is expected to be seen during the dialogue.
@@ -44,6 +45,7 @@ class Expectation:
         self.etype = etype
         self.status = status
         self.step = steps
+        self.priority = priority
         self.steps_left = copy(steps)
         self.steps_done = []
         self.step_symbols = {}
