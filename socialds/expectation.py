@@ -113,6 +113,14 @@ class Expectation:
         if is_to_be_removed:
             self.steps_left.remove(step)
             self.steps_done.append(step)
+
+        if (
+            len(self.steps_left) != 0
+            and len(self.steps_done) != 0
+            and self.status == ExpectationStatus.NOT_STARTED
+        ):
+            self.status = ExpectationStatus.ONGOING
+
         if len(self.steps_left) == 0:
             if self.status is not ExpectationStatus.COMPLETED:
                 self.status = ExpectationStatus.COMPLETED
