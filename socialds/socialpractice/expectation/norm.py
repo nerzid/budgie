@@ -5,28 +5,44 @@ from typing import List
 from socialds.action.action_obj import ActionObj
 from socialds.action.effects.effect import Effect
 from socialds.conditions.condition import Condition
-from socialds.enums import DSActionByType, DSAction
+from socialds.enums import DSActionByType, DSAction, Priority
 from socialds.expectation import Expectation, ExpectationType, ExpectationStatus
 from socialds.expectation_step import ExpectationStep
 
 
 class NormStatus(Enum):
-    NOT_STARTED = 'NOT STARTED'
-    FOLLOWED = 'FOLLOWED'
-    VIOLATED = 'VIOLATED'
-    SKIPPED = 'SKIPPED'
-    COMPLETED = 'COMPLETED'
+    NOT_STARTED = "NOT STARTED"
+    FOLLOWED = "FOLLOWED"
+    VIOLATED = "VIOLATED"
+    SKIPPED = "SKIPPED"
+    COMPLETED = "COMPLETED"
 
 
 class Norm(Expectation):
-    def __init__(self, name: str,
-                 steps: List[ExpectationStep],
-                 violation_conditions: List[Condition] = None,
-                 skipping_conditions: List[Condition] = None,
-                 violation_effects: List[Effect] = None,
-                 skipping_effects: List[Effect] = None,
-                 completion_effects: List[Effect] = None):
-        super().__init__(name, ExpectationType.NORM, ExpectationStatus.NOT_STARTED, steps)
+    def __init__(
+        self,
+        name: str,
+        starting_conditions: List[Condition],
+        symbol_values: dict,
+        steps: List[ExpectationStep],
+        repeatable: bool = False,
+        priority: Priority = Priority.MID,
+        violation_conditions: List[Condition] = None,
+        skipping_conditions: List[Condition] = None,
+        violation_effects: List[Effect] = None,
+        skipping_effects: List[Effect] = None,
+        completion_effects: List[Effect] = None,
+    ):
+        super().__init__(
+            name=name,
+            starting_conditions=starting_conditions,
+            symbol_values=symbol_values,
+            etype=ExpectationType.NORM,
+            status=ExpectationStatus.NOT_STARTED,
+            steps=steps,
+            repeatable=repeatable,
+            priority=priority,
+        )
         if violation_conditions is None:
             violation_conditions = []
         if skipping_conditions is None:
@@ -45,29 +61,28 @@ class Norm(Expectation):
         self.completion_effects = completion_effects
 
     def __repr__(self):
-        text = 'Norm: ' + self.name + '(' + self.status.value + ')' + '\n'
+        text = "Norm: " + self.name + "(" + self.status.value + ")" + "\n"
 
-        text += 'Actions:\n'
+        text += "Actions:\n"
         i = 1
         for action in self.step:
-            text += textwrap.indent(text="%i-) %s\n" % (i, action), prefix='  ')
+            text += textwrap.indent(text="%i-) %s\n" % (i, action), prefix="  ")
             i += 1
 
-        text += 'Skipping Conditions \n'
+        text += "Skipping Conditions \n"
         for condition in self.skipping_conditions:
-            text += textwrap.indent(text="%s\n" % condition, prefix='  ')
+            text += textwrap.indent(text="%s\n" % condition, prefix="  ")
 
-        text += 'Completion Effects \n'
+        text += "Completion Effects \n"
         for effect in self.completion_effects:
-            text += textwrap.indent(text="%s\n" % effect, prefix='  ')
+            text += textwrap.indent(text="%s\n" % effect, prefix="  ")
 
-        text += 'Violation Effects \n'
+        text += "Violation Effects \n"
         for effect in self.violation_effects:
-            text += textwrap.indent(text="%s\n" % effect, prefix='  ')
+            text += textwrap.indent(text="%s\n" % effect, prefix="  ")
         return text
 
     def update_status(self, agent):
-
         """
         The expectation status of a norm can be not_started, ongoing, completed or failed.
         Every norm starts as not_started by default. Then after the dialogue system is initialized
@@ -98,7 +113,10 @@ class Norm(Expectation):
 
         """
         super().update_status(agent)
-        if self.status == ExpectationStatus.COMPLETED or self.status == ExpectationStatus.FAILED:
+        if (
+            self.status == ExpectationStatus.COMPLETED
+            or self.status == ExpectationStatus.FAILED
+        ):
             return
 
         self.update_norm_status(agent)
@@ -113,7 +131,10 @@ class Norm(Expectation):
         if all the start conditions are true and the norm status is not SKIPPED or VIOLATED,
         then it is FOLLOWED
         """
-        if self.norm_status == NormStatus.SKIPPED or self.norm_status == NormStatus.VIOLATED:
+        if (
+            self.norm_status == NormStatus.SKIPPED
+            or self.norm_status == NormStatus.VIOLATED
+        ):
             return
 
         a_condition_is_true = False
@@ -125,14 +146,18 @@ class Norm(Expectation):
         if a_condition_is_true:
             self.norm_status = NormStatus.SKIPPED
             self.status = ExpectationStatus.COMPLETED
-            agent.message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                       ds_action_by='Dialogue System',
-                                       message='Norm {} is skipped!'.format(self.name),
-                                       ds_action=DSAction.DISPLAY_LOG.value)
-            agent.message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                       ds_action_by='Dialogue System',
-                                       message='Expectation {} is completed!'.format(self.name),
-                                       ds_action=DSAction.DISPLAY_LOG.value)
+            agent.message_streamer.add(
+                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                ds_action_by="Dialogue System",
+                message="Norm {} is skipped!".format(self.name),
+                ds_action=DSAction.DISPLAY_LOG.value,
+            )
+            agent.message_streamer.add(
+                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                ds_action_by="Dialogue System",
+                message="Expectation {} is completed!".format(self.name),
+                ds_action=DSAction.DISPLAY_LOG.value,
+            )
             self.activate_effects(self.skipping_effects)
             return
 
@@ -144,14 +169,18 @@ class Norm(Expectation):
         if a_condition_is_true:
             self.norm_status = NormStatus.VIOLATED
             self.status = ExpectationStatus.FAILED
-            agent.message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                       ds_action_by='Dialogue System',
-                                       message='Norm {} is violated!'.format(self.name),
-                                       ds_action=DSAction.DISPLAY_LOG.value)
-            agent.message_streamer.add(ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-                                       ds_action_by='Dialogue System',
-                                       message='Expectation {} is failed!'.format(self.name),
-                                       ds_action=DSAction.DISPLAY_LOG.value)
+            agent.message_streamer.add(
+                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                ds_action_by="Dialogue System",
+                message="Norm {} is violated!".format(self.name),
+                ds_action=DSAction.DISPLAY_LOG.value,
+            )
+            agent.message_streamer.add(
+                ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+                ds_action_by="Dialogue System",
+                message="Expectation {} is failed!".format(self.name),
+                ds_action=DSAction.DISPLAY_LOG.value,
+            )
             self.activate_effects(self.violation_effects)
             return
 

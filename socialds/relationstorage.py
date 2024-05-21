@@ -25,6 +25,7 @@ class RSType(Enum):
     EXPECTED_EFFECTS = "Expected Effects"
     VALUES = "Values"
     GOALS = "Goals"
+    FEELINGS = "Feelings"
     UPCOMING_ACTIONS = "Upcoming Actions"
     ANY = "Any RS"
 

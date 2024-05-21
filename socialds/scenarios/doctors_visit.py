@@ -1,5 +1,6 @@
 from logging import PlaceHolder
 from flask import request
+from torch import ne
 from socialds.action.actions.physical.calmdown import CalmDown
 from socialds.action.actions.physical.worry import Worry
 from socialds.action.actions.verbal.bye import Bye
@@ -11,6 +12,7 @@ from socialds.action.actions.verbal.request_confirmation import (
 from socialds.action.effects.functional.change_place import ChangePlace
 from socialds.action.effects.functional.gain_knowledge import GainKnowledge
 from socialds.agent_placeholder import AgentPlaceholder
+from socialds.any import any_information
 from socialds.any.any_information import AnyInformation
 from socialds.conditions.has_permit import HasPermit
 from socialds.conditions.session_status_is import SessionStatusIs
@@ -1099,14 +1101,30 @@ def sp_main():
 
     greeting_norm = Norm(
         name="People greet each other",
+        starting_conditions=[
+            AgentDoesAction(agent=any_agent,
+                            action=Greet(),
+                            tense=Tense.PAST,
+                            negation=Negation.FALSE)
+            ],
+        symbol_values={PlaceholderSymbol.X: 'c0.action.done_by',
+                       PlaceholderSymbol.Y: 'c0.action.recipient'},
         steps=[
+            # ExpectationStep(
+            #     action=Greet,
+            #     action_attrs={
+            #         "done_by": PlaceholderSymbol.X,
+            #         "recipient": PlaceholderSymbol.Y,
+            #     },
+            #     done_by=PlaceholderSymbol.X,
+            #     recipient=PlaceholderSymbol.Y,
+            # ),
             ExpectationStep(
-                action=Greet(),
-                done_by=PlaceholderSymbol.X,
-                recipient=PlaceholderSymbol.Y,
-            ),
-            ExpectationStep(
-                action=Greet(),
+                action=Greet,
+                action_attrs={
+                    "done_by": PlaceholderSymbol.Y,
+                    "recipient": PlaceholderSymbol.X,
+                },
                 done_by=PlaceholderSymbol.Y,
                 recipient=PlaceholderSymbol.X,
             ),
@@ -1127,14 +1145,42 @@ def sp_main():
 
     calm_worry_norm = Norm(
         name="Calm patient when the patient worries",
+        starting_conditions=[
+            AgentDoesAction(agent=agent_patient, 
+                            action=Worry(about=any_information,
+                                        done_by=agent_patient,
+                                        recipient=agent_doctor,
+                                        tense=Tense.ANY,
+                                        negation=Negation.FALSE), 
+                            tense=Tense.PAST)
+        ],
+        symbol_values={
+            PlaceholderSymbol.X: "c0.action.done_by",
+            PlaceholderSymbol.Y: "c0.action.recipient",
+            PlaceholderSymbol.Z: "c0.action.about",
+        },
         steps=[
+            # ExpectationStep(
+            #     action=Worry,
+            #     action_attrs={
+            #         "about": PlaceholderSymbol.Z,
+            #         "done_by": PlaceholderSymbol.X,
+            #         "recipient": PlaceholderSymbol.Y,
+            #         "tense": Tense.ANY,
+            #         "negation": Negation.ANY,
+            #     },
+            #     done_by=PlaceholderSymbol.X,
+            #     recipient=PlaceholderSymbol.Y,
+            # ),
             ExpectationStep(
-                action=Worry(about=AnyInformation()),
-                done_by=PlaceholderSymbol.X,
-                recipient=PlaceholderSymbol.Y,
-            ),
-            ExpectationStep(
-                action=CalmDown(about=AnyInformation()),
+                action=CalmDown,
+                action_attrs={
+                    "about": PlaceholderSymbol.Z,
+                    "done_by": PlaceholderSymbol.Y,
+                    "recipient": PlaceholderSymbol.X,
+                    "tense": Tense.ANY,
+                    "negation": Negation.ANY,
+                },
                 done_by=PlaceholderSymbol.Y,
                 recipient=PlaceholderSymbol.X,
             ),
@@ -1148,14 +1194,30 @@ def sp_main():
 
     goodbye_norm = Norm(
         name="People said goodbye to each other",
+        starting_conditions=[
+            AgentDoesAction(agent=any_agent,
+                            action=Bye(),
+                            tense=Tense.PAST,
+                            negation=Negation.FALSE)
+            ],
+        symbol_values={PlaceholderSymbol.X: 'c0.action.done_by',
+                       PlaceholderSymbol.Y: 'c0.action.recipient'},
         steps=[
+            # ExpectationStep(
+            #     action=Bye,
+            #     action_attrs={
+            #         "done_by": PlaceholderSymbol.X,
+            #         "recipient": PlaceholderSymbol.Y,
+            #     },
+            #     done_by=PlaceholderSymbol.X,
+            #     recipient=PlaceholderSymbol.Y,
+            # ),
             ExpectationStep(
-                action=Bye(),
-                done_by=PlaceholderSymbol.X,
-                recipient=PlaceholderSymbol.Y,
-            ),
-            ExpectationStep(
-                action=Bye(),
+                action=Bye,
+                action_attrs={
+                    "done_by": PlaceholderSymbol.Y,
+                    "recipient": PlaceholderSymbol.X,
+                },
                 done_by=PlaceholderSymbol.Y,
                 recipient=PlaceholderSymbol.X,
             ),

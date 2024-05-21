@@ -53,6 +53,9 @@ class RSHolder:
                         rsholder_name + "'s Upcoming Actions"
                     ),
                     rs.RSType.GOALS: rs.RelationStorage(rsholder_name + "'s Goals"),
+                    rs.RSType.FEELINGS: rs.RelationStorage(
+                        rsholder_name + "' Feelings"
+                    ),
                 }
             elif rsholder_type is RSHolderType.RESOURCE:
                 self.relation_storages = {

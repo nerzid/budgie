@@ -7,7 +7,7 @@ import socialds.states.relation as r
 from socialds.rs_holder import RSHolder
 
 
-class AddRelationToRSHolder(StateOperation):
+class DeleteRelationFromRSHolder(StateOperation):
     def __init__(
         self,
         relation: r.Relation | StateOperation,
@@ -32,4 +32,4 @@ class AddRelationToRSHolder(StateOperation):
         self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
         self.execute_param_state_operations()
-        self.rsholder.relation_storages[self.rstype].add(self.relation)
+        self.rsholder.relation_storages[self.rstype].remove(self.relation)

@@ -22,6 +22,7 @@ class RType(Enum):
     IS_AT = "is_at"
     IS_IN = "is_in"
     SAYS = "says"
+    FEELS = "feels"
     ANY = "any"
 
 
@@ -208,6 +209,26 @@ class Relation(State, DSTPronounHolder):
                 Tense.PRESENT: "is in-any",
                 Tense.FUTURE: "will be in-any",
                 Tense.ANY: "is in(any)-any",
+            },
+        },
+        RType.FEELS: {
+            Negation.FALSE: {
+                Tense.PAST: "felt",
+                Tense.PRESENT: "feels",
+                Tense.FUTURE: "will feel",
+                Tense.ANY: "feel-any",
+            },
+            Negation.TRUE: {
+                Tense.PAST: "didn't feel",
+                Tense.PRESENT: "doesn't feel",
+                Tense.FUTURE: "won't feel",
+                Tense.ANY: "doesn't feel-any",
+            },
+            Negation.ANY: {
+                Tense.PAST: "felt-any",
+                Tense.PRESENT: "feels-any",
+                Tense.FUTURE: "will feel-any",
+                Tense.ANY: "feels(any)-any",
             },
         },
         RType.EFFECT: {
