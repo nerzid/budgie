@@ -9,6 +9,7 @@ from socialds.agent import Agent
 from socialds.scenarios.scenario import Scenario
 from socialds.utterance import Utterance
 from Levenshtein import ratio, jaro_winkler
+from ollama import Client
 
 # # from sentence_transformers import SentenceTransformer, models
 # import nltk
@@ -44,6 +45,8 @@ class UtterancesManager:
 
     def __init__(self, scenario: Scenario):
         self.utterances = scenario.utterances
+        self.client = Client(host='http://[REDACTED_IP]:[REDACTED_PORT]')
+        self.llm_messages = []
         self.utts_with_embs = []
         # for utt in self.utterances:
         #     self.utts_with_embs.append((utt, model.encode(remove_stop_words_from_sentence(utt.text))))
@@ -83,6 +86,23 @@ class UtterancesManager:
                 best_match = (utt, ratio_score)
         print(best_match)
         return best_match[0]
+
+    def get_utterance_from_llm(self, input: str, checker: Agent):
+        if len(self.utterances) == 0:
+            return
+        print(self.utterances)
+        # client = Client(host='http://[REDACTED_IP]:[REDACTED_PORT]')
+        self.llm_messages.append({
+            'role': 'user',
+            'content': input,
+        })
+        response = self.client.chat(model='lowtemp-llama3', messages=self.llm_messages)
+        self.llm_messages.append({
+            'role': 'assistant',
+            'content': response['message']['content']
+        })
+        return response
+
 
     def get_utterance_by_smart_string_match(self, input: str, checker: Agent):
         pass

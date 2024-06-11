@@ -87,6 +87,15 @@ def send_message():
         dm.communicate(
             sender=sender_agent, receiver=receiver_agent, message=matched_utterance
         )
+        # matched_utterance = dm.utterances_manager.get_utterance_from_llm(user_text, sender_agent)['message']['content']
+        # dm.message_streamer.add(
+        #     message=Message(
+        #         ds_action=DSAction.DISPLAY_UTTERANCE.value,
+        #         ds_action_by="Dialogue Manager",
+        #         ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
+        #         message=matched_utterance
+        #     )
+        # )
     elif ds_action == DSAction.USER_CHOSE_UTTERANCE.value:
         utterance_str = message.get("message")
         sender_agent_id = message.get("sender_agent_id")
@@ -175,6 +184,23 @@ def send_message():
                 message=dm.utterances_manager.get_utterance_by_string_match(
                     input_text, sender_agent
                 ).text,
+            )
+        )
+    elif ds_action == DSAction.REQUEST_UTTERANCE_BY_LLM.value:
+        dm = dialogue_managers[session_id]
+        input_text = message.get("message").replace('"', "")
+        sender_agent_id = message.get("ds_action_by")
+        sender_agent = dm.get_agent_by_id(sender_agent_id)
+        receiver_agent = dm.get_other_agent(sender_agent_id)
+        sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
+        receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
+        message=dm.utterances_manager.get_utterance_from_llm(input_text, sender_agent).text
+        dm.message_streamer.add(
+            message=Message(
+                ds_action=DSAction.SEND_UTTERANCE_BY_STRING_MATCH.value,
+                ds_action_by="Dialogue Manager",
+                ds_action_by_type=DSActionByType.DIALOGUE_MANAGER.value,
+                message=message,
             )
         )
     else:

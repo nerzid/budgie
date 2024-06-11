@@ -16,11 +16,9 @@ class Heal(Action):
 
     def __str__(self):
         if self.done_by is None:
-            negation_str = (f"is healed", f"isn't healed")[self.negation]
-            return "%s %s %s" % (self.healed, negation_str, self.get_times_str())
+            return "%s %s %s" % (self.healed, self.negation, self.get_times_str())
         else:
-            negation_str = (f"heals", f"doesn't heal")[self.negation]
-            return "%s %s %s %s" % (self.done_by, negation_str, self.healed, self.get_times_str())
+            return "%s %s %s %s" % (self.done_by, self.negation, self.healed, self.get_times_str())
 
     def __repr__(self):
         if self.done_by is None:

@@ -52,8 +52,8 @@ class DialogueManager:
         self.utterances_manager = UtterancesManager(scenario)
         self.dialogue_history = dialogue_history
         if self.dialogue_history is None:
-            self.dialogue_history = RelationStorage("Dialogue History")
-        self.action_history = RelationStorage("Action History")
+            self.dialogue_history = RelationStorage("Dialogue History") # dialogue history is shared between all the agents
+        self.action_history = RelationStorage("Action History") # action history is shared between all the agents
         self.allow_duplicate_utterances = allow_duplicate_utterances
         self.message_streamer = message_streamer
         self.session_manager = SessionManager()

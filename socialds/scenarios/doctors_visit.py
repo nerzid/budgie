@@ -19,6 +19,7 @@ from socialds.conditions.session_status_is import SessionStatusIs
 from socialds.expectation_step import ExpectationStep
 from socialds.managers.dialogue_manager import DialogueManager
 from socialds.managers.session_manager import SessionManager
+from socialds.placeholder import Placeholder
 from socialds.requirement import Requirement
 from socialds.action.action_obj import ActionObjType
 from socialds.action.actionoperators.op_and import And
@@ -992,16 +993,16 @@ def sp_main():
                 )
             ],
         ),
-        Utterance(
-            "Did you have a cold recently?",
-            [
-                Check(
-                    r_tense=Tense.PRESENT,
-                    checked=info_patient_had_cold,
-                    recipient=DSTPronoun.YOU,
-                )
-            ],
-        ),
+        # Utterance(
+        #     "Did you have a cold recently?",
+        #     [
+        #         Check(
+        #             r_tense=Tense.PRESENT,
+        #             checked=info_patient_had_cold,
+        #             recipient=DSTPronoun.YOU,
+        #         )
+        #     ],
+        # ),
         Utterance(
             "Yes, is that why?",
             [
@@ -1098,17 +1099,21 @@ def sp_main():
     ]
 
     utterances.extend(basic_utterances)
-
+    any_agent.dialogue_system = agent_doctor.dialogue_system
     greeting_norm = Norm(
         name="People greet each other",
-        starting_conditions=[
-            AgentDoesAction(agent=any_agent,
-                            action=Greet(),
-                            tense=Tense.PAST,
-                            negation=Negation.FALSE)
-            ],
-        symbol_values={PlaceholderSymbol.X: 'c0.action.done_by',
-                       PlaceholderSymbol.Y: 'c0.action.recipient'},
+        start_conditions=[
+            AgentDoesAction(
+                agent=any_agent,
+                action=Greet(),
+                tense=Tense.PAST,
+                negation=Negation.FALSE,
+            )
+        ],
+        symbol_values={
+            Placeholder("x"): "0.action.done_by",
+            Placeholder("y"): "0.action.recipient",
+        },
         steps=[
             # ExpectationStep(
             #     action=Greet,
@@ -1122,11 +1127,11 @@ def sp_main():
             ExpectationStep(
                 action=Greet,
                 action_attrs={
-                    "done_by": PlaceholderSymbol.Y,
-                    "recipient": PlaceholderSymbol.X,
+                    "done_by": Placeholder("y"),
+                    "recipient": Placeholder("x"),
                 },
-                done_by=PlaceholderSymbol.Y,
-                recipient=PlaceholderSymbol.X,
+                done_by=Placeholder("y"),
+                recipient=Placeholder("x"),
             ),
         ],
         skipping_conditions=[
@@ -1145,19 +1150,23 @@ def sp_main():
 
     calm_worry_norm = Norm(
         name="Calm patient when the patient worries",
-        starting_conditions=[
-            AgentDoesAction(agent=agent_patient, 
-                            action=Worry(about=any_information,
-                                        done_by=agent_patient,
-                                        recipient=agent_doctor,
-                                        tense=Tense.ANY,
-                                        negation=Negation.FALSE), 
-                            tense=Tense.PAST)
+        start_conditions=[
+            AgentDoesAction(
+                agent=agent_patient,
+                action=Worry(
+                    about=any_information,
+                    done_by=agent_patient,
+                    recipient=agent_doctor,
+                    tense=Tense.ANY,
+                    negation=Negation.FALSE,
+                ),
+                tense=Tense.PAST,
+            )
         ],
         symbol_values={
-            PlaceholderSymbol.X: "c0.action.done_by",
-            PlaceholderSymbol.Y: "c0.action.recipient",
-            PlaceholderSymbol.Z: "c0.action.about",
+            Placeholder("x"): "0.action.done_by",
+            Placeholder("y"): "0.action.recipient",
+            Placeholder("z"): "0.action.about",
         },
         steps=[
             # ExpectationStep(
@@ -1175,14 +1184,14 @@ def sp_main():
             ExpectationStep(
                 action=CalmDown,
                 action_attrs={
-                    "about": PlaceholderSymbol.Z,
-                    "done_by": PlaceholderSymbol.Y,
-                    "recipient": PlaceholderSymbol.X,
+                    "about": Placeholder("z"),
+                    "done_by": Placeholder("y"),
+                    "recipient": Placeholder("x"),
                     "tense": Tense.ANY,
                     "negation": Negation.ANY,
                 },
-                done_by=PlaceholderSymbol.Y,
-                recipient=PlaceholderSymbol.X,
+                done_by=Placeholder("y"),
+                recipient=Placeholder("x"),
             ),
         ],
         skipping_conditions=[],
@@ -1194,14 +1203,18 @@ def sp_main():
 
     goodbye_norm = Norm(
         name="People said goodbye to each other",
-        starting_conditions=[
-            AgentDoesAction(agent=any_agent,
-                            action=Bye(),
-                            tense=Tense.PAST,
-                            negation=Negation.FALSE)
-            ],
-        symbol_values={PlaceholderSymbol.X: 'c0.action.done_by',
-                       PlaceholderSymbol.Y: 'c0.action.recipient'},
+        start_conditions=[
+            AgentDoesAction(
+                agent=any_agent,
+                action=Bye(),
+                tense=Tense.PAST,
+                negation=Negation.FALSE
+            )
+        ],
+        symbol_values={
+            Placeholder("x"): "0.action.done_by",
+            Placeholder("y"): "0.action.recipient",
+        },
         steps=[
             # ExpectationStep(
             #     action=Bye,
@@ -1215,11 +1228,11 @@ def sp_main():
             ExpectationStep(
                 action=Bye,
                 action_attrs={
-                    "done_by": PlaceholderSymbol.Y,
-                    "recipient": PlaceholderSymbol.X,
+                    "done_by": Placeholder("y"),
+                    "recipient": Placeholder("x"),
                 },
-                done_by=PlaceholderSymbol.Y,
-                recipient=PlaceholderSymbol.X,
+                done_by=Placeholder("y"),
+                recipient=Placeholder("x"),
             ),
         ],
         skipping_conditions=[

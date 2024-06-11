@@ -8,6 +8,7 @@ from socialds.enums import PlaceholderSymbol, Priority, Tense, DSAction, DSActio
 from socialds.expectation_step import ExpectationStep
 from socialds.message import Message
 from socialds.other.dst_pronouns import DSTPronoun
+from socialds.placeholder import Placeholder
 
 
 class ExpectationType(Enum):
@@ -24,15 +25,15 @@ class ExpectationStatus(Enum):
 
 class Expectation:
     def __init__(
-        self,
-        name: str,
-        starting_conditions: List[Condition],
-        symbol_values: dict,
-        etype: ExpectationType,
-        status: ExpectationStatus,
-        steps: List[ExpectationStep],
-        repeatable=False,
-        priority: Priority = Priority.MID,
+            self,
+            name: str,
+            start_conditions: List[Condition],
+            symbol_values: dict,
+            etype: ExpectationType,
+            status: ExpectationStatus,
+            steps: List[ExpectationStep],
+            repeatable=False,
+            priority: Priority = Priority.MID,
     ):
         """
         Creates an expectation of an action sequence that is expected to be seen during the dialogue.
@@ -45,7 +46,7 @@ class Expectation:
         """
         self.repeatable = repeatable
         self.name = name
-        self.starting_conditions = starting_conditions
+        self.start_conditions = start_conditions
         self.symbol_values = symbol_values
         self.etype = etype
         self.status = status
@@ -56,18 +57,40 @@ class Expectation:
         self.symbol_to_id = {}
         self.id_to_symbol = {}
         self.id_to_object = {}
+        self.is_symbols_set = False
         for step in steps:
             self.symbol_to_id[step.done_by] = None
 
+    def check_start_conditions(self, agent):
+        for condition in self.start_conditions:
+            if not condition.check(checker=agent):
+                return False
+        return True
+
     def update_status(self, agent):
-        steps_to_be_removed = []
-        if agent.id in self.id_to_symbol:
-            agent_symbol = self.id_to_symbol[agent.id]
+        if (
+                self.status == ExpectationStatus.COMPLETED
+                or self.status == ExpectationStatus.FAILED
+        ):
+            return
+
+        if self.status != ExpectationStatus.ONGOING and self.check_start_conditions(agent):
+            pass
         else:
-            agent_symbol = None
+            return
+
+        if self.is_symbols_set is False:
+            self.set_symbol_values_from_start_conditions(agent)
 
         if len(self.steps_left) == 0:
             return
+
+        steps_to_be_removed = []
+        # if agent.id in self.id_to_symbol:
+        #     agent_symbol = self.id_to_symbol[agent.id]
+        # else:
+        #     agent_symbol = None
+
         step = self.steps_left[0]
         is_to_be_removed = False
 
@@ -84,7 +107,7 @@ class Expectation:
         for found_action in found_actions:
             matched = True
             for key, value in step.action_attrs.items():
-                if isinstance(value, PlaceholderSymbol):
+                if isinstance(value, Placeholder):
                     pass
                 else:
                     attribute = getattr(found_action, key)
@@ -93,9 +116,9 @@ class Expectation:
                     # e.g., if one is DSTPronoun.I and the other is Jane(doctor), it needs to use equals_with_pronouns
                     # e.g., if both of them are Jane(doctor), then attribute == value would work as they refer to the same object
                     if attribute == value or (
-                        hasattr(attribute, "equals_with_pronouns")
-                        and callable(attribute.equals_with_pronouns)
-                        and attribute.equals_with_pronouns(value, agent.pronouns)
+                            hasattr(attribute, "equals_with_pronouns")
+                            and callable(attribute.equals_with_pronouns)
+                            and attribute.equals_with_pronouns(value, agent.pronouns)
                     ):
                         continue
                     else:
@@ -107,7 +130,7 @@ class Expectation:
 
         for matched_action in matched_actions:
             for key, value in step.action_attrs.items():
-                if isinstance(value, PlaceholderSymbol):
+                if isinstance(value, Placeholder):
                     attribute = getattr(matched_action, key)
                     self.symbol_to_id[value] = attribute.id
                     self.id_to_symbol[attribute.id] = value
@@ -119,34 +142,36 @@ class Expectation:
             # e.g., the patient can worry about two different things, which means that two different norms must be started and responded to
         if len(matched_actions) > 0:
             action = step.action(**step.action_attrs)
-            # if isinstance(action, Action):
-            #     from socialds.states.relation import Relation
-            #     from socialds.states.relation import RType
+            if isinstance(action, Action):
+                from socialds.states.relation import Relation
+                from socialds.states.relation import RType
 
-            #     # check if the agent did the action in last turn
-            #     if agent.dialogue_system.last_turn_actions.contains(
-            #         Relation(
-            #             left=agent, rtype=RType.ACTION, rtense=Tense.ANY, right=action
-            #         ),
-            #         agent.pronouns,
-            #     ):
+                #     # check if the agent did the action in last turn
+                if agent.dialogue_system.last_turn_actions.contains(
+                    Relation(
+                        left=agent, rtype=RType.ACTION, rtense=Tense.ANY, right=action
+                    ),
+                    agent.pronouns,
+                ):
+                    is_to_be_removed = True
+
             #         # if the agent isn't assigned a symbol and
             #         # if the step's done_by symbol isn't assigned to any agent
             #         # then the agent can do the step
-            if (agent_symbol is None and self.symbol_to_id[step.done_by] is None) or (
-                step.done_by == agent_symbol
-            ):
-                is_to_be_removed = True
-                self.symbol_to_id[step.done_by] = agent.id
-                self.id_to_symbol[agent.id] = step.done_by
-                self.id_to_object[agent.id] = agent
-                recipient = action.recipient
-                if isinstance(recipient, DSTPronoun):
-                    recipient = agent.pronouns[recipient]
-                self.symbol_to_id[step.recipient] = recipient.id
-                self.id_to_symbol[recipient.id] = step.recipient
-                self.id_to_object[recipient.id] = recipient
-                self.update_symbols_for_actions_in_steps()
+            # if (agent_symbol is None and self.symbol_to_id[step.done_by] is None) or (
+            #         step.done_by == agent_symbol
+            # ):
+            #     is_to_be_removed = True
+            #     self.symbol_to_id[step.done_by] = agent.id
+            #     self.id_to_symbol[agent.id] = step.done_by
+            #     self.id_to_object[agent.id] = agent
+            #     recipient = action.recipient
+            #     if isinstance(recipient, DSTPronoun):
+            #         recipient = agent.pronouns[recipient]
+            #     self.symbol_to_id[step.recipient] = recipient.id
+            #     self.id_to_symbol[recipient.id] = step.recipient
+            #     self.id_to_object[recipient.id] = recipient
+            #     self.update_symbols_for_actions_in_steps()
                 # for step_to_be_removed in steps_to_be_removed:
                 #     if action.equals_with_pronouns(
                 #         step_to_be_removed.action, agent.pronouns
@@ -165,9 +190,9 @@ class Expectation:
                 self.steps_done.append(step)
 
             if (
-                len(self.steps_left) != 0
-                and len(self.steps_done) != 0
-                and self.status == ExpectationStatus.NOT_STARTED
+                    len(self.steps_left) != 0
+                    and len(self.steps_done) != 0
+                    and self.status == ExpectationStatus.NOT_STARTED
             ):
                 self.status = ExpectationStatus.ONGOING
 
@@ -218,6 +243,25 @@ class Expectation:
                                 ds_action=DSAction.DISPLAY_LOG.value,
                             )
                         )
+
+    def set_symbol_values_from_start_conditions(self, agent):
+        c_ix = 0  # condition index
+        for condition in self.start_conditions:
+            for symbol, value in self.symbol_values.items():
+                # e.g., 0.action.done_by
+                # con_ix = 0, con_attr = action, con_attr_attr = done_by
+                con_ix, con_attr_name, con_attr_attr_name = value.split(".")
+                if str(c_ix) != con_ix:
+                    break
+                con_attr = getattr(
+                    condition, con_attr_name
+                )  # this is the action of condition
+                con_attr_attr = getattr(con_attr, con_attr_attr_name)
+                if isinstance(con_attr_attr, DSTPronoun):
+                    con_attr_attr = agent.pronouns[con_attr_attr]
+                self.symbol_values[symbol] = con_attr_attr
+            c_ix += 1
+        self.is_symbols_set = True
 
     def update_symbols_for_actions_in_steps(self):
         for step in self.steps_left:

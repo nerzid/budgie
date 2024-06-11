@@ -48,10 +48,10 @@ class RequestAction(Action):
         )
 
     def __str__(self):
-        return "%s request %s" % (self.done_by.name, self.requested)
+        return "%s requests the action %s" % (self.done_by.name, self.requested)
 
     def __repr__(self):
-        return "%r request %r" % (self.done_by.name, self.requested)
+        return "%r requests the action %r" % (self.done_by.name, self.requested)
 
 
 # Can Joe come into the office?

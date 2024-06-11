@@ -22,7 +22,7 @@ class Norm(Expectation):
     def __init__(
         self,
         name: str,
-        starting_conditions: List[Condition],
+        start_conditions: List[Condition],
         symbol_values: dict,
         steps: List[ExpectationStep],
         repeatable: bool = False,
@@ -35,7 +35,7 @@ class Norm(Expectation):
     ):
         super().__init__(
             name=name,
-            starting_conditions=starting_conditions,
+            start_conditions=start_conditions,
             symbol_values=symbol_values,
             etype=ExpectationType.NORM,
             status=ExpectationStatus.NOT_STARTED,

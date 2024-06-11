@@ -10,6 +10,7 @@
             "type": "debugpy",
             "request": "launch",
             "program": "api.py",
+            "python": "C:/Users/erenc/OneDrive/Masaüstü/GitLab/socially-aware-dialogue-system/venv/Scripts/python.exe",
             "console": "integratedTerminal",
             "env": {"PYTHONUNBUFFERED":"1", "PYDEVD_USE_CYTHON":"NO", "PYDEVD_USE_FRAME_EVAL":"NO"},
             "gevent": true

@@ -46,6 +46,22 @@ class AgentDoesAction(Condition):
                 action_relation, checker.pronouns
             )
 
+    def get_checked_relation(self, checker=None):
+        """
+        Get relation if it exists. E.g., if check() is True then this method returns the relation that exists in rs
+        """
+        if isinstance(self.agent, DSTPronoun):
+            agent = checker.pronouns[self.agent]
+        else:
+            agent = self.agent
+        return agent.dialogue_system.action_history.get_one(
+            left=agent,
+            rtype=RType.ACTION,
+            rtense=self.tense,
+            right=self.action,
+            negation=self.negation,
+            pronouns=checker.pronouns)
+
     # def check(self):
     #     max_count = 1
     #         for time in self.times:
