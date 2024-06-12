@@ -10,8 +10,7 @@ from socialds.managers.dialogue_manager import DialogueManager
 from socialds.message import Message
 from socialds.message_streamer import MessageStreamer
 from socialds.other.dst_pronouns import DSTPronoun
-from socialds.scenarios import doctors_visit
-
+from socialds.scenarios import doctors_visit, eye_dialogue
 
 from flask import Flask, request, session, sessions
 import json
@@ -35,6 +34,8 @@ scenario_functs = {}
 
 session_timeout = 3600
 
+eye_dialogue_id = None
+
 
 @app.route("/send-message", methods=["POST", "OPTIONS"])
 @cross_origin()
@@ -47,7 +48,52 @@ def send_message():
             dm = dialogue_managers[session_id]
 
     ds_action = message.get("ds_action")
-    if ds_action == DSAction.INIT.value:
+    if ds_action == DSAction.INIT_EYE_DIALOGUE.value:
+        session_id = init_session()
+        # scenario = user_chose_scenario(session_id, eye_dialogue_id)
+
+        ms = active_sessions[session_id]["message_streamer"]
+        scenario = eye_dialogue.sp_main(message.get("patient_data"))
+        dialogue_managers[session_id] = DialogueManager(scenario, message_streamer=ms)
+
+        agents_ids_w_name = {}
+        for agent in scenario.agents:
+            agents_ids_w_name[agent.id] = agent.name
+
+        dm = dialogue_managers[session_id]
+        sender_agent_id = 0
+        receiver_agent_id = 0
+        for agent in scenario.agents:
+            if agent.name == 'doctor':
+                sender_agent_id = agent.id
+            else:
+                receiver_agent_id = agent.id
+        user_chose_agent(sender_agent_id, dm)
+        return {
+            'ds_action': DSAction.INIT_EYE_DIALOGUE.value,
+            'ds_action_by': "Dialogue Manager",
+            'ds_action_by_type': DSActionByType.DIALOGUE_MANAGER.value,
+            'message': {
+                'sender_agent_id': sender_agent_id,
+                'receiver_agent_id': receiver_agent_id,
+            },
+            'session_id': session_id,
+        }
+    elif ds_action == DSAction.USER_SENT_UTTERANCE_EYE_DIALOGUE.value:
+        user_text = message.get("message")
+        sender_agent_id = message.get("sender_agent_id")
+        receiver_agent_id = message.get("receiver_agent_id")
+        sender_agent = dm.get_agent_by_id(sender_agent_id)
+        receiver_agent = dm.get_other_agent(sender_agent_id)
+        sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
+        receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
+        matched_utterance = dm.utterances_manager.get_utterance_from_llm(user_text, sender_agent)['message']['content']
+        print(matched_utterance)
+        return {'message': matched_utterance}
+        # dm.communicate(
+        #     sender=sender_agent, receiver=receiver_agent, message=matched_utterance
+        # )
+    elif ds_action == DSAction.INIT.value:
         init_session()
     elif ds_action == DSAction.USER_CHOSE_SCENARIO.value:
         scenario_id = message.get("message").get("scenario_id")
@@ -59,21 +105,6 @@ def send_message():
     elif ds_action == DSAction.START_DIALOGUE.value:
         dm = dialogue_managers[session_id]
         start_dialogue(dm)
-    # elif ds_action == DSAction.USER_CHOSE_MENU_OPTION.value:
-    #     menu_option = message.get("message")
-    #     sender_agent_id = message.get("sender_agent_id")
-    #     receiver_agent_id = message.get("receiver_agent_id")
-    #     sender_agent = dm.get_agent_by_id(sender_agent_id)
-    #     receiver_agent = dm.get_agent_by_id(receiver_agent_id)
-    #     dm.choose_menu_option(sender_agent, menu_option, receiver_agent)
-    #     dm.message_streamer.add(
-    #         message=Message(
-    #             ds_action=DSAction.SESSIONS_INFO.value,
-    #             ds_action_by="Dialogue Manager",
-    #             ds_action_by_type=DSActionByType.DIALOGUE_SYSTEM.value,
-    #             message=dm.session_manager.get_sessions_info_dict(sender_agent),
-    #         )
-    #     )
     elif ds_action == DSAction.USER_SENT_UTTERANCE.value:
         user_text = message.get("message")
         sender_agent_id = message.get("ds_action_by")
@@ -194,7 +225,7 @@ def send_message():
         receiver_agent = dm.get_other_agent(sender_agent_id)
         sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
         receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
-        message=dm.utterances_manager.get_utterance_from_llm(input_text, sender_agent).text
+        message = dm.utterances_manager.get_utterance_from_llm(input_text, sender_agent).text
         dm.message_streamer.add(
             message=Message(
                 ds_action=DSAction.SEND_UTTERANCE_BY_STRING_MATCH.value,
@@ -233,6 +264,7 @@ def init_session():
         )
     )
     stream_data(ms)
+    return session_id
 
 
 def user_chose_scenario(session_id, scenario_id):
@@ -254,6 +286,7 @@ def user_chose_scenario(session_id, scenario_id):
         )
     )
     stream_data(ms)
+    return scenario
 
 
 def user_chose_agent(agent_id, dm: DialogueManager):
@@ -339,6 +372,7 @@ def remove_timed_out_dm_sessions():
 
 
 def stream_data(message_streamer):
+    return
     with app.app_context():
         while message := next(message_streamer.stream(), None):
             print("streaming {}".format(message.message_obj))
@@ -361,6 +395,17 @@ def add_scenarios():
             "name": doctors_visit.SP_NAME,
             "id": doctors_visit_id,
             "funct": doctors_visit.sp_main,
+        },
+    )
+
+    global eye_dialogue_id
+    eye_dialogue_id = str(uuid.uuid4())
+    add_scenario(
+        eye_dialogue_id,
+        {
+            "name": eye_dialogue.SP_NAME,
+            "id": eye_dialogue_id,
+            "funct": eye_dialogue.sp_main,
         },
     )
 
