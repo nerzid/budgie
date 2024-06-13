@@ -53,7 +53,7 @@ def send_message():
         # scenario = user_chose_scenario(session_id, eye_dialogue_id)
 
         ms = active_sessions[session_id]["message_streamer"]
-        scenario = eye_dialogue.sp_main(message.get("patient_data"))
+        scenario = eye_dialogue.sp_main(message['message'])
         dialogue_managers[session_id] = DialogueManager(scenario, message_streamer=ms)
 
         agents_ids_w_name = {}

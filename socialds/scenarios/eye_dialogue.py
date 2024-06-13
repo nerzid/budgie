@@ -105,23 +105,23 @@ def sp_main(data):
     properties = []
     resources = []
 
-    p_patients_name = None
-    p_what_happened = None
     symptoms = []
+    p_patients_name = None
     r_left_eye = None
     r_right_eye = None
     r_both_eyes = None
-    p_when_did_it_happen = None
     p_age_group = None
 
-    p_has_the_patient_had_this_problem_before = None
-    r_contact_lenses = None
-    p_has_the_patient_tried_to_cure_himself = None
-    p_did_the_patient_take_any_drugs_for_his_problem = None
-
-    p_does_the_patient_have_any_allergies = None
-    p_does_the_patient_have_any_rheumatic_diseases = None
-    p_does_the_patients_relatives_have_the_same_problem = None
+    p_what_happened = Property(data['what_happened'])
+    history_questions = data['history_questions']
+    p_is_first_time = Property(history_questions['is_first_time'])
+    p_when_happened = Property(history_questions['when_happened'])
+    p_has_contact_lenses = Property(history_questions['has_contact_lenses'])
+    p_did_self_cure = Property(history_questions['did_self_cure'])
+    p_did_take_drugs = Property(history_questions['did_take_drugs'])
+    p_has_allergy = Property(history_questions['has_allergy'])
+    p_has_rheumatic_disease = Property(history_questions['has_rheumatic_disease'])
+    p_does_relatives_have_it = Property(history_questions['does_relatives_have_it'])
 
     medications_that_the_patient_is_on = []
 
@@ -131,7 +131,6 @@ def sp_main(data):
     treatment_name = None
     needs_to_go_to_doctor = None
     needs_advice = None
-
 
     common_knowledge = RelationStorage(
         name="Common Knowledge Relation Storage", is_private=False
@@ -270,14 +269,181 @@ def sp_main(data):
     )
     agent_doctor.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(common_knowledge)
 
-    utterances = []
+    info_what_happened = Information(left=p_what_happened, rtype=RType.IS, rtense=Tense.PRESENT, right=AnyProperty())
 
+    if p_is_first_time.name == 'Yes':
+        info_is_first_time = Information(left=agent_patient, rtype=RType.HAS,
+                                         rtense=Tense.PAST,
+                                         right=p_what_happened, negation=Negation.FALSE)
+    else:
+        info_is_first_time = Information(left=agent_patient, rtype=RType.HAS,
+                                         rtense=Tense.PAST,
+                                         right=p_what_happened, negation=Negation.TRUE)
+    info_when_happened = Information(left=agent_patient, rtype=RType.HAS,
+                                     rtense=Tense.PAST, right=p_when_happened)
+    info_has_contact_lenses = Information(left=agent_patient, rtype=RType.HAS,
+                                          rtense=Tense.PRESENT, right=p_has_contact_lenses)
+
+    agent_patient.relation_storages[RSType.KNOWLEDGEBASE].add_multi([
+        info_what_happened,
+        info_when_happened,
+        info_has_contact_lenses,
+        info_is_first_time
+    ])
+
+    utterances = [
+        Utterance(text='Hi', actions=[
+            Greet()
+        ]),
+        Utterance(text='So, what brings you here today?', actions=[
+            RequestInfo(asked=info_what_happened, tense=Tense.PRESENT)
+        ]),
+        Utterance(text=p_what_happened.name, actions=[
+            Share(information=info_what_happened, tense=Tense.PRESENT)
+        ]),
+        Utterance(text='When did it happen?', actions=[
+            RequestInfo(asked=info_when_happened, )
+        ]),
+        Utterance(text=p_when_happened.name, actions=[
+            Share(information=info_when_happened)
+        ]),
+        Utterance(text='Did you have this problem before?', actions=[
+            RequestInfo(asked=info_is_first_time)
+        ]),
+        Utterance(text=p_is_first_time.name, actions=[
+            Share(information=info_is_first_time)
+        ]),
+        Utterance(text='Do you wear contact lenses?', actions=[
+            RequestInfo(asked=info_has_contact_lenses)
+        ]),
+        Utterance(text=p_has_contact_lenses.name, actions=[
+            Share(information=info_has_contact_lenses)
+        ])
+    ]
+
+    greeting_norm = Norm(
+        name="People greet each other",
+        start_conditions=[
+            AgentDoesAction(
+                agent=any_agent,
+                action=Greet(),
+                tense=Tense.PAST,
+                negation=Negation.FALSE,
+            )
+        ],
+        symbol_values={
+            Placeholder("x"): "0.action.done_by",
+            Placeholder("y"): "0.action.recipient",
+        },
+        steps=[
+            ExpectationStep(
+                action=Greet,
+                action_attrs={
+                    "done_by": Placeholder("y"),
+                    "recipient": Placeholder("x"),
+                },
+                done_by=Placeholder("y"),
+                recipient=Placeholder("x"),
+            ),
+        ],
+        skipping_conditions=[
+            AgentCanDo(
+                agent=DSTPronoun.I,
+                action=Greet(),
+                tense=Tense.ANY,
+                negation=Negation.TRUE,
+            )
+        ],
+        completion_effects=[],
+        violation_effects=[],
+    )
+
+    session_greeting = Session(
+        name='Greeting',
+        start_conditions=[
+
+        ],
+        expectations=[
+            greeting_norm
+        ],
+        end_goals=[
+            Goal(owner=any_agent,
+                 name='greeting is finished',
+                 conditions=[
+                     ExpectationStatusIs(expectation=greeting_norm, expectation_status=ExpectationStatus.COMPLETED)
+                 ],
+                 known_by=[agent_patient, agent_doctor])
+        ]
+    )
+
+    session_problem_presentation = Session(
+        name='Problem Presentation',
+        start_conditions=[
+            ExpectationStatusIs(expectation=greeting_norm, expectation_status=ExpectationStatus.COMPLETED)
+        ],
+        expectations=[
+
+        ],
+        end_goals=[
+            Goal(owner=any_agent,
+                 name='doctor heard the problem',
+                 conditions=[
+                     AgentKnows(agent=agent_doctor, tense=Tense.PRESENT,
+                                knows=info_what_happened)
+                 ],
+                 known_by=[agent_patient, agent_doctor]
+                 )
+        ]
+    )
+
+    session_history_taking = Session(
+        name='History Taking',
+        start_conditions=[
+            AgentKnows(agent=agent_doctor, tense=Tense.PRESENT,
+                       knows=info_what_happened)
+        ],
+        expectations=[],
+        end_goals=[
+            Goal(owner=any_agent,
+                 name='doctors knows when happened',
+                 conditions=[
+                     AgentKnows(agent=agent_doctor, tense=Tense.PRESENT,
+                                knows=info_when_happened)
+                 ],
+                 known_by=[agent_patient, agent_doctor]
+                 ),
+            Goal(owner=any_agent,
+                 name='doctor knows if patient wears contact lenses',
+                 conditions=[
+                     AgentKnows(agent=agent_doctor, tense=Tense.PRESENT,
+                                knows=info_has_contact_lenses)
+                 ],
+                 known_by=[agent_patient, agent_doctor]
+                 ),
+            Goal(owner=any_agent,
+                 name='doctor knows if it is first time',
+                 conditions=[
+                     AgentKnows(agent=agent_doctor, tense=Tense.PRESENT,
+                                knows=info_is_first_time)
+                 ],
+                 known_by=[agent_patient, agent_doctor]
+                 ),
+            # Goal(owner=any_agent,
+            #      name='doctor heard the problem',
+            #      conditions=[
+            #          AgentKnows(agent=agent_doctor, tense=Tense.PRESENT,
+            #                     knows=info_what_happened)
+            #      ],
+            #      known_by=[agent_patient, agent_doctor]
+            #      )
+        ]
+    )
 
     sessions = [
         # session_global,
-        # session_greeting,
-        # session_problem_presentation,
-        # session_history_taking,
+        session_greeting,
+        session_problem_presentation,
+        session_history_taking,
         # session_physical_examination,
         # session_diagnosis,
         # session_treatment,

@@ -40,19 +40,50 @@ from ollama import Client
 #             filtered_sentence += w + ' '
 #     return filtered_sentence[:-1]
 
-# LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
 LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
+
+
+# LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
 
 
 class UtterancesManager:
 
     def __init__(self, scenario: Scenario):
         self.utterances = scenario.utterances
-        self.client = Client(host=LLM_URL)
         self.llm_messages = []
+        self.client = Client(host=LLM_URL)
+        self.send_initial_prompt_to_llm()
         self.utts_with_embs = []
         # for utt in self.utterances:
         #     self.utts_with_embs.append((utt, model.encode(remove_stop_words_from_sentence(utt.text))))
+
+    def send_initial_prompt_to_llm(self):
+        prompt = ('When you receive a sentence, do the followings in order: '
+                  '1- Extract the actions from the sentence '
+                  '2- Based on the extracted actions, choose a sentence from the PREDEFINED UTTERANCES LIST that contains the extracted actions. '
+                  '3- If there is no good match, then ask for a rephrase by saying "Could you please rephrase your request or provide a new sentence?" '
+                  '4- If there is a match, then provide the sentence and actions. Dont suggest or ask anything. '
+                  'The format for utterances is as follows: utterance_string (actions) Use the format when responding. '
+                  'Explanations for some actions and when to extract them: '
+                  'If the utterance asks for a confirmation such as "Is your eye red?" use RequestConfirmation action. '
+                  'If the utterance ask for an action such as "Can you sit down, please?" use RequestAction action. '
+                  'If the utterance asks for an information such as "What is your problem?" or "tell me about your problem" use RequestInfo action. '
+                  'Note that the utterance doesnt have to be in question form to request an information. '
+                  'For example, "tell me about your problem" doesnt have a question format and instead it is an invitation to receive information, '
+                  'therefore it has the action RequestInfo. '
+                  'If the utterance shares a certain information in a statement such as "My eye is red", or "I have a headache", use Share action. '
+                  'If the utterance have affirmation such as "Yes", "Yeah", "Yup", use Affirm. If the utterance have rejection such as "No", "Nope, use Deny PREDEFINED UTTERANCES LIST:')
+
+        prompt += str(self.utterances)
+        self.llm_messages.append({
+            'role': 'user',
+            'content': str(prompt),
+        })
+        response = self.client.chat(model='lowtemp-llama3', messages=self.llm_messages)
+        self.llm_messages.append({
+            'role': 'assistant',
+            'content': response['message']['content'],
+        })
 
     def get_utterance_by_action(self, actions, checker: Agent):
         for utt in self.utterances:
