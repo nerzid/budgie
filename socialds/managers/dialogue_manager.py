@@ -44,10 +44,11 @@ class DialogueManager:
         dialogue_history: RelationStorage = None,
         message_streamer: MessageStreamer = None,
         allow_duplicate_utterances=True,
+        sync=True,
     ):
         self.id = str(uuid.uuid4())
         self.scenario = scenario
-
+        self.sync = sync
         self.last_time_dm_used_at = datetime.datetime.now()
         self.utterances_manager = UtterancesManager(scenario)
         self.dialogue_history = dialogue_history
@@ -65,6 +66,9 @@ class DialogueManager:
         self.on_user_chose_utterance = EventListener()
         self.on_user_executed_all_actions_from_utterance = EventListener()
         self.on_auto_executed_all_actions_from_utterance = EventListener()
+
+        for agent in self.scenario.agents:
+            agent.dialogue_system.sync = self.sync
 
         # for age in self.agents:
         #     pronouns = {}
@@ -596,6 +600,14 @@ class DialogueManager:
             sender.dialogue_system.act(beneficiary=receiver)
         else:
             sender.dialogue_system.act(utterance=message, beneficiary=receiver)
+
+    def communicate_sync(self, message, sender: Agent, receiver: Agent):
+        if sender.auto:
+            sender.dialogue_system.act_sync(beneficiary=receiver)
+            return receiver.dialogue_system.act_sync(beneficiary=sender)
+        else:
+            sender.dialogue_system.act_sync(utterance=message, beneficiary=receiver)
+            return receiver.dialogue_system.act_sync(beneficiary=sender)
 
     # @staticmethod
     def communicate_with_actions(self, actions, sender: Agent, receiver: Agent):

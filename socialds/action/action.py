@@ -46,7 +46,7 @@ class ExecutionTimeStatus(Enum):
 
 
 class ExecutionTime:
-    def __init__(self, duration=2, status=ExecutionTimeStatus.NOT_STARTED):
+    def __init__(self, duration=0, status=ExecutionTimeStatus.NOT_STARTED):
         self.duration = duration
         self.status = status
 
@@ -249,6 +249,7 @@ class Action(ActionObj):
     def execute(self, agent, **kwargs):
         self.pronouns = agent.pronouns
         self.insert_pronouns()
+        sync = kwargs.get('sync', False)
         print(
             "Executing {} for {} seconds with pronouns {}".format(
                 self.name, self.execution_time.duration, self.pronouns
@@ -266,8 +267,8 @@ class Action(ActionObj):
             )
         )
         # action_manager.ongoing_actions.append(self)
-
-        eventlet.sleep(self.execution_time.duration)
+        if not sync:
+            eventlet.sleep(self.execution_time.duration)
         try:
             super().execute(agent)
 

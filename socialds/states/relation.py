@@ -6,6 +6,7 @@ from termcolor import colored
 
 from socialds.DSTPronounHolder import DSTPronounHolder
 from socialds.action.action_time import ActionHappenedAtTime
+from socialds.any.any_object import AnyObject
 from socialds.enums import TermColor, Tense
 from socialds.other.dst_pronouns import DSTPronoun, pronounify
 from socialds.states.state import State
@@ -347,6 +348,8 @@ class Relation(State, DSTPronounHolder):
 
         if isinstance(relation_left, Action) or isinstance(relation_left, Effect):
             left_equality = relation_left.equals_with_pronouns(left, pronouns)
+        elif isinstance(left, AnyObject) or isinstance(relation_left, AnyObject):
+            left_equality = True
         else:
             left_equality = relation_left == left
 

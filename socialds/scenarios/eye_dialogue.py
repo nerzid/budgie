@@ -105,12 +105,19 @@ def sp_main(data):
     properties = []
     resources = []
 
-    symptoms = []
     p_patients_name = None
     r_left_eye = None
     r_right_eye = None
     r_both_eyes = None
     p_age_group = None
+
+    r_eye = Resource('eye')
+    symptoms = data['symptoms']
+    infos_symptom = []
+    for symptom in symptoms:
+        infos_symptom.append(Information(left=r_eye, rtype=RType.HAS, rtense=Tense.PRESENT, right=Property(symptom)))
+
+
 
     p_what_happened = Property(data['what_happened'])
     history_questions = data['history_questions']
@@ -236,10 +243,12 @@ def sp_main(data):
 
     # Agent 1's initialization
     agent_patient = Agent(
-        name="Joe(patient)", actor=actor_patient, roles=[], auto=False
+        name="Joe(patient)", actor=actor_patient, roles=[], auto=True
     )
+    any_agent.dialogue_system = agent_patient.dialogue_system
 
     agent_patient.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(common_knowledge)
+    agent_patient.relation_storages[RSType.KNOWLEDGEBASE].add_multi(infos_symptom)
 
     agent_patient.relation_storages[RSType.COMPETENCES].add_from_rs(basic_competences)
     agent_patient.relation_storages[RSType.COMPETENCES].add(
@@ -254,7 +263,7 @@ def sp_main(data):
     agent2_permits = RelationStorage(actor_doctor.name + " Permits")
 
     # Agent 2's initialization
-    agent_doctor = Agent(name="doctor", actor=actor_doctor, roles=[], auto=True)
+    agent_doctor = Agent(name="doctor", actor=actor_doctor, roles=[], auto=False)
 
     agent_doctor.relation_storages[RSType.COMPETENCES].add(
         Competence(name="doctor can examine eyes", action=Examine())
@@ -284,11 +293,15 @@ def sp_main(data):
     info_has_contact_lenses = Information(left=agent_patient, rtype=RType.HAS,
                                           rtense=Tense.PRESENT, right=p_has_contact_lenses)
 
+    info_did_self_cure = Information(left=agent_patient, rtype=RType.HAS,
+                                     rtense=Tense.PRESENT, right=p_did_self_cure)
+
     agent_patient.relation_storages[RSType.KNOWLEDGEBASE].add_multi([
         info_what_happened,
         info_when_happened,
         info_has_contact_lenses,
-        info_is_first_time
+        info_is_first_time,
+        info_did_self_cure
     ])
 
     utterances = [
@@ -318,8 +331,31 @@ def sp_main(data):
         ]),
         Utterance(text=p_has_contact_lenses.name, actions=[
             Share(information=info_has_contact_lenses)
+        ]),
+        Utterance(text='Did you try to cure it yourself?', actions=[
+            RequestInfo(asked=info_did_self_cure)
+        ]),
+        Utterance(text=p_did_self_cure.name, actions=[
+            Share(information=info_did_self_cure)
         ])
     ]
+
+    for info in infos_symptom:
+        utterances.append(
+            Utterance(text='Do you have ' + info.right.name + '?', actions=[
+                RequestConfirmation(asked=info)
+            ])
+        )
+        utterances.append(
+            Utterance(text='Does your eye have ' + info.right.name + '?', actions=[
+                RequestConfirmation(asked=info)
+            ])
+        )
+        utterances.append(
+            Utterance(text='Is your eye ' + info.right.name + '?', actions=[
+                RequestConfirmation(asked=info)
+            ])
+        )
 
     greeting_norm = Norm(
         name="People greet each other",
@@ -385,7 +421,7 @@ def sp_main(data):
 
         ],
         end_goals=[
-            Goal(owner=any_agent,
+            Goal(owner=agent_doctor,
                  name='doctor heard the problem',
                  conditions=[
                      AgentKnows(agent=agent_doctor, tense=Tense.PRESENT,

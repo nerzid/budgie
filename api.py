@@ -87,9 +87,17 @@ def send_message():
         receiver_agent = dm.get_other_agent(sender_agent_id)
         sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
         receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
-        matched_utterance = dm.utterances_manager.get_utterance_from_llm(user_text, sender_agent)['message']['content']
-        print(matched_utterance)
-        return {'message': matched_utterance}
+        matched_utterance = dm.utterances_manager.get_utterance_from_llm(user_text, sender_agent)
+        print('LLM matched to the utterance: ' + str(matched_utterance))
+        response = 'Could you please rephrase your request or provide a new sentence?'
+        if matched_utterance is not None:
+            # dm.communicate(sender=sender_agent, receiver=receiver_agent, message=matched_utterance)
+            response = dm.communicate_sync(sender=sender_agent, receiver=receiver_agent, message=matched_utterance)
+
+        # for message in dm.message_streamer.messages.queue:
+        #     if message.ds_action == DSAction.DISPLAY_UTTERANCE.value:
+        #         dm.message_streamer.messages.queue.clear()
+        return {'message': response}
         # dm.communicate(
         #     sender=sender_agent, receiver=receiver_agent, message=matched_utterance
         # )

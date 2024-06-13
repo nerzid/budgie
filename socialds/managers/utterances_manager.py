@@ -40,10 +40,10 @@ from ollama import Client
 #             filtered_sentence += w + ' '
 #     return filtered_sentence[:-1]
 
-LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
-
-
 # LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
+
+
+LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
 
 
 class UtterancesManager:
@@ -131,11 +131,16 @@ class UtterancesManager:
             'content': input,
         })
         response = self.client.chat(model='lowtemp-llama3', messages=self.llm_messages)
+        # self.llm_messages.pop()
         self.llm_messages.append({
             'role': 'assistant',
             'content': response['message']['content']
         })
-        return response
+        utterance_text = response['message']['content']
+        for utt in self.utterances:
+            if str(utt) == utterance_text:
+                return utt
+        return None
 
     def get_utterance_by_smart_string_match(self, input: str, checker: Agent):
         pass
