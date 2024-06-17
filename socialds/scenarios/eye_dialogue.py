@@ -279,20 +279,10 @@ def sp_main(data):
     agent_doctor.relation_storages[RSType.KNOWLEDGEBASE].add_from_rs(common_knowledge)
 
     info_what_happened = Information(left=p_what_happened, rtype=RType.IS, rtense=Tense.PRESENT, right=AnyProperty())
-
-    if p_is_first_time.name == 'Yes':
-        info_is_first_time = Information(left=agent_patient, rtype=RType.HAS,
-                                         rtense=Tense.PAST,
-                                         right=p_what_happened, negation=Negation.FALSE)
-    else:
-        info_is_first_time = Information(left=agent_patient, rtype=RType.HAS,
-                                         rtense=Tense.PAST,
-                                         right=p_what_happened, negation=Negation.TRUE)
-    info_when_happened = Information(left=agent_patient, rtype=RType.HAS,
-                                     rtense=Tense.PAST, right=p_when_happened)
+    info_is_first_time = Information(left=p_is_first_time, rtype=RType.IS, rtense=Tense.PRESENT, right=AnyProperty())
+    info_when_happened = Information(left=p_when_happened, rtype=RType.IS, rtense=Tense.PAST, right=AnyProperty())
     info_has_contact_lenses = Information(left=agent_patient, rtype=RType.HAS,
                                           rtense=Tense.PRESENT, right=p_has_contact_lenses)
-
     info_did_self_cure = Information(left=agent_patient, rtype=RType.HAS,
                                      rtense=Tense.PRESENT, right=p_did_self_cure)
 
@@ -315,7 +305,7 @@ def sp_main(data):
             Share(information=info_what_happened, tense=Tense.PRESENT)
         ]),
         Utterance(text='When did it happen?', actions=[
-            RequestInfo(asked=info_when_happened, )
+            RequestInfo(asked=info_when_happened)
         ]),
         Utterance(text=p_when_happened.name, actions=[
             Share(information=info_when_happened)

@@ -73,6 +73,7 @@ class DialogueSystem:
         #             ds_action=DSAction.DISPLAY_UTTERANCE.value,
         #         )
         #     )
+        print('selected utt: {}'.format(str(utterance)))
         copied_utt = copy.deepcopy(utterance)
         # eventlet.spawn(self.execute_actions, copied_utt.actions)
         self.execute_actions_sync(copied_utt.actions)
