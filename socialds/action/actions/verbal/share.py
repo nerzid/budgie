@@ -38,6 +38,10 @@ class Share(Action):
             times=times,
         )
 
+    def __deepcopy__(self, memodict={}):
+        return Share(self.information, self.times, self.tense, self.negation, self.done_by, self.recipient)
+
+
     def __str__(self):
         return "%s shares %s with %s" % (self.done_by, self.information, self.recipient)
 

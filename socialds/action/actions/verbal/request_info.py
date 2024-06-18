@@ -39,6 +39,9 @@ class RequestInfo(Action):
             recipient=recipient,
         )
 
+    def __deepcopy__(self, memodict={}):
+        return RequestInfo(self.asked, self.tense, self.negation, self.done_by, self.recipient)
+
     def __str__(self):
         return "%s asks what %s" % (self.done_by.name, self.asked)
 

@@ -26,6 +26,14 @@ class Utterance:
     # def get_actions_text(self):
     #
 
+    def clone(self):
+        return deepcopy(self)
+        # cloned_actions = []
+        # for action in self.actions:
+        #     cloned_actions.append(deepcopy(action))
+        # return Utterance(self.text, cloned_actions, self.pronouns, self.alternatives)
+
+
     def get_text_with_alternatives(self):
         text_with_alternatives = deepcopy(self.alternatives)
         text_with_alternatives.append(self.text)

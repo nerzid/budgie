@@ -1,6 +1,7 @@
+import eventlet
+# eventlet.monkey_patch()
 import copy
 
-import eventlet
 from eventlet.greenpool import GreenPool
 from socialds.action.action_operator import ActionOperator
 from socialds.enums import DSActionByType, DSAction, Tense
@@ -74,9 +75,12 @@ class DialogueSystem:
         #         )
         #     )
         print('selected utt: {}'.format(str(utterance)))
-        copied_utt = copy.deepcopy(utterance)
-        # eventlet.spawn(self.execute_actions, copied_utt.actions)
+        # copied_utt = copy.deepcopy(utterance)
+        copied_utt = utterance.clone()
         self.execute_actions_sync(copied_utt.actions)
+        #
+        # self.execute_actions_sync(utterance.actions)
+
         if self.agent.auto:
             return utterance.text
 

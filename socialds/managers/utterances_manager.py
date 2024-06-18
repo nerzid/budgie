@@ -40,10 +40,10 @@ from ollama import Client
 #             filtered_sentence += w + ' '
 #     return filtered_sentence[:-1]
 
-# LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
-
-
 LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
+
+
+# LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
 
 
 class UtterancesManager:
