@@ -40,10 +40,10 @@ from ollama import Client
 #             filtered_sentence += w + ' '
 #     return filtered_sentence[:-1]
 
-LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
-
-
 # LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
+
+
+LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
 
 
 class UtterancesManager:
@@ -58,7 +58,8 @@ class UtterancesManager:
         #     self.utts_with_embs.append((utt, model.encode(remove_stop_words_from_sentence(utt.text))))
 
     def send_initial_prompt_to_llm(self):
-        prompt = ('When you receive a sentence, do the followings in order: '
+        prompt = ('When you receive a sentence, do not respond to the sentence. Instead '
+                  'do the followings in order: '
                   '1- Extract the actions from the sentence '
                   '2- Based on the extracted actions, choose a sentence from the PREDEFINED UTTERANCES LIST that contains the extracted actions. '
                   '3- If there is no good match, then ask for a rephrase by saying "Could you please rephrase your request or provide a new sentence?" '
@@ -72,7 +73,8 @@ class UtterancesManager:
                   'For example, "tell me about your problem" doesnt have a question format and instead it is an invitation to receive information, '
                   'therefore it has the action RequestInfo. '
                   'If the utterance shares a certain information in a statement such as "My eye is red", or "I have a headache", use Share action. '
-                  'If the utterance have affirmation such as "Yes", "Yeah", "Yup", use Affirm. If the utterance have rejection such as "No", "Nope, use Deny PREDEFINED UTTERANCES LIST:')
+                  'If the utterance have affirmation such as "Yes", "Yeah", "Yup", use Affirm. If the utterance have rejection such as "No", "Nope, use Deny '
+                  'PREDEFINED UTTERANCES LIST:')
 
         prompt += str(self.utterances)
         self.llm_messages.append({

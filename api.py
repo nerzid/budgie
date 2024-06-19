@@ -10,7 +10,8 @@ from socialds.managers.dialogue_manager import DialogueManager
 from socialds.message import Message
 from socialds.message_streamer import MessageStreamer
 from socialds.other.dst_pronouns import DSTPronoun
-from socialds.scenarios import doctors_visit, eye_dialogue
+from socialds.scenarios import doctors_visit
+from socialds.scenarios import eye_dialogue2 as eye_dialogue
 
 from flask import Flask, request, session, sessions
 import json
