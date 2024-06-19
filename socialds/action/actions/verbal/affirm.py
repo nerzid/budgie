@@ -105,8 +105,8 @@ class Affirm(Action):
                 agent=self.done_by,
                 knows=self.affirmed,
                 tense=self.affirmed.rtense,
-                negation=self.affirmed.rtense,
-            ):
+                negation=self.affirmed.negation,
+            ).check(checker):
                 return False
             return super_check and AgentDoesAction(
                 agent=DSTPronoun.YOU,

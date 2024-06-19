@@ -30,13 +30,17 @@ class AgentDoesAction(Condition):
             agent = checker.pronouns[self.agent]
         else:
             agent = self.agent
-        action_relation = Relation(
-            left=agent,
-            rtype=RType.ACTION,
-            rtense=self.tense,
-            right=self.action,
-            negation=self.negation,
-        )
+        from socialds.action.action import Action
+        if isinstance(self.action, Action):
+            action_relation = Relation(
+                left=agent,
+                rtype=RType.ACTION,
+                rtense=self.tense,
+                right=self.action,
+                negation=self.negation,
+            )
+        else:
+            action_relation = self.action
         if self.negation == Negation.TRUE:
             return not agent.dialogue_system.action_history.contains(
                 action_relation, checker.pronouns

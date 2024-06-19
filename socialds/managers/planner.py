@@ -480,6 +480,40 @@ class Planner:
                                 )
                             )
                             plans.append(Plan([action]))
+            elif isinstance(condition, AgentDoesEffect):
+                actions = self.from_effects_to_actions([condition.effect])
+                if len(actions) > 0:
+                    action = actions[0]
+                    condition_solutions.append(
+                        ConditionSolution(
+                            priority=condition.priority,
+                            condition=condition,
+                            desc="by performing the specific action",
+                            steps=[action],
+                        )
+                    )
+                    plans.append(Plan(steps=[action]))
+
+                    action = copy(action)
+                    action.switch_done_by_with_recipient_if_not_pronoun()
+                    condition_solutions.append(
+                        ConditionSolution(
+                            priority=condition.priority,
+                            condition=condition,
+                            desc="by requesting other agent to do it",
+                            steps=[
+                                AddExpectedAction(action=action, affected=DSTPronoun.YOU)
+                            ],
+                        )
+                    )
+                    plans.append(
+                        Plan(
+                            steps=[
+                                AddExpectedAction(action=action, affected=DSTPronoun.YOU)
+                            ]
+                        )
+                    )
+
         return condition_solutions
 
     def create_goals_from_expected_actions(self):
@@ -779,6 +813,9 @@ class Planner:
                                     break
                 if not agent_can_do_all_actions_in_utterance:
                     continue
+
+                # BUG HERE
+                # if solution.steps is empty, it just adds it to possible utterances
 
                 utterance_has_all_steps = True
                 # the conditions here basically checks if there is an utterance

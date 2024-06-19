@@ -93,7 +93,7 @@ class Deny(Action):
                 agent=self.done_by,
                 knows=self.denied,
                 tense=self.denied.rtense,
-                negation=self.denied.rtense,
+                negation=self.denied.negation,
             ):
                 return False
 

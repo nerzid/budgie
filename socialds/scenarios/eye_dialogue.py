@@ -298,6 +298,8 @@ def sp_main(data):
         Utterance(text='Hi', actions=[
             Greet()
         ]),
+        Utterance("Yes.", actions=[Affirm(affirmed=AnyInformation())]),
+        Utterance("No.", actions=[Deny(denied=AnyInformation())]),
         Utterance(text='So, what brings you here today?', actions=[
             RequestInfo(asked=info_what_happened, tense=Tense.PRESENT)
         ]),
@@ -329,6 +331,23 @@ def sp_main(data):
             Share(information=info_did_self_cure)
         ])
     ]
+
+    # for info in infos_symptom:
+    #     utterances.append(
+    #         Utterance(text='Do you have ' + info.right.name + '?', actions=[
+    #             RequestConfirmation(asked=info)
+    #         ])
+    #     )
+    #     utterances.append(
+    #         Utterance(text='Does your eye have ' + info.right.name + '?', actions=[
+    #             RequestConfirmation(asked=info)
+    #         ])
+    #     )
+    #     utterances.append(
+    #         Utterance(text='Is your eye ' + info.right.name + '?', actions=[
+    #             RequestConfirmation(asked=info)
+    #         ])
+    #     )
 
     for info in infos_symptom:
         utterances.append(
@@ -436,7 +455,7 @@ def sp_main(data):
                      AgentKnows(agent=agent_doctor, tense=Tense.PRESENT,
                                 knows=info_when_happened)
                  ],
-                 known_by=[agent_patient, agent_doctor]
+                 known_by=[agent_doctor]
                  ),
             Goal(owner=any_agent,
                  name='doctor knows if patient wears contact lenses',
@@ -444,7 +463,7 @@ def sp_main(data):
                      AgentKnows(agent=agent_doctor, tense=Tense.PRESENT,
                                 knows=info_has_contact_lenses)
                  ],
-                 known_by=[agent_patient, agent_doctor]
+                 known_by=[agent_doctor]
                  ),
             Goal(owner=any_agent,
                  name='doctor knows if it is first time',
@@ -452,7 +471,7 @@ def sp_main(data):
                      AgentKnows(agent=agent_doctor, tense=Tense.PRESENT,
                                 knows=info_is_first_time)
                  ],
-                 known_by=[agent_patient, agent_doctor]
+                 known_by=[agent_doctor]
                  ),
             # Goal(owner=any_agent,
             #      name='doctor heard the problem',
