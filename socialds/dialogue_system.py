@@ -184,7 +184,7 @@ class DialogueSystem:
 
     def add_action_to_action_history(self, agent, action):
         self.action_history.add(
-            Relation(left=agent, rtype=RType.ACTION, rtense=Tense.PAST, right=action)
+            Relation(left=agent, rel_type=RType.ACTION, rel_tense=Tense.PAST, right=action)
         )
 
     def get_planned_utterances(self):

@@ -27,11 +27,11 @@ class AgentAtPlace(Condition):
             agent = self.agent
         if self.negation == Negation.FALSE or self.negation == Negation.ANY:
             return agent.relation_storages[RSType.PLACES].contains(
-                Relation(left=agent, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=self.place),
+                Relation(left=agent, rel_type=RType.IS_AT, rel_tense=Tense.PRESENT, right=self.place),
                 pronouns=checker.pronouns)
         else:
             return not agent.relation_storages[RSType.PLACES].contains(
-                Relation(left=agent, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=self.place),
+                Relation(left=agent, rel_type=RType.IS_AT, rel_tense=Tense.PRESENT, right=self.place),
                 pronouns=checker.pronouns)
 
     def __str__(self):

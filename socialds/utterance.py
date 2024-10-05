@@ -3,6 +3,7 @@ from typing import List
 import uuid
 
 from socialds.action.action_obj import ActionObj
+from socialds.other.unique_id_generator import get_unique_id
 
 
 class Utterance:
@@ -17,7 +18,7 @@ class Utterance:
             pronouns = []
         if alternatives is None:
             alternatives = []
-        self.id = str(uuid.uuid4())
+        self.id = get_unique_id()
         self.pronouns = pronouns
         self.text = text
         self.actions = actions
@@ -45,3 +46,12 @@ class Utterance:
             action_str += "%s " % action
         action_str = action_str[:-1].replace("'", "")
         return "%s (%s)" % (self.text, action_str)
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "type": self.__class__.__name__,
+            "text": self.text,
+            "actions": [action.to_dict() for action in self.actions],
+            "alternatives": [alternative.to_dict() for alternative in self.alternatives],
+        }

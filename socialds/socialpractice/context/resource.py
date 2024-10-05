@@ -14,7 +14,6 @@ class Resource(Object, RSHolder):
             relation_storages=relation_storages,
         )
         self.name = name
-        self.id = str(uuid.uuid4())
 
     def __eq__(self, other):
         from socialds.any.any_object import AnyObject
@@ -30,3 +29,10 @@ class Resource(Object, RSHolder):
 
     def __repr__(self):
         return self.name
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "type": self.__class__.__name__,
+        }

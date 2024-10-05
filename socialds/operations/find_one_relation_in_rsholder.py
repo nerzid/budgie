@@ -66,7 +66,7 @@ class FindOneRelationInRSHolder(StateOperation):
         if relation is None:
             raise OperationFailed("{} doesn't have the relation {} in {}"
                                   .format(self.rsholder,
-                                          Relation(left=self.left, rtype=self.rtype, rtense=self.rtense,
+                                          Relation(left=self.left, rel_type=self.rtype, rel_tense=self.rtense,
                                                    right=self.right, negation=self.negation),
                                           self.rsholder.relation_storages[self.rstype]))
         else:

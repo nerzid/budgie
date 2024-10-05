@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Dict
 
 import socialds.relationstorage as rs
+from socialds.other.unique_id_generator import get_unique_id
 
 
 class RSHolderType(Enum):

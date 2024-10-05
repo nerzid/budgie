@@ -16,3 +16,8 @@ class Operation(DSTPronounHolder):
     def execute(self, agent, *args, **kwargs):
         self.agent = agent
         self.pronouns = agent.pronouns
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+        }

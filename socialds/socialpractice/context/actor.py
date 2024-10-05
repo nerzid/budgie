@@ -14,3 +14,11 @@ class Actor(Object):
 
     def __repr__(self):
         return self.name
+
+    def to_dict(self):
+        return {
+            'name': self.name,
+            'id': self.id,
+            'type': self.__class__.__name__,
+            'knowledgebase': self.knowledgebase.to_dict()
+        }

@@ -109,8 +109,8 @@ class Planner:
         return goals_w_priority
 
     def get_plans_from_goals(self, goals):
-        from socialds.action.actions.verbal.request_confirmation import (
-            RequestConfirmation,
+        from socialds.action.actions.verbal.request_info_confirmation import (
+            RequestInfoConfirmation,
         )
         from socialds.action.actions.verbal.request_action import RequestAction
 
@@ -273,9 +273,9 @@ class Planner:
                                 condition=condition,
                                 desc="by confirming it with an agent",
                                 steps=[
-                                    RequestConfirmation(
+                                    RequestInfoConfirmation(
                                         done_by=DSTPronoun.I,
-                                        asked=condition.knows,
+                                        info=condition.knows,
                                         tense=Tense.ANY,
                                         recipient=DSTPronoun.YOU,
                                     )
@@ -285,9 +285,9 @@ class Planner:
                         plans.append(
                             Plan(
                                 [
-                                    RequestConfirmation(
+                                    RequestInfoConfirmation(
                                         done_by=DSTPronoun.I,
-                                        asked=condition.knows,
+                                        info=condition.knows,
                                         tense=Tense.ANY,
                                         recipient=DSTPronoun.YOU,
                                     )
@@ -387,8 +387,8 @@ class Planner:
                                 requested=GainPermit(
                                     permit=Relation(
                                         left=condition.agent,
-                                        rtype=RType.IS_PERMITTED_TO,
-                                        rtense=Tense.PRESENT,
+                                        rel_type=RType.IS_PERMITTED_TO,
+                                        rel_tense=Tense.PRESENT,
                                         right=ChangePlace(
                                             from_place=AnyPlace(),
                                             to_place=condition.place,
@@ -421,8 +421,8 @@ class Planner:
                             GainPermit(
                                 permit=Relation(
                                     left=condition.agent,
-                                    rtype=RType.IS_PERMITTED_TO,
-                                    rtense=Tense.PRESENT,
+                                    rel_type=RType.IS_PERMITTED_TO,
+                                    rel_tense=Tense.PRESENT,
                                     right=ChangePlace(
                                         from_place=AnyPlace(),
                                         to_place=condition.place,
@@ -440,8 +440,8 @@ class Planner:
                             GainPermit(
                                 permit=Relation(
                                     left=condition.agent,
-                                    rtype=RType.IS_PERMITTED_TO,
-                                    rtense=Tense.PRESENT,
+                                    rel_type=RType.IS_PERMITTED_TO,
+                                    rel_tense=Tense.PRESENT,
                                     right=ChangePlace(
                                         from_place=AnyPlace(),
                                         to_place=condition.place,

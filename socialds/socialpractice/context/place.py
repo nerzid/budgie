@@ -1,6 +1,7 @@
 from typing import List
 import uuid
 
+from socialds.other.unique_id_generator import get_unique_id
 from socialds.relationstorage import RelationStorage
 from socialds.rs_holder import RSHolder, RSHolderType
 
@@ -16,7 +17,7 @@ class Place(RSHolder):
         else:
             self.resources = resources
         self.name = name
-        self.id = str(uuid.uuid4())
+        self.id = get_unique_id()
 
     def __eq__(self, other):
         from socialds.any.any_place import AnyPlace
@@ -29,3 +30,11 @@ class Place(RSHolder):
 
     def __repr__(self):
         return self.name
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "type": self.__class__.__name__,
+            "resources": [resource.to_dict_with_status() for resource in self.resources]
+        }

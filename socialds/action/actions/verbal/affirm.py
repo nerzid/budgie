@@ -12,7 +12,6 @@ from socialds.conditions.agent_does_action import AgentDoesAction
 from socialds.conditions.agent_knows import AgentKnows
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
-import socialds.action.actions.verbal.request_confirmation as rc
 import socialds.action.actions.verbal.request_action as ra
 from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Negation, Relation, RType
@@ -28,12 +27,21 @@ class Affirm(Action):
         negation: Negation = Negation.FALSE,
         recipient: Agent | DSTPronoun = DSTPronoun.YOU,
     ):
+        """
+        Affirms a specific information relation as true
+        Args:
+            affirmed: the information that is indicated true
+            done_by: the agent or DSTPronoun that affirms the information
+            tense: tense of the action
+            negation: negation of the action
+            recipient: the agent or DSTPronoun who the information is affirmed for
+        """
         self.affirmed = affirmed
         self.tense = tense
         self.negation = negation
         if isinstance(affirmed, Information):
             super().__init__(
-                "affirm",
+                name="affirm",
                 done_by=done_by,
                 act_type=ActionObjType.VERBAL,
                 recipient=recipient,
@@ -45,7 +53,7 @@ class Affirm(Action):
                 relation = affirmed.relation
                 permit_given_to = affirmed.permit_given_to
                 super().__init__(
-                    "affirm",
+                    name="affirm",
                     done_by=done_by,
                     act_type=ActionObjType.VERBAL,
                     recipient=recipient,
@@ -53,6 +61,19 @@ class Affirm(Action):
                         GainPermit(permit=relation, affected=permit_given_to)
                     ],
                     target_relations=[affirmed],
+                )
+            else:
+                # TODO needs to be implemented. This current implementation only avoids errors.
+                # Intuitively,this should handle the actions when they are affirmed.
+                # E.g., To the question "Did you do self-cure?" and answer Yes (Affirm) indicates the information gain
+                super().__init__(
+                    name="affirm",
+                    done_by=done_by,
+                    act_type=ActionObjType.VERBAL,
+                    recipient=recipient,
+                    base_effects=[
+
+                    ]
                 )
 
     @staticmethod
@@ -104,20 +125,21 @@ class Affirm(Action):
             if not AgentKnows(
                 agent=self.done_by,
                 knows=self.affirmed,
-                tense=self.affirmed.rtense,
+                tense=self.affirmed.rel_tense,
                 negation=self.affirmed.negation,
             ).check(checker):
                 return False
+            from socialds.action.actions.verbal.request_info_confirmation import RequestInfoConfirmation
             return super_check and AgentDoesAction(
                 agent=DSTPronoun.YOU,
                 tense=Tense.PAST,
                 action=Relation(
                     left=DSTPronoun.YOU,
-                    rtype=RType.ACTION,
-                    rtense=Tense.PAST,
-                    right=rc.RequestConfirmation(
+                    rel_type=RType.ACTION,
+                    rel_tense=Tense.PAST,
+                    right=RequestInfoConfirmation(
                         done_by=DSTPronoun.YOU,
-                        asked=self.affirmed,
+                        info=self.affirmed,
                         tense=Tense.ANY,
                         recipient=DSTPronoun.I,
                     ),
@@ -129,8 +151,8 @@ class Affirm(Action):
                 tense=Tense.PAST,
                 action=Relation(
                     left=DSTPronoun.YOU,
-                    rtype=RType.ACTION,
-                    rtense=Tense.PAST,
+                    rel_type=RType.ACTION,
+                    rel_tense=Tense.PAST,
                     right=ra.RequestAction(
                         done_by=self.affirmed.done_by,
                         recipient=self.affirmed.recipient,
@@ -139,5 +161,5 @@ class Affirm(Action):
                 ),
             ).check(checker=checker)
 
-    def equals_with_pronouns(self, other, pronouns):
-        return super().equals_with_pronouns(other, pronouns)
+    # def equals_with_pronouns(self, other, pronouns):
+    #     return super().equals_with_pronouns(other, pronouns)

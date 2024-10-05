@@ -42,5 +42,5 @@ class ModifyRelationTense(ModifyRelation):
         self.execute_param_state_operations()
         self.relation.pronouns = self.pronouns
         self.relation.insert_pronouns()
-        self.relation.rtense = self.rtense
+        self.relation.rel_tense = self.rtense
         return self.relation

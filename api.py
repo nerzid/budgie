@@ -1,19 +1,24 @@
+import ast
+
 import eventlet
+import requests
+
 eventlet.monkey_patch()
 
 import uuid
 import schedule
 
 # from managers import dialogue_managers, message_streamers, session_managers
-from settings import SERVER_HOST, SERVER_PORT, SERVER_DEBUG_MODE, SECRET_KEY
+from settings import SERVER_HOST, SERVER_PORT, SERVER_DEBUG_MODE, SECRET_KEY, LLM_HOST, LLM_PORT
 from socialds.managers.dialogue_manager import DialogueManager
 from socialds.message import Message
 from socialds.message_streamer import MessageStreamer
 from socialds.other.dst_pronouns import DSTPronoun
 from socialds.scenarios import doctors_visit
 from socialds.scenarios import eye_dialogue2 as eye_dialogue
+from socialds.scenarios import eye_dialogue3 as eye_dialogue3
 
-from flask import Flask, request, session, sessions
+from flask import Flask, request, session, sessions, jsonify
 import json
 from flask_cors import cross_origin, CORS
 from flask_socketio import SocketIO
@@ -37,6 +42,17 @@ session_timeout = 3600
 
 eye_dialogue_id = None
 
+# temporary, will be deleted later
+scenarios = {}
+
+
+def setup_llm(session_id):
+    response = requests.post(url=LLM_HOST + ":" + str(LLM_PORT) + "/setup_vector_stores",
+                             data=json.dumps({"session_id": session_id,
+                                              "sp_data": get_sp_data(session_id)}),
+                             headers={"Content-Type": "application/json"})
+    return response
+
 
 @app.route("/send-message", methods=["POST", "OPTIONS"])
 @cross_origin()
@@ -54,7 +70,7 @@ def send_message():
         # scenario = user_chose_scenario(session_id, eye_dialogue_id)
 
         ms = active_sessions[session_id]["message_streamer"]
-        scenario = eye_dialogue.sp_main(message['message'])
+        scenario = eye_dialogue3.sp_main(message['message'])
         dialogue_managers[session_id] = DialogueManager(scenario, message_streamer=ms)
 
         agents_ids_w_name = {}
@@ -70,6 +86,10 @@ def send_message():
             else:
                 receiver_agent_id = agent.id
         user_chose_agent(sender_agent_id, dm)
+        response = setup_llm(session_id)
+        if response.json()["status"] == "success":
+            print("LLM has been set up for session:{} successfully".format(session_id))
+
         return {
             'ds_action': DSAction.INIT_EYE_DIALOGUE.value,
             'ds_action_by': "Dialogue Manager",
@@ -88,10 +108,35 @@ def send_message():
         receiver_agent = dm.get_other_agent(sender_agent_id)
         sender_agent.pronouns[DSTPronoun.YOU] = receiver_agent
         receiver_agent.pronouns[DSTPronoun.YOU] = sender_agent
-        matched_utterance = dm.utterances_manager.get_utterance_from_llm(user_text, sender_agent)
-        print('LLM matched to the utterance: ' + str(matched_utterance))
-        response = 'Could you please rephrase your request or provide a new sentence?'
-        if matched_utterance is not None:
+
+        # matched_utterance = dm.utterances_manager.get_utterance_from_llm(user_text, sender_agent)
+        # print('LLM matched to the utterance: ' + str(matched_utterance))
+        possible_actions_lists_response = requests.post(url=LLM_HOST + ":" + str(LLM_PORT) + "/extract_actions",
+                                               data=json.dumps({"session_id": session_id,
+                                                                "utterance": user_text}),
+                                               headers={"Content-Type": "application/json"}
+                                               )
+        possible_actions_lists = json.loads(possible_actions_lists_response.json()["possible_actions_lists"])
+
+        matched_utterances = requests.post(url=LLM_HOST + ":" + str(LLM_PORT) + "/get_matching_utterances",
+                                           data=json.dumps({"session_id": session_id,
+                                                            "possible_actions_lists": possible_actions_lists,
+                                                            "utterance": user_text}),
+                                           headers={"Content-Type": "application/json"}
+                                           ).json()["utterances"]
+        if len(matched_utterances) == 0:
+            response = 'Could you please rephrase your request or provide a new sentence?'
+        else:
+            matched_utterance_obj = matched_utterances[0]
+            matched_utterance_dict = ast.literal_eval(matched_utterance_obj)
+            matched_utterance = None
+            for utterance in dm.scenario.utterances:
+                if utterance.id == matched_utterance_dict["id"]:
+                    matched_utterance = utterance
+                    break
+            if matched_utterance is None:
+                raise Exception('Could not find a matching utterance')
+
             # dm.communicate(sender=sender_agent, receiver=receiver_agent, message=matched_utterance)
             response = dm.communicate_sync(sender=sender_agent, receiver=receiver_agent, message=matched_utterance)
 
@@ -246,6 +291,85 @@ def send_message():
     else:
         return {"status": "no ds action present in the response"}
     return {"status": "Message received"}
+
+
+@app.route("/get-sp", methods=["POST", "OPTIONS"])
+@cross_origin()
+def get_sp():
+    message = request.get_json()
+    sp_name = message.get("sp_name")
+    if sp_name is None or sp_name == "doctors visit":
+        sp = doctors_visit.sp_main()
+    elif sp_name == "eye dialogue":
+        import socialds.scenarios.eye_dialogue3 as scenario
+        sp = scenario.sp_main()
+        # sp = eye_dialogue.sp_main()
+    scenarios[sp.id] = sp
+    action_schemes = []
+
+    res_dict = sp.to_dict()
+    for action in sp.actions:
+        action_name = action.__name__
+        action_doc = action.__init__.__doc__
+        if action_doc is None:
+            continue
+        pieces = action_doc.split("\n")
+        desc = pieces[1].strip()
+        action_args = {}
+        for _ in pieces[3:-1]:
+            _ = _.strip()
+            if _ == "":
+                continue
+            arg_name, arg_desc = _.split(":")
+            action_args[arg_name.strip()] = arg_desc.strip()
+        action_dict = {
+            "action_name": action_name,
+            "desc": desc,
+            "action_args": action_args,
+        }
+        action_schemes.append(action_dict)
+    res_dict["action_schemas"] = action_schemes
+
+    # result = json.dumps(res_dict)
+    return jsonify(res_dict)
+
+
+def get_sp_data(session_id):
+    scenario = dialogue_managers[session_id].scenario
+    action_schemes = []
+
+    res_dict = scenario.to_dict()
+    for action in scenario.actions:
+        action_name = action.__name__
+        action_doc = action.__init__.__doc__
+        if action_doc is None:
+            continue
+        pieces = action_doc.split("\n")
+        desc = pieces[1].strip()
+        action_args = {}
+        for _ in pieces[3:-1]:
+            _ = _.strip()
+            if _ == "":
+                continue
+            arg_name, arg_desc = _.split(":")
+            action_args[arg_name.strip()] = arg_desc.strip()
+        action_dict = {
+            "action_name": action_name,
+            "desc": desc,
+            "action_args": action_args,
+        }
+        action_schemes.append(action_dict)
+    res_dict["action_schemas"] = action_schemes
+
+    # result = json.dumps(res_dict)
+    return res_dict
+
+@app.route("/get_dict", methods=["POST", "OPTIONS"])
+@cross_origin()
+def get_object_dict():
+    message = request.get_json()
+    scenario_id = message.get("id")
+    scenario = scenarios[scenario_id]
 
 
 def add_scenario(scenario_func_dict_id, scenario_func_dict):

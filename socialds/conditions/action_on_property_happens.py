@@ -17,13 +17,13 @@ class ActionOnResourceHappens(Condition):
     def check(self, checker=None):
         if self.negation == Negation.FALSE or self.negation == Negation.ANY:
             return checker.dialogue_system.action_history.contains(
-                Relation(left=checker, rtype=RType.ACTION, rtense=self.tense,
-                         right=Relation(left=self.resource, rtype=RType.ACTION, rtense=self.tense, right=self.action)),
+                Relation(left=checker, rel_type=RType.ACTION, rel_tense=self.tense,
+                         right=Relation(left=self.resource, rel_type=RType.ACTION, rel_tense=self.tense, right=self.action)),
                 pronouns=checker.pronouns)
         elif self.negation == Negation.TRUE:
             return not checker.dialogue_system.action_history.contains(
-                Relation(left=checker, rtype=RType.ACTION, rtense=self.tense,
-                         right=Relation(left=self.resource, rtype=RType.ACTION, rtense=self.tense, right=self.action)),
+                Relation(left=checker, rel_type=RType.ACTION, rel_tense=self.tense,
+                         right=Relation(left=self.resource, rel_type=RType.ACTION, rel_tense=self.tense, right=self.action)),
                 pronouns=checker.pronouns)
 
     def __repr__(self):

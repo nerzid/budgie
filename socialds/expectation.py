@@ -8,6 +8,7 @@ from socialds.enums import PlaceholderSymbol, Priority, Tense, DSAction, DSActio
 from socialds.expectation_step import ExpectationStep
 from socialds.message import Message
 from socialds.other.dst_pronouns import DSTPronoun
+from socialds.other.unique_id_generator import get_unique_id
 from socialds.placeholder import Placeholder
 
 
@@ -44,6 +45,7 @@ class Expectation:
         @param status:
         @param steps:
         """
+        self.id = get_unique_id()
         self.repeatable = repeatable
         self.name = name
         self.start_conditions = start_conditions
@@ -60,6 +62,17 @@ class Expectation:
         self.is_symbols_set = False
         for step in steps:
             self.symbol_to_id[step.done_by] = None
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "type": self.__class__.__name__,
+            "etype": self.etype.value,
+            "status": self.status.value,
+            "repeatable": self.repeatable,
+            "priority": self.priority.value,
+        }
 
     def check_start_conditions(self, agent):
         for condition in self.start_conditions:
@@ -149,7 +162,7 @@ class Expectation:
                 #     # check if the agent did the action in last turn
                 if agent.dialogue_system.last_turn_actions.contains(
                     Relation(
-                        left=agent, rtype=RType.ACTION, rtense=Tense.ANY, right=action
+                        left=agent, rel_type=RType.ACTION, rel_tense=Tense.ANY, right=action
                     ),
                     agent.pronouns,
                 ):

@@ -12,8 +12,14 @@ class Greet(SimpleAction):
         done_by: DSTPronoun | Agent = DSTPronoun.I,
         recipient: DSTPronoun | Agent = DSTPronoun.YOU,
     ):
+        """
+        Greets an agent
+        Args:
+            done_by: The agent or DSTPronoun who greets
+            recipient: The agent or DSTPronoun who is greeted
+        """
         super().__init__(
-            "greet", done_by=done_by, act_type=ActionObjType.VERBAL, recipient=recipient
+            name="greet", done_by=done_by, act_type=ActionObjType.VERBAL, recipient=recipient
         )
 
     @staticmethod

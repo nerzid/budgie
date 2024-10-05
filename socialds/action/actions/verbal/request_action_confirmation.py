@@ -16,22 +16,31 @@ from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Relation, RType, Negation
 
 
-class RequestConfirmation(Action):
+class RequestActionConfirmation(Action):
     def __init__(
         self,
-        asked: Information,
+        action: Action,
         done_by: Agent | DSTPronoun = DSTPronoun.I,
         recipient: Agent | DSTPronoun = DSTPronoun.YOU,
         tense: Tense = Tense.ANY,
         negation: Negation = Negation.FALSE,
         is_any=False,
     ):
-        self.relation = Information(done_by, RType.ACTION, tense, asked, negation)
-        self.asked = asked
+        """
+        Requests confirmation for a certain information relation.
+        Args:
+            action: Action to be confirmed whether it is done or not.
+            done_by: Agent or DSTPronoun who requests the confirmation.
+            recipient: Agent or DSTPronoun who the confirmation is requested from.
+            tense: Tense of the action.
+            negation: Negation of the action.
+        """
+        self.relation = Information(done_by, RType.ACTION, tense, action, negation)
+        self.action = action
         if negation == Negation.ANY:
             base_effects = [
                 AddExpectedActionOptions(
-                    actions=[Affirm(asked), Deny(asked)],
+                    actions=[Affirm(action), Deny(action)],
                     negation=negation,
                     affected=recipient,
                 )
@@ -39,13 +48,13 @@ class RequestConfirmation(Action):
         else:
             base_effects = [
                 AddExpectedActionOptions(
-                    actions=[Affirm(asked), Deny(asked)],
+                    actions=[Affirm(action), Deny(action)],
                     negation=negation,
                     affected=recipient,
                 )
             ]
         super().__init__(
-            "request-confirmation",
+            "request-action-confirmation",
             done_by=done_by,
             act_type=ActionObjType.VERBAL,
             base_effects=base_effects,
@@ -54,10 +63,10 @@ class RequestConfirmation(Action):
         )
 
     def __str__(self):
-        return "%s asks confirmation for %s" % (self.done_by.name, self.asked)
+        return "%s asks confirmation for %s" % (self.done_by.name, self.action)
 
     def __repr__(self):
-        return "%r asks confirmation for %r" % (self.done_by.name, self.asked)
+        return "%r asks confirmation for %r" % (self.done_by.name, self.action)
 
     @staticmethod
     def get_pretty_template():
@@ -69,9 +78,8 @@ class RequestConfirmation(Action):
         self,
     ):
         self.relation.pronouns = self.pronouns
-        self.asked.pronouns = self.pronouns
         self.relation.insert_pronouns()
-        self.asked.insert_pronouns()
+        self.action.insert_pronouns()
         super().insert_pronouns()
 
     def execute(self, agent, **kwargs):

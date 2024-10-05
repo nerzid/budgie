@@ -40,20 +40,20 @@ from ollama import Client
 #             filtered_sentence += w + ' '
 #     return filtered_sentence[:-1]
 
-# LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
-
-
 LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
+
+
+# LLM_URL = 'http://[REDACTED_IP]:[REDACTED_PORT]'
 
 
 class UtterancesManager:
 
     def __init__(self, scenario: Scenario):
         self.utterances = scenario.utterances
-        self.llm_messages = []
-        self.client = Client(host=LLM_URL)
-        self.send_initial_prompt_to_llm()
-        self.utts_with_embs = []
+        # self.llm_messages = []
+        # self.client = Client(host=LLM_URL)
+        # self.send_initial_prompt_to_llm()
+        # self.utts_with_embs = []
         # for utt in self.utterances:
         #     self.utts_with_embs.append((utt, model.encode(remove_stop_words_from_sentence(utt.text))))
 

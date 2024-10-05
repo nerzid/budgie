@@ -34,8 +34,8 @@ class AgentDoesAction(Condition):
         if isinstance(self.action, Action):
             action_relation = Relation(
                 left=agent,
-                rtype=RType.ACTION,
-                rtense=self.tense,
+                rel_type=RType.ACTION,
+                rel_tense=self.tense,
                 right=self.action,
                 negation=self.negation,
             )

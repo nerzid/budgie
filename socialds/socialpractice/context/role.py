@@ -9,3 +9,9 @@ class Role(Object):
         super().__init__(name)
         self.name = name
         self.competences = competences
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "competences": [competence.to_dict_with_status() for competence in self.competences],
+        }

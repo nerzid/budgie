@@ -17,7 +17,7 @@ class SetState(Effect):
         self.affected = affected
 
         op_seq = [
-            AddRelationToRSHolder(relation=Relation(left=affected, rtype=RType.IS_IN, rtense=Tense.PRESENT,
+            AddRelationToRSHolder(relation=Relation(left=affected, rel_type=RType.IS_IN, rel_tense=Tense.PRESENT,
                                                     right=state, negation=negation), rsholder=self.affected,
                                   rstype=RSType.STATES)
         ]

@@ -9,6 +9,12 @@ from socialds.other.dst_pronouns import DSTPronoun
 class Thank(SimpleAction):
 
     def __init__(self, done_by: Agent | DSTPronoun = DSTPronoun.I, recipient: Agent | DSTPronoun = DSTPronoun.YOU):
+        """
+        Thanks an agent
+        Args:
+            done_by: The agent or DSTPronoun who thanks
+            recipient: The agent or DSTPronoun who is thanked.
+        """
         super().__init__('thank', done_by=done_by, act_type=ActionObjType.VERBAL, recipient=recipient)
 
     @staticmethod

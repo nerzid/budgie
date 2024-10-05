@@ -31,7 +31,7 @@ class AgentCanDo(Condition):
         copied_action.pronouns = checker.pronouns
         copied_action.insert_pronouns()
 
-        rel = Relation(left=copied_action.done_by, rtype=RType.ACTION, rtense=Tense.PAST, right=copied_action)
+        rel = Relation(left=copied_action.done_by, rel_type=RType.ACTION, rel_tense=Tense.PAST, right=copied_action)
 
         if self.negation == Negation.TRUE:
             return not agent.relation_storages[RSType.COMPETENCES].contains(rel, checker.pronouns)

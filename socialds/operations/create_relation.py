@@ -25,7 +25,7 @@ class CreateRelation(StateOperation):
 
     def execute(self, agent, *args, **kwargs) -> Relation:
         super().execute(agent, *args, **kwargs)
-        relation = Relation(left=self.left, rtype=self.rtype, rtense=self.rtense, right=self.right,
+        relation = Relation(left=self.left, rel_type=self.rtype, rel_tense=self.rtense, right=self.right,
                             negation=self.negation)
         relation.pronouns = self.pronouns
         relation.insert_pronouns()

@@ -1,5 +1,6 @@
 from typing import List
 
+from socialds.other.unique_id_generator import get_unique_id
 from socialds.states.property import Property
 
 
@@ -7,6 +8,7 @@ from socialds.states.property import Property
 class Object:
     def __init__(self, name: str):
         self.name = name
+        self.id = get_unique_id()
 
     # def get_left_relations(self):
     #     left_relations = []

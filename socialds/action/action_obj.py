@@ -1,3 +1,4 @@
+from enum import Enum
 from typing import List
 
 from socialds.DSTPronounHolder import DSTPronounHolder
@@ -5,7 +6,7 @@ from socialds.action.effects.effect import Effect
 from socialds.conditions.SolutionStep import SolutionStep
 
 
-class ActionObjType:
+class ActionObjType(Enum):
     VERBAL = 'verbal'
     PHYSICAL = 'physical'
     MENTAL = 'mental'
@@ -14,6 +15,11 @@ class ActionObjType:
 
     def __repr__(self) -> str:
         return str(self.name).lower()
+
+    def to_dict(self) -> dict:
+        return {
+            "act_type": self.value
+        }
 
 
 class ActionObj(SolutionStep, DSTPronounHolder):
@@ -34,3 +40,11 @@ class ActionObj(SolutionStep, DSTPronounHolder):
         for op in self.base_effects:
             op.pronouns = agent.pronouns
             op.execute(agent)
+
+    def to_dict(self):
+        return {
+            # 'name': self.name,
+            'act_type': self.act_type.value,
+            # 'base_effects': [base_effect.to_dict() for base_effect in self.extra_effects],
+            # 'extra_effects': [extra_effect.to_dict() for extra_effect in self.extra_effects],
+        }

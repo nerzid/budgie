@@ -11,8 +11,16 @@ class AnyAgent(Agent, AnyObject):
         actor = Actor('any-actor')
         roles = []
         super().__init__(name, actor, roles)
+        self.id = -2
 
     def __eq__(self, other):
         if isinstance(other, Agent) or isinstance(other, DSTPronoun):
             return True
         return False
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'type': self.__class__.__name__,
+        }

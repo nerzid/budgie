@@ -27,7 +27,6 @@ class Agent(Object, RSHolder):
             rsholder_type=RSHolderType.AGENT,
             relation_storages=relation_storages,
         )
-        self.id = str(uuid.uuid4())
         self.actor = actor
         self.roles = roles
         self.planner = Planner(self)
@@ -62,6 +61,20 @@ class Agent(Object, RSHolder):
                 and self.auto == other.auto
             )
         return False
+
+    def to_dict(self):
+        relation_storages_list = []
+        for rs_type, relation_storage in self.relation_storages.items():
+            relation_storages_list.append({rs_type.value: relation_storage.to_dict()})
+        return {
+            "id": self.id,
+            "type": self.__class__.__name__,
+            "name": self.name,
+            "actor": self.actor.to_dict(),
+            "roles": [role.to_dict() for role in self.roles],
+            "relation_storages": relation_storages_list,
+            "auto": self.auto,
+        }
 
     def equals_with_pronouns(self, other, pronouns):
         from socialds.other.dst_pronouns import DSTPronoun

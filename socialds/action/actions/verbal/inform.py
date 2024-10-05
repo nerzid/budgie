@@ -14,7 +14,7 @@ from socialds.socialpractice.context.information import Information
 from socialds.states.relation import Negation, Relation
 
 
-class Share(Action):
+class Inform(Action):
 
     def __init__(
         self,
@@ -25,11 +25,21 @@ class Share(Action):
         done_by: Agent | DSTPronoun = DSTPronoun.I,
         recipient: Agent | DSTPronoun = DSTPronoun.YOU,
     ):
+        """
+        Shares an information relation with another agent.
+        Args:
+            information: An information relation to be shared with the recipient
+
+            tense: The tense of the action
+            negation: The negation of the action
+            done_by: An agent or DSTPronoun who shares the information
+            recipient: An agent or DSTPronoun who the information is shared with
+        """
         self.information = information
         self.tense = tense
         self.negation = negation
         super().__init__(
-            name="share",
+            name="inform",
             done_by=done_by,
             act_type=ActionObjType.VERBAL,
             base_effects=[GainKnowledge(knowledge=information, affected=recipient)],
@@ -39,18 +49,18 @@ class Share(Action):
         )
 
     def __deepcopy__(self, memodict={}):
-        return Share(self.information, self.times, self.tense, self.negation, self.done_by, self.recipient)
+        return Inform(self.information, self.times, self.tense, self.negation, self.done_by, self.recipient)
 
 
     def __str__(self):
-        return "%s shares %s with %s" % (self.done_by, self.information, self.recipient)
+        return "%s informs %s about %s" % (self.done_by, self.information, self.recipient)
 
     def __repr__(self):
-        return "%r shares %r with %r" % (self.done_by, self.information, self.recipient)
+        return "%r informs %r about %r" % (self.done_by, self.information, self.recipient)
 
     @staticmethod
     def get_pretty_template():
-        return "[done_by] shares [information] with [recipient]"
+        return "[done_by] informs [information] about [recipient]"
 
     @staticmethod
     def build_instance_from_effects(done_by, recipient, tense, negation, effects):
@@ -64,7 +74,7 @@ class Share(Action):
             return None
         gain_knowledge_effect: GainKnowledge = effects[0]
         information = gain_knowledge_effect.knowledge
-        return Share(
+        return Inform(
             information=information,
             done_by=done_by,
             recipient=recipient,

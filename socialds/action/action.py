@@ -1,16 +1,10 @@
 from __future__ import annotations
-import uuid
 
 import eventlet
 
 from abc import abstractmethod
 from enum import Enum
 from typing import List
-
-from socialds.DSTPronounHolder import DSTPronounHolder
-
-# import asyncio
-
 
 from socialds.action.action_obj import ActionObj, ActionObjType
 from socialds.action.action_time import ActionHappenedAtTime
@@ -22,6 +16,7 @@ from socialds.enums import DSActionByType, DSAction
 from socialds.message import Message
 from socialds.other.dst_pronouns import DSTPronoun, get_agent
 from socialds.other.event_listener import EventListener
+from socialds.other.unique_id_generator import get_unique_id
 from socialds.socialpractice.context.resource import Resource
 from socialds.states.relation import Relation
 
@@ -68,7 +63,7 @@ class Action(ActionObj):
         specific=False,
         is_any=False,
     ):
-        self.id = str(uuid.uuid4())
+        self.id = get_unique_id()
         self.done_by = done_by
         self.recipient = recipient
         self.target_resource = target_resource
@@ -119,6 +114,19 @@ class Action(ActionObj):
             return other == self
         return False
 
+    def to_dict(self):
+        super_dict = super().to_dict()
+        super_dict.update({
+            "type": self.__class__.__name__,
+            "done_by": self.done_by.to_dict() if self.done_by is not None else None,
+            "recipient": self.recipient.to_dict() if self.recipient is not None else None,
+            "target_resource": self.target_resource.to_dict() if self.target_resource is not None else None,
+            "specific": self.specific,
+            "target_relations": [relation.to_dict() for relation in self.target_relations],
+            # "read_as": self.__str__()
+        })
+        return super_dict
+
     @staticmethod
     def get_pretty_template():
         pass
@@ -129,8 +137,11 @@ class Action(ActionObj):
 
             if isinstance(other, AnyAction):
                 return True
-            if self.name == other.name and (self.is_any or other.is_any):
-                return True
+            try:
+                if self.name == other.name and (self.is_any or other.is_any):
+                    return True
+            except AttributeError as e:
+                print(e)
             self_done_by = get_agent(self.done_by, pronouns)
             other_done_by = get_agent(other.done_by, pronouns)
             self_recipient = get_agent(self.recipient, pronouns)

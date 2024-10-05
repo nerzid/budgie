@@ -568,7 +568,7 @@ class DialogueManager:
 
     def add_utterance_to_dialogue_history(self, agent, utterance):
         self.dialogue_history.add(
-            Relation(left=agent, rtype=RType.SAYS, rtense=Tense.PAST, right=utterance)
+            Relation(left=agent, rel_type=RType.SAYS, rel_tense=Tense.PAST, right=utterance)
         )
 
     # def add_utterance_to_dialogue_history(self, utterance):
@@ -579,7 +579,7 @@ class DialogueManager:
         for action in actions:
             self.last_turn_actions.add(
                 Relation(
-                    left=agent, rtype=RType.ACTION, rtense=Tense.PAST, right=action
+                    left=agent, rel_type=RType.ACTION, rel_tense=Tense.PAST, right=action
                 )
             )
         self.session_manager.update_session_statuses(agent)

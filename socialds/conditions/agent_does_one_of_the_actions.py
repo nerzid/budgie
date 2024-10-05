@@ -31,8 +31,8 @@ class AgentDoesOneOfTheActions(Condition):
                 return checker.dialogue_system.action_history.contains(
                     Relation(
                         left=self.agent,
-                        rtype=RType.ACTION,
-                        rtense=self.tense,
+                        rel_type=RType.ACTION,
+                        rel_tense=self.tense,
                         right=action,
                         negation=self.negation,
                     ),
@@ -45,8 +45,8 @@ class AgentDoesOneOfTheActions(Condition):
                 res = res and not checker.dialogue_system.action_history.contains(
                     Relation(
                         left=self.agent,
-                        rtype=RType.ACTION,
-                        rtense=self.tense,
+                        rel_type=RType.ACTION,
+                        rel_tense=self.tense,
                         right=action,
                         negation=self.negation,
                     ),

@@ -31,7 +31,7 @@ class ChangePlace(Effect):
                     negation=Negation.FALSE
                 ), rtense=Tense.PAST),
             AddRelationToRSHolder(
-                relation=Relation(left=affected, rtype=RType.IS_AT, rtense=Tense.PRESENT, right=to_place), rsholder=affected, rstype=RSType.PLACES)
+                relation=Relation(left=affected, rel_type=RType.IS_AT, rel_tense=Tense.PRESENT, right=to_place), rsholder=affected, rstype=RSType.PLACES)
         ]
         super().__init__(name='change-location',
                          from_state=[

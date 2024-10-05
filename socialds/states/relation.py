@@ -9,6 +9,7 @@ from socialds.action.action_time import ActionHappenedAtTime
 from socialds.any.any_object import AnyObject
 from socialds.enums import TermColor, Tense
 from socialds.other.dst_pronouns import DSTPronoun, pronounify
+from socialds.other.unique_id_generator import get_unique_id
 from socialds.states.state import State
 
 
@@ -18,19 +19,25 @@ class RType(Enum):
     HAS_REQUIREMENTS = "has_requirements"
     CAN = "can"
     IS_PERMITTED_TO = "has_permit"
-    ACTION = "action"
-    EFFECT = "effect"
+    ACTION = "do action"
+    EFFECT = "do effect"
     IS_AT = "is_at"
     IS_IN = "is_in"
     SAYS = "says"
     FEELS = "feels"
     ANY = "any"
 
+    def to_dict(self):
+        return self.value
+
 
 class Negation(Enum):
     TRUE = "true"
     FALSE = "false"
     ANY = "any"
+
+    def to_dict(self):
+        return self.value
 
     @classmethod
     def inverse(cls, negation):
@@ -295,18 +302,19 @@ class Relation(State, DSTPronounHolder):
     }
 
     def __init__(
-        self,
-        left,
-        rtype: RType,
-        rtense: Tense,
-        right,
-        negation: Negation = Negation.FALSE,
-        times: List[ActionHappenedAtTime] = None,
+            self,
+            left,
+            rel_type: RType,
+            rel_tense: Tense,
+            right,
+            negation: Negation = Negation.FALSE,
+            times: List[ActionHappenedAtTime] = None,
     ):
         super().__init__()
+        self.id = get_unique_id()
         self.left = left
-        self.rtype = rtype
-        self.rtense = rtense
+        self.rel_type = rel_type
+        self.rel_tense = rel_tense
         self.right = right
         self.negation = negation
         self.times = times
@@ -324,19 +332,19 @@ class Relation(State, DSTPronounHolder):
     def __eq__(self, other):
         if isinstance(other, Relation):
             return (
-                self.left == other.left
-                and (
-                    self.rtype == other.rtype
-                    or self.rtype == RType.ANY
-                    or other.rtype == RType.ANY
-                )
-                and (
-                    self.rtense == other.rtense
-                    or self.rtense == Tense.ANY
-                    or other.rtense == Tense.ANY
-                )
-                and self.negation == other.negation
-                and self.times == other.times
+                    self.left == other.left
+                    and (
+                            self.rel_type == other.rel_type
+                            or self.rel_type == RType.ANY
+                            or other.rel_type == RType.ANY
+                    )
+                    and (
+                            self.rel_tense == other.rel_tense
+                            or self.rel_tense == Tense.ANY
+                            or other.rel_tense == Tense.ANY
+                    )
+                    and self.negation == other.negation
+                    and self.times == other.times
             )
         return False
 
@@ -361,23 +369,23 @@ class Relation(State, DSTPronounHolder):
             right_equality = relation_right == right
 
         return (
-            left_equality
-            and (
-                other.rtype == self.rtype
-                or other.rtype == RType.ANY
-                or self.rtype == RType.ANY
-            )
-            and (
-                other.rtense == self.rtense
-                or other.rtense == Tense.ANY
-                or self.rtense == Tense.ANY
-            )
-            and right_equality
-            and (
-                other.negation == self.negation
-                or self.negation == Negation.ANY
-                or other.negation == Negation.ANY
-            )
+                left_equality
+                and (
+                        other.rel_type == self.rel_type
+                        or other.rel_type == RType.ANY
+                        or self.rel_type == RType.ANY
+                )
+                and (
+                        other.rel_tense == self.rel_tense
+                        or other.rel_tense == Tense.ANY
+                        or self.rel_tense == Tense.ANY
+                )
+                and right_equality
+                and (
+                        other.negation == self.negation
+                        or self.negation == Negation.ANY
+                        or other.negation == Negation.ANY
+                )
         )
 
     def __str__(self):
@@ -397,15 +405,53 @@ class Relation(State, DSTPronounHolder):
         tense_str = self.get_pretty_tense()
         return "%r-%r->%r%r" % (self.left, tense_str, self.right, self.get_times_str())
 
+    def to_dict(self):
+        from socialds.action.action import Action
+        if isinstance(self.left, DSTPronoun):
+            left_str = self.left.to_dict()
+        elif isinstance(self.left, Action):
+            # left_str = {"id": self.left.id,
+            #             "type": self.left.__class__.__name__,
+            #             "read_as": self.left.__str__()
+            #             }
+            left_str = self.left.to_dict()
+        else:
+            left_str = {"id": self.left.id,
+                        "type": self.left.__class__.__name__,
+                        "read_as": self.left.__str__()}
+
+        if isinstance(self.right, DSTPronoun):
+            right_str = self.right.to_dict()
+        elif isinstance(self.right, Action):
+            right_str = self.right.to_dict()
+            # right_str = {"id": self.right.id,
+            #              "type": self.right.__class__.__name__,
+            #              "read_as": self.right.__str__()
+            #              }
+        else:
+            right_str = {"id": self.right.id,
+                         "type": self.right.__class__.__name__,
+                         "read_as": self.right.__str__()}
+        return {
+            "id": self.id,
+            "type": self.__class__.__name__,
+            "left": left_str,
+            "rel_type": self.rel_type.to_dict(),
+            "rel_tense": self.rel_tense.to_dict(),
+            "right": right_str,
+            "negation": self.negation.to_dict(),
+            # "times": self.times,
+        }
+
     def get_pretty_tense(self):
         neg_str = self.negation
         # if self.negation == Negation.ANY:
         #     neg_str = Negation.FALSE
-        return self.relation_types_with_tenses[self.rtype][neg_str][self.rtense]
+        return self.relation_types_with_tenses[self.rel_type][neg_str][self.rel_tense]
 
     @staticmethod
     def get_pretty_template():
-        return "[left][rtype][rtense][negation][right]"
+        return "[left][rel_type][rel_tense][negation][right]"
 
     def insert_pronouns(self):
         if isinstance(self.left, Relation):
@@ -436,4 +482,4 @@ class Relation(State, DSTPronounHolder):
 
 
 if __name__ == "__main__":
-    print(Relation(left="Eren", rtype=RType.IS, rtense=Tense.PRESENT, right="dirty"))
+    print(Relation(left="Eren", rel_type=RType.IS, rel_tense=Tense.PRESENT, right="dirty"))

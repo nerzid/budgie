@@ -44,7 +44,7 @@ def modify_relation_left(relation: Relation, new_left: any):
 
 
 def modify_relation_tense(relation: Relation, new_tense: Tense):
-    relation.rtense = new_tense
+    relation.rel_tense = new_tense
 
 
 def modify_relation_negation(relation: Relation, new_negation: bool):
@@ -52,7 +52,7 @@ def modify_relation_negation(relation: Relation, new_negation: bool):
 
 
 if __name__ == '__main__':
-    rel = Relation(left="Eren", rtype=RType.IS, rtense=Tense.PRESENT, right="dirty")
+    rel = Relation(left="Eren", rel_type=RType.IS, rel_tense=Tense.PRESENT, right="dirty")
     rs = RelationStorage(name='rs')
     rs.add(rel)
     print(rs)

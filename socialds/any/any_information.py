@@ -9,3 +9,4 @@ from socialds.states.relation import Negation, RType
 class AnyInformation(Information, AnyObject):
     def __init__(self):
         super().__init__(AnyObject(), RType.ANY, Tense.ANY, AnyProperty(), Negation.ANY)
+        self.id = -4

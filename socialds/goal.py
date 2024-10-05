@@ -23,6 +23,16 @@ class Goal:
         self.priority = priority
         self.is_reached_first_time = False
 
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "desc": self.desc,
+            "conditions": [condition.to_dict() for condition in self.conditions],
+            "owner": self.owner.to_dict(),
+            "known_by": [agent.name for agent in self.known_by],
+            "priority": self.priority.value,
+        }
+
     def is_reached(self, checker):
         """
         Checks if the goal is reached

@@ -32,8 +32,8 @@ class FeelEmotion(Effect):
         self.negation = negation
         self.relation = Relation(
             left=affected,
-            rtype=RType.FEELS,
-            rtense=tense,
+            rel_type=RType.FEELS,
+            rel_tense=tense,
             negation=negation,
             right=EmotionExpression(emotion=emotion, felt_towards=felt_towards),
         )

@@ -29,6 +29,13 @@ class Condition:
         self.tense = tense
         self.priority = priority
 
+    def to_dict(self):
+        return {
+            "tense": self.tense.value,
+            "negation": self.negation.value,
+            "priority": self.priority.value,
+        }
+
     def get_times_str(self):
         if self.times is None:
             return ""

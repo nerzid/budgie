@@ -12,7 +12,6 @@ from socialds.conditions.agent_does_action import AgentDoesAction
 from socialds.emotion import Emotion
 from socialds.enums import Tense
 from socialds.other.dst_pronouns import DSTPronoun
-import socialds.action.actions.verbal.request_confirmation as rc
 from socialds.socialpractice.context.information import Information
 from socialds.states.property import Property
 from socialds.states.relation import Negation, Relation, RType

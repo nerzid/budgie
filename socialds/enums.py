@@ -78,6 +78,9 @@ class Tense(Enum):
     FUTURE = "future"
     ANY = "any"
 
+    def to_dict(self):
+        return self.value
+
 
 class DSAction(Enum):
     INIT = "INIT"

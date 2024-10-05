@@ -115,7 +115,7 @@ class SessionManager:
         agent = AnyAgent()
         result = []
         for session in self.sessions:
-            result.append(session.to_dict(agent))
+            result.append(session.to_dict_with_status(agent))
         return result
 
     def get_sessions_info(self, agent):

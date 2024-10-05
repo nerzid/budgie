@@ -28,7 +28,7 @@ class AgentIsInState(Condition):
             agent = checker.pronouns[self.agent]
         else:
             agent = self.agent
-        state_rel = Relation(left=agent, rtype=RType.IS_IN, rtense=self.tense, right=self.state, negation=self.negation)
+        state_rel = Relation(left=agent, rel_type=RType.IS_IN, rel_tense=self.tense, right=self.state, negation=self.negation)
         if self.negation == Negation.FALSE or self.negation == Negation.ANY:
             return agent.relation_storages[RSType.STATES].contains(state_rel, pronouns=checker.pronouns)
         else:

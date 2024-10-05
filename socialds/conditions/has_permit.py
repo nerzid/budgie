@@ -34,7 +34,7 @@ class HasPermit(Condition):
         copied_permit.insert_pronouns()
 
         rel_result = agent.relation_storages[RSType.PERMITS].contains(
-            Relation(left=agent, rtype=RType.IS_PERMITTED_TO, rtense=Tense.PRESENT, right=copied_permit,
+            Relation(left=agent, rel_type=RType.IS_PERMITTED_TO, rel_tense=Tense.PRESENT, right=copied_permit,
                      negation=self.negation), pronouns=checker.pronouns)
         print("CHECKER -> {}".format(checker))
         print("PERMIT -> {}".format(copied_permit))

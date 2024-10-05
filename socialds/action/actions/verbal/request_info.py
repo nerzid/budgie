@@ -14,6 +14,7 @@ from socialds.states.relation import Relation, RType, Negation
 
 
 class RequestInfo(Action):
+
     def __init__(
         self,
         asked: Information,
@@ -22,6 +23,15 @@ class RequestInfo(Action):
         done_by: Agent | DSTPronoun = DSTPronoun.I,
         recipient: Agent | DSTPronoun = DSTPronoun.YOU,
     ):
+        """
+        Requests information from an agent or a DSTPronoun.
+        Args:
+            asked: the information to request
+            tense: tense of the action
+            negation: negation of the action
+            done_by: the agent or DSTPronoun who requests the information
+            recipient: the agent or DSTPronoun who the information is request from
+        """
         self.relation = Information(DSTPronoun.I, RType.ACTION, tense, asked, negation)
         self.asked = asked
         self.tense = tense
@@ -47,6 +57,19 @@ class RequestInfo(Action):
 
     def __repr__(self):
         return "%r asks what %r" % (self.done_by.name, self.asked)
+
+    def to_dict(self):
+        super_dict = super().to_dict()
+        super_dict.update({
+            "done_by": self.done_by.to_dict(),
+            "recipient": self.recipient.to_dict(),
+            "asked": self.asked.to_dict(),
+            # "act_type": self.act_type.to_dict(),
+            "tense": self.tense.to_dict(),
+            "negation": self.negation.to_dict(),
+            # "base_effects": [base_effect.to_dict() for base_effect in self.base_effects],
+        })
+        return super_dict
 
     @staticmethod
     def get_pretty_template():

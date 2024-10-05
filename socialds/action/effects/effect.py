@@ -8,6 +8,7 @@ from socialds.conditions.SolutionStep import SolutionStep
 from socialds.conditions.condition import Condition
 from socialds.operations.operation import Operation
 from socialds.other.dst_pronouns import DSTPronoun
+from socialds.other.unique_id_generator import get_unique_id
 
 
 class Effect(SolutionStep, DSTPronounHolder):
@@ -21,7 +22,7 @@ class Effect(SolutionStep, DSTPronounHolder):
     ):
         super(DSTPronounHolder, self).__init__()
         super(SolutionStep, self).__init__()
-        self.id = str(uuid.uuid4())
+        self.id = get_unique_id()
         self.agent = None
         self.op_seq = op_seq
         self.name = name
@@ -67,6 +68,15 @@ class Effect(SolutionStep, DSTPronounHolder):
                     if self == other_effects[0]:
                         return True
         return False
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "type": self.__class__.__name__,
+            "affected": self.affected.to_dict(),
+            "op_seq": [op.to_dict() for op in self.op_seq],
+        }
 
     def equals_with_pronouns(self, other, pronouns):
         from socialds.action.action import Action

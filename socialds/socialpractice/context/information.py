@@ -12,8 +12,8 @@ class Information(Relation, RSHolder):
     def __init__(
         self,
         left,
-        rtype: RType,
-        rtense: Tense,
+        rel_type: RType,
+        rel_tense: Tense,
         right,
         negation: Negation = Negation.FALSE,
         times: List[ActionHappenedAtTime] = None,
@@ -21,8 +21,8 @@ class Information(Relation, RSHolder):
         Relation.__init__(
             self,
             left=left,
-            rtype=rtype,
-            rtense=rtense,
+            rel_type=rel_type,
+            rel_tense=rel_tense,
             right=right,
             negation=negation,
             times=times,
@@ -40,14 +40,14 @@ class Information(Relation, RSHolder):
             return (
                 self.left == other.left
                 and (
-                    self.rtype == other.rtype
-                    or self.rtype == RType.ANY
-                    or other.rtype == RType.ANY
+                        self.rel_type == other.rel_type
+                        or self.rel_type == RType.ANY
+                        or other.rel_type == RType.ANY
                 )
                 and (
-                    self.rtense == other.rtense
-                    or self.rtense == Tense.ANY
-                    or other.rtense == Tense.ANY
+                        self.rel_tense == other.rel_tense
+                        or self.rel_tense == Tense.ANY
+                        or other.rel_tense == Tense.ANY
                 )
                 and self.negation == other.negation
                 and self.right == other.right

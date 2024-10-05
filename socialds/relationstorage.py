@@ -7,6 +7,7 @@ from termcolor import colored
 from socialds.action.action_time import ActionHappenedAtTime
 from socialds.any.any_object import AnyObject
 from socialds.enums import TermColor, Tense
+from socialds.other.unique_id_generator import get_unique_id
 from socialds.states.relation import Relation, RType, Negation
 
 
@@ -28,6 +29,9 @@ class RSType(Enum):
     FEELINGS = "Feelings"
     UPCOMING_ACTIONS = "Upcoming Actions"
     ANY = "Any RS"
+
+    def to_dict(self):
+        return self.value
 
 
 class RelationNotFoundError(Exception):
@@ -62,6 +66,7 @@ class RelationStorage:
     def __init__(self, name: str, is_private=True, relations=None):
         if relations is None:
             relations = []
+        self.id = get_unique_id()
         self.name = name
         self.is_private = is_private
         self.relations = relations
@@ -115,13 +120,21 @@ class RelationStorage:
     def __iter__(self):
         return RSIterator(self.relations)
 
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "type": self.__class__.__name__,
+            "is_private": self.is_private,
+            "relations": [relation.to_dict() for relation in self.relations]
+        }
+
     # checks for the exact relation based on the values of the relation
     def contains(self, relation: Relation, pronouns):
         try:
             rel_in_rs = self.get_one(
                 left=relation.left,
-                rtype=relation.rtype,
-                rtense=relation.rtense,
+                rtype=relation.rel_type,
+                rtense=relation.rel_tense,
                 right=relation.right,
                 negation=relation.negation,
                 pronouns=pronouns,
@@ -177,8 +190,8 @@ class RelationStorage:
             found = relation.equals_with_pronouns(
                 Relation(
                     left=left,
-                    rtype=rtype,
-                    rtense=rtense,
+                    rel_type=rtype,
+                    rel_tense=rtense,
                     right=right,
                     negation=negation,
                 ),
@@ -223,8 +236,8 @@ class RelationStorage:
             #             found.append(relation)
             if (
                 relation.left == left
-                and (relation.rtype == rtype or rtype == RType.ANY)
-                and (relation.rtense == rtense or rtense == Tense.ANY)
+                and (relation.rel_type == rtype or rtype == RType.ANY)
+                and (relation.rel_tense == rtense or rtense == Tense.ANY)
                 and relation.right == right
                 and relation.negation == negation
             ):

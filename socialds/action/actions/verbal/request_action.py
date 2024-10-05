@@ -22,7 +22,7 @@ class RequestAction(Action):
         self.tense = tense
         self.negation = negation
         super().__init__(
-            "request",
+            "request-action",
             done_by=done_by,
             act_type=ActionObjType.VERBAL,
             recipient=recipient,
@@ -46,6 +46,18 @@ class RequestAction(Action):
             tense=tense,
             negation=negation,
         )
+
+    def to_dict(self):
+        super_dict = super().to_dict()
+        super_dict.update({
+            "done_by": self.done_by.to_dict(),
+            "recipient": self.recipient.to_dict(),
+            "tense": self.tense.to_dict(),
+            "negation": self.negation.to_dict(),
+            "requested": self.requested.to_dict(),
+            "base_effects": [base_effect.to_dict() for base_effect in self.base_effects]
+        })
+        return super_dict
 
     def __str__(self):
         return "%s requests the action %s" % (self.done_by.name, self.requested)

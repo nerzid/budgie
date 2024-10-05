@@ -10,7 +10,7 @@ class AddExpectedAction(Effect):
         self.action = action
         self.negation = negation
         op_seq = [
-            AddRelationToRSHolder(relation=Relation(left=affected, rtype=RType.ACTION, rtense=Tense.PRESENT,
+            AddRelationToRSHolder(relation=Relation(left=affected, rel_type=RType.ACTION, rel_tense=Tense.PRESENT,
                                                     right=action, negation=negation), rsholder=affected,
                                   rstype=RSType.EXPECTED_ACTIONS)
         ]

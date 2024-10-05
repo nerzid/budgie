@@ -5,6 +5,7 @@ from enum import Enum
 
 from socialds.expectation import Expectation
 from socialds.goal import Goal
+from socialds.other.unique_id_generator import get_unique_id
 
 
 class SessionStatus(Enum):
@@ -25,13 +26,25 @@ class Session:
     ):
         if expectations is None:
             expectations = []
+        self.id = get_unique_id()
         self.name = name
         self.start_conditions = start_conditions
         self.expectations = expectations
         self.end_goals = end_goals
         self.status = status
 
-    def to_dict(self, agent):
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "type": self.__class__.__name__,
+            "start_conditions": [start_condition.to_dict() for start_condition in self.start_conditions],
+            "end_goals": [end_goal.to_dict() for end_goal in self.end_goals],
+            "expectations": [expectation.to_dict() for expectation in self.expectations],
+            "status": self.status.value,
+        }
+
+    def to_dict_with_status(self, agent):
         start_conditions_str_list = []
         expectations_str_list = []
         end_goals_str_list = []

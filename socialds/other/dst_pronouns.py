@@ -13,6 +13,11 @@ class DSTPronoun(Enum):
     def __repr__(self):
         return "%s" % self.value
 
+    def to_dict(self):
+        return {
+            "pronoun": self.value,
+        }
+
 
 def get_agent(agent, pronouns):
     if isinstance(agent, DSTPronoun):

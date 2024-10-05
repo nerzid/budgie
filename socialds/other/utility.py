@@ -3,7 +3,6 @@ from termcolor import colored
 from socialds.enums import TermColor
 from socialds.states.relation import Relation
 
-
 def colorize_relations_dict(relations: dict, left_color=TermColor.LIGHT_BLUE,
                             r_type_color=TermColor.LIGHT_RED,
                             r_tense_color=TermColor.LIGHT_CYAN,
