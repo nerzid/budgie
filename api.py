@@ -70,7 +70,9 @@ def send_message():
         # scenario = user_chose_scenario(session_id, eye_dialogue_id)
 
         ms = active_sessions[session_id]["message_streamer"]
-        scenario = eye_dialogue3.sp_main(message['message'])
+
+        # scenario = eye_dialogue3.sp_main(message['message'])
+        scenario = eye_dialogue3.sp_main()
         dialogue_managers[session_id] = DialogueManager(scenario, message_streamer=ms)
 
         agents_ids_w_name = {}
@@ -94,10 +96,12 @@ def send_message():
             'ds_action': DSAction.INIT_EYE_DIALOGUE.value,
             'ds_action_by': "Dialogue Manager",
             'ds_action_by_type': DSActionByType.DIALOGUE_MANAGER.value,
-            'message': {
-                'sender_agent_id': sender_agent_id,
-                'receiver_agent_id': receiver_agent_id,
-            },
+            # 'message': {
+            #     'sender_agent_id': sender_agent_id,
+            #     'receiver_agent_id': receiver_agent_id,
+            # },
+            'sender_agent_id': sender_agent_id,
+            'receiver_agent_id': receiver_agent_id,
             'session_id': session_id,
         }
     elif ds_action == DSAction.USER_SENT_UTTERANCE_EYE_DIALOGUE.value:

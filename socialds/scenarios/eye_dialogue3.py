@@ -197,7 +197,7 @@ def sp_main(data=None):
         utt_exam_result = Utterance(text=p_exam_result_text.name,
                                     actions=[Inform(information=Information(
                                         left=p_exam_result_var, rel_type=RType.IS, rel_tense=Tense.PRESENT,
-                                        right=p_exam_result_text.name
+                                        right=p_exam_result_text
                                     ))])
         utts_physical_exams.extend([
             utt_do_exam,
@@ -503,7 +503,7 @@ def sp_main(data=None):
         ]),
         Utterance(text='<unknown history question>', actions=[
             RequestInfo(asked=Information(left=p_unknown_history_question_var, rel_type=RType.IS, rel_tense=Tense.PRESENT,
-                                          right=AnyProperty))
+                                          right=AnyProperty()))
         ]),
         Utterance(text=p_unknown_history_question.name, actions=[
             Inform(information=info_unknown_history_question)
