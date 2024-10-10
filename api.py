@@ -3,7 +3,8 @@ import ast
 import eventlet
 import requests
 
-eventlet.monkey_patch()
+# socket=False allows for dns name calling in docker container over bridge network
+eventlet.monkey_patch(socket=False)
 
 import uuid
 import schedule
@@ -558,5 +559,6 @@ if __name__ == "__main__":
         port=SERVER_PORT,
         use_reloader=True,
         log_output=True,
-        ssl_context=ssl_context
+        certfile='[REDACTED_PATH]',
+        keyfile='[REDACTED_PATH]'
     )
