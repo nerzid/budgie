@@ -550,6 +550,7 @@ def add_scenarios():
 if __name__ == "__main__":
     schedule.every(1).minutes.do(remove_timed_out_dm_sessions)
     add_scenarios()
+    ssl_context = ('[REDACTED_PATH]', '[REDACTED_PATH]')
     socketio.run(
         app,
         debug=SERVER_DEBUG_MODE,
@@ -557,4 +558,5 @@ if __name__ == "__main__":
         port=SERVER_PORT,
         use_reloader=True,
         log_output=True,
+        ssl_context=ssl_context
     )
