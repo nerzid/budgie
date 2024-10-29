@@ -5,4 +5,4 @@ venv
 ActionRecognizer.iml
 .idea/misc.xml
 .idea/ActionRecognizer.iml
-
+.env

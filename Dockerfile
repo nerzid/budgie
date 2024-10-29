@@ -13,8 +13,10 @@ WORKDIR /app
 COPY . /app
 
 # Install any needed packages specified in requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt && \
-    python -m spacy download en_core_web_lg
+#RUN pip install --no-cache-dir -r requirements.txt && \
+#    python -m spacy download en_core_web_lg
+RUN pip install --no-cache-dir -r requirements.txt
+
 
 # Make port [REDACTED_PORT] available to the world outside this container
 EXPOSE [REDACTED_PORT]

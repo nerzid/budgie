@@ -1,5 +1,5 @@
 import ast
-
+import os
 import eventlet
 import requests
 
@@ -10,7 +10,7 @@ import uuid
 import schedule
 
 # from managers import dialogue_managers, message_streamers, session_managers
-from settings import SERVER_HOST, SERVER_PORT, SERVER_DEBUG_MODE, SECRET_KEY, LLM_HOST, LLM_PORT
+from loaded_env_variables import SERVER_HOST, SERVER_PORT, SERVER_DEBUG_MODE, SECRET_KEY, LLM_HOST, LLM_PORT, SESSION_TIMEOUT
 from socialds.managers.dialogue_manager import DialogueManager
 from socialds.message import Message
 from socialds.message_streamer import MessageStreamer
@@ -39,7 +39,6 @@ message_streamers = {}
 active_sessions = {}
 scenario_functs = {}
 
-session_timeout = 3600
 
 eye_dialogue_id = None
 
@@ -503,7 +502,7 @@ def get_dm(session_id=None):
 
 def remove_timed_out_dm_sessions():
     for session_id, dm in dialogue_managers.items():
-        if (datetime.now() - dm.last_time_dm_used_at).total_seconds() > session_timeout:
+        if (datetime.now() - dm.last_time_dm_used_at).total_seconds() > SESSION_TIMEOUT:
             del dialogue_managers[session_id]
             del session_managers[session_id]
             del message_streamers[session_id]
