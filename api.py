@@ -10,7 +10,8 @@ import uuid
 import schedule
 
 # from managers import dialogue_managers, message_streamers, session_managers
-from loaded_env_variables import SERVER_HOST, SERVER_PORT, SERVER_DEBUG_MODE, SECRET_KEY, LLM_HOST, LLM_PORT, SESSION_TIMEOUT
+from loaded_env_variables import SERVER_HOST, SERVER_PORT, SERVER_DEBUG_MODE, SECRET_KEY, LLM_HOST, LLM_PORT, \
+    SESSION_TIMEOUT, SSL_CERT_FILE_PATH, SSL_KEY_FILE_PATH
 from socialds.managers.dialogue_manager import DialogueManager
 from socialds.message import Message
 from socialds.message_streamer import MessageStreamer
@@ -550,7 +551,7 @@ def add_scenarios():
 if __name__ == "__main__":
     schedule.every(1).minutes.do(remove_timed_out_dm_sessions)
     add_scenarios()
-    ssl_context = ('[REDACTED_PATH]', '[REDACTED_PATH]')
+    ssl_context = (SSL_CERT_FILE_PATH, SSL_KEY_FILE_PATH)
     socketio.run(
         app,
         debug=SERVER_DEBUG_MODE,
@@ -558,6 +559,6 @@ if __name__ == "__main__":
         port=SERVER_PORT,
         use_reloader=True,
         log_output=True,
-        certfile='[REDACTED_PATH]',
-        keyfile='[REDACTED_PATH]'
+        certfile=SSL_CERT_FILE_PATH,
+        keyfile=SSL_KEY_FILE_PATH
     )
