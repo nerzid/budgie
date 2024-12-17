@@ -1,49 +1,96 @@
-![budgie_256_with_text.png](docs/images/budgie_64_with_text_black.png)
-## What is Budgie?
-Budge is a flexible socially-aware interaction system that incorporates social practices for more socially accurate responses.
-It aims to bring transparency to response selection by showing how and why the responses are selected.  
-##
+<div align="center" style="margin-bottom: 1em;">
+    <img src="./docs/images/budgie_64_with_text_black.png" alt="Outlines Logo" width=500></img>
+</div>
 
-## Quick look
-Main menu    
-![menu1.png](docs/images/menu1.png)
-  
-Utterance or act selection  
-![menu2.png](docs/images/menu2.png)
-  
-After selecting the utterance `Hi` which has the `I greet you` action in it. Notice text starting with Condition which is the explanation for the selected text.
-You can also see the response from the doctor in red colored text `Hi, come in` which has the actions `greet` and `permit for move`.
-You can see the reason for selecting the `Hi, come in` utterance in green text.  
-![menu3.png](docs/images/menu3.png)
-  
-An overview of sessions for the Doctor's Visit social practice    
-![menu4.png](docs/images/menu4.png)
-  
-An overview of the agent Jane(doctor)'s relation storages  
-![menu5.png](docs/images/menu5.png)
-  
+## What is Budgie?
+
+**Budgie** is a flexible **socially-aware interaction system** that incorporates **social practices** to produce **socially accurate** responses. It enhances transparency in dialogue systems by showing how and why responses are selected.
+
+---
 
 ## Requirements
-Python 3.10.6 or higher  
-Pip 22.2.1 or higher
 
-## How to install
-You can either clone by typing  
-```
+- **Python** 3.10.6 or higher  
+- **pip** 22.2.1 or higher
+
+---
+
+## Installation
+
+To install Budgie, follow these steps:
+
+### Clone the Repository
+
+Using the command line:
+
+```bash
 git clone https://git.cs.umu.se/eyildiz/socially-aware-dialogue-system.git
-```   
-or you can clone it by pressing the blue clone button at top right.
-
-Then install the required packages with  
 ```
+
+Or download the repository by clicking the blue **Clone** button at the top-right of the project page.
+
+### Install Dependencies
+
+Navigate to the project directory and install the required packages:
+
+```bash
 pip install -r requirements.txt
 ```
-## How to run
-```
+
+---
+
+## How to Run
+
+To start Budgie, run the following command:
+
+```bash
 python main.py
 ```
 
-## Why the name Budgie?
-- Budgie is a type of bird that is very social. 
-- The turkish name of Budgie is called Muhabbet (chat) kuşu (bird).
-- They are cute
+---
+
+## Features
+
+- **Social Practices**: Produces socially-aware responses based on predefined practices.
+- **Transparent Decision-Making**: Clearly explains why specific responses are selected.
+- **Customizable**: Easy to adapt for different scenarios and use cases.
+
+---
+
+## Why the Name "Budgie"?
+
+The name *Budgie* has a meaningful and fun origin:
+
+- 🦜**Budgie** is a small, social bird known for its chirpy and interactive nature.
+- In Turkish, a budgie is called *Muhabbet kuşu*, which literally translates to *Chat Bird*.
+- ✨Budgies are cute✨
+
+---
+
+## Contributing
+
+We welcome contributions! Whether you want to add features, fix bugs, or improve documentation, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your changes:
+
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+
+3. Commit your changes and push to your fork.
+4. Open a pull request (PR).
+
+---
+
+## Contact
+
+For questions, issues, or feedback, reach out to me:
+
+- **Name**: Eren
+- **Email**: [nerzid@gmail.com](mailto:nerzid@gmail.com)
+- **GitHub**: [nerzid](https://github.com/nerzid)
+
+---
+
+Enjoy building with Budgie! ✨
